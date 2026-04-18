@@ -1,0 +1,122 @@
+import { cn } from '../App';
+import * as React from 'react';
+import * as motion from 'motion/react-client';
+import { X, Save, FileText, UploadCloud, RefreshCw, PenLine, Bold, Italic, List, Link } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+interface NotepadPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  chapterContext: string;
+}
+
+export default function NotepadPanel({ isOpen, onClose, chapterContext }: NotepadPanelProps) {
+  const [noteContent, setNoteContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  useEffect(() => {
+    // Load notes for this specific chapter or global
+    const saved = localStorage.getItem(`notes_${chapterContext}`);
+    if (saved) setNoteContent(saved);
+    else setNoteContent('');
+  }, [chapterContext]);
+
+  const handleSaveToDrive = () => {
+    setIsSaving(true);
+    // Simular o salvamento na interface e então enviar para o Drive
+    setTimeout(() => {
+      localStorage.setItem(`notes_${chapterContext}`, noteContent);
+      setLastSaved(new Date());
+      setIsSaving(false);
+      
+      // Intent mapping to save to Drive (in a real app, this uses standard Google Drive API via AuthToken)
+      const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(`Estudos: ${chapterContext}\n\n${noteContent}`);
+      
+      // Simulamos um Popup amigavel de Drive
+      alert("Anotação pronta para o Drive. Em produção, este botão utilizará o token OAuth do usuário aprovado para salvar silenciosamente na pasta 'Bíblia Alpha' do Google Drive.");
+      
+      // Fallback para usuário ver
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `Estudo_${chapterContext.replace(' ', '_')}.txt`);
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      
+    }, 600);
+  };
+
+  const handleFormat = (marker: string) => {
+    setNoteContent(prev => prev + ` ${marker} `);
+  };
+
+  return (
+    <>
+      {/* Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/10 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sliding Panel */}
+      <div className={cn(
+        "fixed inset-y-0 right-0 w-[90vw] sm:w-[450px] bg-white shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col",
+        isOpen ? "translate-x-0" : "translate-x-full"
+      )}>
+        <header className="h-14 shrink-0 border-b border-sleek-border flex items-center justify-between px-4 bg-sleek-bg">
+          <div className="flex items-center gap-2 font-semibold text-[13px] text-sleek-text-main">
+            <PenLine size={16} /> Meu Bloco de Notas ({chapterContext})
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </header>
+        
+        {/* Formatting Toolbar */}
+        <div className="flex items-center gap-1 px-4 py-2 border-b border-sleek-border bg-[#F9F9F9]">
+          <button onClick={() => handleFormat('**Negrito**')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Bold size={14} /></button>
+          <button onClick={() => handleFormat('*Itálico*')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Italic size={14} /></button>
+          <button onClick={() => handleFormat('- ')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><List size={14} /></button>
+          <div className="w-[1px] h-4 bg-sleek-border mx-2"></div>
+          <button className="text-[11px] font-medium text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors" onClick={() => window.open('https://michaelis.uol.com.br/', '_blank')}>
+            Exibição de Dicionário Externo
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col bg-[#FDFDFD]">
+          <textarea 
+            value={noteContent}
+            onChange={(e) => setNoteContent(e.target.value)}
+            placeholder="Escreva seus insights, liste versículos e monte rascunhos de pregação..."
+            className="w-full flex-1 outline-none resize-none text-[15px] leading-relaxed text-sleek-text-main placeholder:text-sleek-text-muted/50 bg-transparent custom-scrollbar"
+          />
+        </div>
+
+        <footer className="shrink-0 p-4 border-t border-sleek-border bg-sleek-bg flex items-center justify-between">
+          <div className="text-[11px] text-sleek-text-muted flex items-center gap-1.5">
+            {isSaving ? (
+              <><RefreshCw size={12} className="animate-spin" /> Sincronizando com Drive...</>
+            ) : lastSaved ? (
+              <><FileText size={12} /> Salvo às {lastSaved.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</>
+            ) : (
+              "Nuvem: Aguardando Salvar"
+            )}
+          </div>
+          <button 
+            onClick={handleSaveToDrive}
+            disabled={isSaving}
+            className="bg-[#0F9D58] text-white px-3 py-1.5 rounded-md text-[13px] font-medium flex items-center gap-1.5 hover:bg-[#0b8248] transition-colors disabled:opacity-50 shadow-sm"
+          >
+            <UploadCloud size={14} /> Salvar no GDrive
+          </button>
+        </footer>
+      </div>
+    </>
+  );
+}
