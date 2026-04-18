@@ -51,11 +51,11 @@ service cloud.firestore {
         && (incoming().status == 'pending' || isSuperAdmin())
         && (!('isAdmin' in incoming()) || incoming().isAdmin == false || isSuperAdmin())
         && incoming().createdAt == request.time
-        && incoming().updatedAt == request.time;
+        && incoming().updatedAt is timestamp;
         
       allow update: if isSignedIn() && isValidUser(incoming(), false) && (
-        (isAdmin() && incoming().diff(existing()).affectedKeys().hasAny(['status', 'isAdmin', 'updatedAt']) && incoming().updatedAt == request.time) ||
-        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['nome', 'foto', 'updatedAt']) && incoming().updatedAt == request.time)
+        (isAdmin() && incoming().diff(existing()).affectedKeys().hasAny(['status', 'isAdmin', 'updatedAt']) && incoming().updatedAt is timestamp) ||
+        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['nome', 'foto', 'updatedAt']) && incoming().updatedAt is timestamp)
       );
 
       allow delete: if isAdmin();
