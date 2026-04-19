@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bíblia Alpha</title>
+    <script>
+      window.onerror = function(msg, src, line, col, err) {
+        document.body.innerHTML = '<div style="font-family:monospace;padding:20px;background:#fff;color:#c00;white-space:pre-wrap;font-size:13px"><b>ERRO JS:</b>\n' + msg + '\n\nArquivo: ' + src + '\nLinha: ' + line + '\n\n' + (err && err.stack ? err.stack : '') + '</div>';
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        document.body.innerHTML = '<div style="font-family:monospace;padding:20px;background:#fff;color:#c00;white-space:pre-wrap;font-size:13px"><b>PROMISE REJEITADA:</b>\n' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason)) + '</div>';
+      });
+    </script>
     <script type="module" crossorigin src="/assets/index-DsTZy0Yo.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CNqnx1me.css">
   </head>
