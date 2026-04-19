@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    sourcemap: true,
+    sourcemap: false,
   },
   define: {
     'process.env.GEMINI_API_KEY': JSON.stringify(

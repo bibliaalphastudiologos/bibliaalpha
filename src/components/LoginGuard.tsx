@@ -3,7 +3,7 @@ import { useAuth } from './AuthProvider';
 import AdminPanel from './AdminPanel';
 
 export default function LoginGuard({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading, login, logout } = useAuth();
+  const { user, profile, loading, profileError, login, logout } = useAuth();
   const [showAdmin, setShowAdmin] = useState(false);
 
   useEffect(() => {
@@ -43,12 +43,32 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
   if (!profile) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-sleek-bg p-4 font-sans text-center">
-        <div className="w-8 h-8 rounded-full border-2 border-slate-300 border-t-slate-800 animate-spin mb-4" />
-        <span className="text-sm text-sleek-text-main font-semibold mb-2">Acessando perfil...</span>
-        <p className="text-xs text-sleek-text-muted max-w-sm mb-6">
-          Se isso demorar, pode haver um atraso na rede ou na verificação do seu cadastro.
-        </p>
-        <button onClick={logout} className="text-sm text-blue-600 hover:underline">Sair / Tentar Novamente</button>
+        {profileError ? (
+          <>
+            <div className="mb-4 text-red-500">
+              <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <span className="text-sm text-sleek-text-main font-semibold mb-2">Erro ao carregar perfil</span>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg max-w-sm">
+              <p className="text-xs text-red-600 font-mono">{profileError}</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => window.location.reload()} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">Tentar Novamente</button>
+              <button onClick={logout} className="px-4 py-2 text-sm text-blue-600 hover:underline">Sair</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="w-8 h-8 rounded-full border-2 border-slate-300 border-t-slate-800 animate-spin mb-4" />
+            <span className="text-sm text-sleek-text-main font-semibold mb-2">Acessando perfil...</span>
+            <p className="text-xs text-sleek-text-muted max-w-sm mb-6">
+              Se isso demorar, pode haver um atraso na rede ou na verificação do seu cadastro.
+            </p>
+            <button onClick={logout} className="text-sm text-blue-600 hover:underline">Sair / Tentar Novamente</button>
+          </>
+        )}
       </div>
     );
   }
