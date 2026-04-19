@@ -5,8 +5,8 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Usa o database (default) — o customizado do AI Studio não está disponível fora do Studio
-export const db = getFirestore(app);
+// Usa o database específico do AI Studio em vez do (default)
+export const db = getFirestore(app, "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f");
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
