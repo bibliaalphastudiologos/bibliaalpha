@@ -1,9 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Bíblia Alpha de Estudos — Leia, estude e anote com comentários clássicos e planos de leitura." />
+    <meta name="theme-color" content="#1e293b" />
+    <link rel="manifest" href="/manifest.json" />
     <title>Bíblia Alpha</title>
+    <script>
+      // Registra o Service Worker para suporte offline
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(console.warn);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
