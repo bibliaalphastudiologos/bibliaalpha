@@ -84,71 +84,72 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       const hasComments = versesWithComments.has(item.number);
       
       return (
-        <span 
-          key={item.number || idx}
-          onClick={() => {
-            if (hasComments) {
-              toggleComments(item.number);
-            }
-          }}
-          className={cn(
-            "relative inline transition-colors duration-200 group px-1 rounded-sm",
-            isExpanded ? "bg-[#f9f9f9]" : "hover:bg-[#f6f6f6]",
-            isHighlighted && !isExpanded && "bg-yellow-100/60",
-            hasComments ? "cursor-pointer" : ""
-          )}
-        >
-          {/* Action Menu (Notion Block Style) */}
-          <span className="absolute -left-7 top-1 opacity-0 hidden sm:group-hover:flex transition-opacity items-center gap-1">
-            <button 
-              onClick={(e) => toggleHighlight(item.number, e)}
-              className="p-0.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-avatar-bg rounded"
-              title="Destacar"
-            >
-              <Palette size={12} />
-            </button>
-          </span>
-
-          <sup className="font-sans text-[12px] align-super mr-1.5 text-sleek-text-muted font-normal select-none">
-            {item.number}
-          </sup>
-          
-          <span className={cn(isHighlighted && "bg-yellow-100/60 decoration-clone")}>
-            {item.content.map((segment: any, sIdx: number) => {
-              if (typeof segment === 'string') return <span key={sIdx}>{segment}</span>;
-              if (segment && typeof segment === 'object') {
-                 if (segment.type === 'jesus_words' || segment.jesusWords) {
-                   return <span key={sIdx} className="text-sleek-accent">{segment.text || segment.content}</span>;
-                 }
+        <React.Fragment key={item.number || idx}>
+          <span 
+            onClick={() => {
+              if (hasComments) {
+                toggleComments(item.number);
               }
-              return null;
-            })}
+            }}
+            className={cn(
+              "relative inline transition-colors duration-200 group px-1 rounded-sm",
+              isExpanded ? "bg-[#f9f9f9]" : "hover:bg-[#f6f6f6]",
+              isHighlighted && !isExpanded && "bg-yellow-100/60",
+              hasComments ? "cursor-pointer" : ""
+            )}
+          >
+            <span className="absolute -left-7 top-1 opacity-0 hidden sm:group-hover:flex transition-opacity items-center gap-1">
+              <button 
+                onClick={(e) => toggleHighlight(item.number, e)}
+                className="p-0.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-avatar-bg rounded"
+                title="Destacar"
+              >
+                <Palette size={12} />
+              </button>
+            </span>
+
+            <sup className="font-sans text-[12px] align-super mr-1.5 text-sleek-text-muted font-normal select-none">
+              {item.number}
+            </sup>
+            
+            <span className={cn(isHighlighted && "bg-yellow-100/60 decoration-clone")}>
+              {item.content.map((segment: any, sIdx: number) => {
+                if (typeof segment === 'string') return <span key={sIdx}>{segment}</span>;
+                if (segment && typeof segment === 'object') {
+                   if (segment.type === 'jesus_words' || segment.jesusWords) {
+                     return <span key={sIdx} className="text-sleek-accent">{segment.text || segment.content}</span>;
+                   }
+                }
+                return null;
+              })}
+            </span>
+            <span className="mr-1 inline-block" />
+            
+            {hasComments && (
+              <button
+                 onClick={(e) => toggleComments(item.number, e)}
+                 className={cn(
+                   "inline-flex items-center gap-1 font-sans text-[11px] font-medium px-1.5 py-0.5 rounded-full transition-all align-middle ml-1 mr-2 opacity-50 hover:opacity-100 cursor-pointer",
+                   isExpanded ? "bg-sleek-text-main text-white opacity-100 bg-opacity-90" : "bg-sleek-avatar-bg text-sleek-text-main"
+                 )}
+                 title={isExpanded ? "Ocultar comentários" : "Ver comentários teológicos"}
+              >
+                <MessageSquareText size={11} className={isExpanded ? "text-white" : "opacity-70"} />
+                {!isExpanded && "Estudo"}
+              </button>
+            )}
           </span>
-          <span className="mr-1 inline-block" />
-          
-          {hasComments && (
-            <button
-               onClick={(e) => toggleComments(item.number, e)}
-               className={cn(
-                 "inline-flex items-center gap-1 font-sans text-[11px] font-medium px-1.5 py-0.5 rounded-full transition-all align-middle ml-1 mr-2 opacity-50 hover:opacity-100 cursor-pointer",
-                 isExpanded ? "bg-sleek-text-main text-white opacity-100 bg-opacity-90" : "bg-sleek-avatar-bg text-sleek-text-main"
-               )}
-               title={isExpanded ? "Ocultar comentários" : "Ver comentários teológicos"}
-            >
-              <MessageSquareText size={11} className={isExpanded ? "text-white" : "opacity-70"} />
-              {!isExpanded && "Estudo"}
-            </button>
-          )}
-          
           {isExpanded && (
-            <InlineComments 
-              bookId={bookId} 
-              chapter={chapter} 
-              verseNumber={item.number} 
-              onClose={(e) => toggleComments(item.number, e)}
-            />
+            <div className="block w-full">
+              <InlineComments 
+                bookId={bookId} 
+                chapter={chapter} 
+                verseNumber={item.number} 
+                onClose={(e) => toggleComments(item.number, e)}
+              />
+            </div>
           )}
-        </span>
+        </React.Fragment>
       );
     }
     
