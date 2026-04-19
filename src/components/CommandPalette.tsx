@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Search, Book as BookIcon } from 'lucide-react';
 import { Book } from '../services/bibleApi';
 import { cn } from '../App';
-import * as motion from 'motion/react-client';
+import { motion } from 'motion/react';
 
 interface CommandPaletteProps {
   isOpen: boolean;
