@@ -3,12 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Bíblia Alpha de Estudos — Leia, estude e anote com comentários clássicos e planos de leitura." />
+    <meta name="description" content="Biblia Alpha de Estudos — Leia, estude e anote com comentarios classicos e planos de leitura." />
+
+    <!-- PWA — Theme & manifest -->
     <meta name="theme-color" content="#1e293b" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Bíblia Alpha</title>
+
+    <!-- PWA — Icone (Chrome, Firefox, Samsung) -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+
+    <!-- PWA — iOS Safari (Add to Home Screen) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Biblia Alpha" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+
+    <!-- PWA — Android Chrome -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Biblia Alpha" />
+
+    <title>Biblia Alpha</title>
+
     <script>
-      // Registra o Service Worker para suporte offline
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(console.warn);
       }
@@ -18,4 +34,4 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-</html>
+</html> 
