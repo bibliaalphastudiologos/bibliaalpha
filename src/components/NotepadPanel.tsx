@@ -1,6 +1,6 @@
 import { cn } from '../App';
 import * as React from 'react';
-import * as motion from 'motion/react-client';
+import { motion } from 'motion/react';
 import { X, Save, FileText, UploadCloud, RefreshCw, PenLine, Bold, Italic, List, Link } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
