@@ -83,10 +83,10 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       const hasComments = versesWithComments.has(item.number);
       
       return (
-        <div key={item.number || idx} className="block mb-1">
+        <p key={item.number || idx} className="my-1.5">
           <span
             className={cn(
-              "relative inline transition-colors duration-200 group px-1 rounded-sm",
+              "relative inline-block transition-colors duration-200 group px-1 rounded-sm",
               isExpanded ? "bg-[#f9f9f9]" : "hover:bg-[#f6f6f6]",
               isHighlighted && !isExpanded && "bg-yellow-100/60",
             )}
@@ -142,7 +142,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
               />
             </div>
           )}
-        </div>
+        </p>
       );
     }
     
@@ -209,8 +209,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       </header>
 
       <div
-        className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-justify text-[18px] sm:text-[20px] leading-[1.6] text-sleek-reading-text relative animate-fade-in"
-        key={`${bookName}-${chapter}`}
+        className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-left text-[18px] sm:text-[20px] leading-[1.6] text-sleek-reading-text relative animate-fade-in"
       >
         <div className="pb-8 border-b border-sleek-border mb-8">
           <h1 
