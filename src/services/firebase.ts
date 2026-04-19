@@ -1,11 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Usa o database específico do AI Studio em vez do (default)
+// Usa o database especifico do AI Studio
 export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId || "(default)");
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
@@ -18,32 +18,24 @@ export interface UserProfile {
   isAdmin?: boolean;
 }
 
-export async function loginWithGoogle() {
+/**
+ * Inicia o fluxo de login com Google.
+ * A criacao/atualizacao do perfil no Firestore e feita pelo AuthProvider
+ * no listener onAuthStateChanged, garantindo consistencia e evitando duplicacao.
+ */
+export async function loginWithGoogle(): Promise<void> {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (!userDoc.exists()) {
-      const isSuperAdmin = user.email === 'analista.ericksilva@gmail.com';
-      await setDoc(userDocRef, {
-        email: user.email,
-        nome: user.displayName || 'Sem Nome',
-        foto: user.photoURL || '',
-        status: isSuperAdmin ? 'approved' : 'pending',
-        isAdmin: isSuperAdmin,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+    await signInWithPopup(auth, googleProvider);
+    // AuthProvider.onAuthStateChanged cuida do resto
+  } catch (error: any) {
+    // Ignorar cancelamento pelo usuario
+    if (error?.code !== 'auth/popup-closed-by-user' && error?.code !== 'auth/cancelled-popup-request') {
+      console.error('Erro no login:', error);
+      throw error;
     }
-  } catch (error) {
-    console.error('Erro no login:', error);
-    throw error;
   }
 }
 
-export async function logout() {
+export async function logout(): Promise<void> {
   await signOut(auth);
 }
