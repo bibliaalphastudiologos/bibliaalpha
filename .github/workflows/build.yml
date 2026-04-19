@@ -21,9 +21,7 @@ jobs:
 
       - name: Build
         run: npm run build
-
-        - name: Debug built index
-          run: echo "=== dist/index.html ===" && head -20 dist/index.html || echo "dist not found"        env:
+        env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
 
