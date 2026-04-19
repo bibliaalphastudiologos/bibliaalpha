@@ -1,5 +1,5 @@
 /**
- * sw.js — Biblia Alpha Service Worker v3
+ * sw.js — Biblia Alpha Service Worker v4
  *
  * Estrategias de cache:
  * 1. App Shell (HTML + JS + CSS) → Cache-First com revalidacao em background
@@ -8,9 +8,9 @@
  * 4. Outros recursos → Network-First com fallback para cache
  */
 
-const CACHE_VERSION = 'v3';
-const SHELL_CACHE  = 'bibliaalpha-shell-'  + CACHE_VERSION;
-const BIBLE_CACHE  = 'bibliaalpha-bible-'  + CACHE_VERSION;
+const CACHE_VERSION = 'v4';
+const SHELL_CACHE  = 'bibliaalpha-shell-' + CACHE_VERSION;
+const BIBLE_CACHE  = 'bibliaalpha-bible-' + CACHE_VERSION;
 const RESEARCH_CACHE = 'bibliaalpha-research-' + CACHE_VERSION;
 
 const SHELL_ASSETS = ['/', '/index.html'];
