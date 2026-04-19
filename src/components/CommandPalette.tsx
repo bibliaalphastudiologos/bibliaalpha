@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { Search, Book as BookIcon } from 'lucide-react';
 import { Book } from '../services/bibleApi';
 import { cn } from '../App';
-import { motion } from 'motion/react';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -13,12 +12,20 @@ interface CommandPaletteProps {
 
 export default function CommandPalette({ isOpen, onClose, books, onSelectChapter }: CommandPaletteProps) {
   const [search, setSearch] = useState('');
+  const [visible, setVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setSearch('');
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setVisible(false);
+      const t = setTimeout(() => {
+        setVisible(true);
+        inputRef.current?.focus();
+      }, 10);
+      return () => clearTimeout(t);
+    } else {
+      setVisible(false);
     }
   }, [isOpen]);
 
@@ -32,25 +39,28 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
 
   if (!isOpen) return null;
 
-  const filteredBooks = books.filter(b => 
-    b.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredBooks = books.filter(b =>
+    b.name.toLowerCase().includes(search.toLowerCase()) ||
     b.commonName.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm" 
-        onClick={onClose} 
+      {/* Backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity duration-200",
+          visible ? "opacity-100" : "opacity-0"
+        )}
+        onClick={onClose}
       />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative w-full max-w-xl bg-white rounded-xl shadow-2xl border border-sleek-border overflow-hidden flex flex-col font-sans"
+
+      {/* Modal */}
+      <div
+        className={cn(
+          "relative w-full max-w-xl bg-white rounded-xl shadow-2xl border border-sleek-border overflow-hidden flex flex-col font-sans transition-all duration-200",
+          visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"
+        )}
       >
         <div className="flex items-center px-4 py-3 border-b border-sleek-border">
           <Search size={18} className="text-sleek-text-muted mr-3" />
@@ -100,7 +110,7 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
