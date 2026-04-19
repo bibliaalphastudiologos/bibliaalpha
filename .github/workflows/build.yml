@@ -25,25 +25,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-      - name: Deploy via SFTP to Hostinger (port 65002)
-        continue-on-error: true
-        env:
-          SFTP_USER: ${{ secrets.FTP_USERNAME }}
-          SFTP_PASS: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          sudo apt-get install -y lftp sshpass -qq
-          lftp -u "$SFTP_USER,$SFTP_PASS" \
-            -e "set sftp:connect-program 'ssh -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; \
-                mirror -R --delete --verbose dist/ /public_html/; \
-                bye" \
-            sftp://ftp.studiologos.com.br || \
-          lftp -u "$SFTP_USER,$SFTP_PASS" \
-            -e "set sftp:connect-program 'ssh -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; \
-                mirror -R --delete --verbose dist/ ./; \
-                bye" \
-            sftp://studiologos.com.br
-
-      - name: Deploy via FTP to Hostinger (fallback)
+      - name: Deploy via FTP to Hostinger
         continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
