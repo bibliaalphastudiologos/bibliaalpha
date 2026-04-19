@@ -74,66 +74,51 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
   const renderItem = (item: any, idx: number) => {
     if (item.type === 'line_break') {
-      return <br key={idx} className="my-2" />;
+      return <br key={`br-${idx}`} />;
     }
-    
+
     if (item.type === 'verse') {
       const isExpanded = expandedVerses.has(item.number);
       const isHighlighted = highlights[item.number];
       const hasComments = versesWithComments.has(item.number);
-      
-      return (
-        <p key={item.number || idx} className="my-1.5">
-          <span
-            className={cn(
-              "relative inline-block transition-colors duration-200 group px-1 rounded-sm",
-              isExpanded ? "bg-[#f9f9f9]" : "hover:bg-[#f6f6f6]",
-              isHighlighted && !isExpanded && "bg-yellow-100/60",
-            )}
-          >
-            <span className="absolute -left-7 top-1 opacity-0 hidden sm:group-hover:flex transition-opacity items-center gap-1">
-              <button
-                onClick={(e) => toggleHighlight(item.number, e)}
-                className="p-0.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-avatar-bg rounded"
-                title="Destacar"
-              >
-                <Palette size={12} />
-              </button>
-            </span>
 
-            <sup className="font-sans text-[12px] align-super mr-1.5 text-sleek-text-muted font-normal select-none">
+      return (
+        <div key={`v-${item.number}`} style={{ display: 'block', marginBottom: '4px' }}>
+          <span style={{ display: 'inline' }}>
+            <sup style={{ fontSize: '11px', color: '#999', marginRight: '4px', userSelect: 'none' }}>
               {item.number}
             </sup>
-
-            <span className={cn(isHighlighted && "bg-yellow-100/60 decoration-clone")}>
+            <span style={{ backgroundColor: isHighlighted && !isExpanded ? 'rgba(253,224,71,0.4)' : undefined }}>
               {item.content.map((segment: any, sIdx: number) => {
                 if (typeof segment === 'string') return <span key={sIdx}>{segment}</span>;
-                if (segment && typeof segment === 'object') {
-                  if (segment.type === 'jesus_words' || segment.jesusWords) {
-                    return <span key={sIdx} className="text-sleek-accent">{segment.text || segment.content}</span>;
-                  }
+                if (segment?.type === 'jesus_words' || segment?.jesusWords) {
+                  return <span key={sIdx} className="text-sleek-accent">{segment.text || segment.content}</span>;
                 }
                 return null;
               })}
             </span>
-            <span className="mr-1 inline-block" />
-
+            {' '}
             {hasComments && (
               <button
-                onClick={(e) => toggleComments(item.number, e)}
-                className={cn(
-                  "inline-flex items-center gap-1 font-sans text-[11px] font-medium px-1.5 py-0.5 rounded-full transition-all align-middle ml-1 mr-2 opacity-50 hover:opacity-100 cursor-pointer",
-                  isExpanded ? "bg-sleek-text-main text-white opacity-100 bg-opacity-90" : "bg-sleek-avatar-bg text-sleek-text-main"
-                )}
-                title={isExpanded ? "Ocultar comentários" : "Ver comentários teológicos"}
+                onClick={(e) => { e.stopPropagation(); toggleComments(item.number, e); }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '3px',
+                  fontSize: '11px', fontFamily: 'sans-serif', fontWeight: 500,
+                  padding: '1px 6px', borderRadius: '9999px',
+                  backgroundColor: isExpanded ? '#1a1a1a' : '#f0f0f0',
+                  color: isExpanded ? '#fff' : '#333',
+                  cursor: 'pointer', border: 'none', verticalAlign: 'middle',
+                  marginLeft: '4px', opacity: isExpanded ? 1 : 0.6
+                }}
+                title={isExpanded ? 'Ocultar comentários' : 'Ver comentários teológicos'}
               >
-                <MessageSquareText size={11} className={isExpanded ? "text-white" : "opacity-70"} />
-                {!isExpanded && "Estudo"}
+                <MessageSquareText size={10} />
+                {!isExpanded && 'Estudo'}
               </button>
             )}
           </span>
           {isExpanded && (
-            <div className="w-full mt-2">
+            <div key={`ic-${item.number}`} style={{ display: 'block', width: '100%', marginTop: '8px' }}>
               <InlineComments
                 bookId={bookId}
                 chapter={chapter}
@@ -142,24 +127,25 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
               />
             </div>
           )}
-        </p>
+        </div>
       );
     }
-    
+
     if (item.type === 'paragraph_break' || item.type === 'stanza_break') {
-      return <p key={idx} className="h-3 sm:h-4 block" />;
+      return <div key={`pb-${idx}`} style={{ height: '12px' }} />;
     }
 
     if (item.type === 'heading') {
       return (
-        <h3 key={idx} className="font-sans text-[16px] sm:text-[18px] font-semibold text-sleek-text-main mt-5 mb-3">
-          {item.content.map((c:any) => typeof c === 'string' ? c : (c.text||'')).join('')}
+        <h3 key={`h-${idx}`} className="font-sans text-[16px] sm:text-[18px] font-semibold text-sleek-text-main mt-5 mb-3">
+          {item.content.map((c: any) => typeof c === 'string' ? c : (c.text || '')).join('')}
         </h3>
       );
     }
 
-    return null; // fallback
+    return null;
   };
+
 
   return (
     <div className="w-full flex-1 flex flex-col min-min-h-full relative font-serif">
