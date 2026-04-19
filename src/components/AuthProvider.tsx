@@ -27,7 +27,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Timeout de segurança: se Firebase não responder em 8s, desbloqueia a tela
+    const failsafeTimer = setTimeout(() => {
+      setLoading(false);
+    }, 8000);
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      clearTimeout(failsafeTimer);
       setUser(firebaseUser);
       
       if (!firebaseUser) {
@@ -67,9 +73,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       return () => unsubscribeProfile();
+    }, (error) => {
+      clearTimeout(failsafeTimer);
+      console.error("Auth state error:", error);
+      setLoading(false);
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      clearTimeout(failsafeTimer);
+      unsubscribeAuth();
+    };
   }, []);
 
   const login = async () => {
