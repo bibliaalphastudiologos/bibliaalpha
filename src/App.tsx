@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Book, getBooks, getChapter } from './services/bibleApi';
-import { translateChapterText } from './services/aiTranslation';
+import { Book, getBooks } from './services/bibleApi';
 import { getChapterFromApiBible, AVAILABLE_TRANSLATIONS } from './services/apiBible';
 import Sidebar from './components/Sidebar';
 import ReadingArea from './components/ReadingArea';
@@ -78,19 +77,13 @@ export default function App() {
       setIsLoadingChapter(true);
       try {
         let ptContent;
-        if (activeTranslation === 'helloao') {
-          const content = await getChapter(activeBook!.id, activeChapter);
-          // Auto-translate using AiTranslation
-          ptContent = await translateChapterText(activeBook!.id, activeChapter, content);
-        } else {
-          try {
-            ptContent = await getChapterFromApiBible(activeTranslation, activeBook!.id, activeChapter);
-          } catch(e: any) {
-            console.error("API err", e);
-            alert(`Erro na API (${activeTranslation}): ${e.message}.`);
-            if (isMounted && activeTranslation !== 'almeida') setActiveTranslation('almeida');
-            return;
-          }
+        try {
+          ptContent = await getChapterFromApiBible(activeTranslation, activeBook!.id, activeChapter);
+        } catch(e: any) {
+          console.error("API err", e);
+          alert(`Erro na API (${activeTranslation}): ${e.message}.`);
+          if (isMounted && activeTranslation !== 'almeida') setActiveTranslation('almeida');
+          return;
         }
         
         if (isMounted) setChapterContent(ptContent);
