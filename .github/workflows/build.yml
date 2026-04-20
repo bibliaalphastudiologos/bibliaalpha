@@ -1,74 +1,49 @@
 name: Build and Deploy
 
-    on:
-      push:
-        branches: [main]
-      workflow_dispatch:
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: null
 
-    jobs:
-      build-and-deploy:
-        runs-on: ubuntu-latest
-        permissions:
-          contents: write
-          id-token: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
 
-        steps:
-          - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-          - uses: actions/setup-node@v4
-            with:
-              node-version: 20
-              cache: npm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-          - name: Install dependencies
-            run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-          - name: Build
-            run: npm run build
-            env:
-              GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-              VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Build
+        run: npm run build
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-          - name: Preparar dist (copiar SW e assets públicos)
-            run: |
-              if [ -f public/sw.js ];         then cp public/sw.js         dist/sw.js;         fi
-              if [ -f public/.htaccess ];     then cp public/.htaccess     dist/.htaccess;     fi
-              if [ -f public/manifest.json ]; then cp public/manifest.json dist/manifest.json; fi
-              echo "--- dist/ ---"
-              ls -la dist/
-              echo "--- sw.js head ---"
-              head -5 dist/sw.js
+      - name: Preparar dist
+        run: |
+          [ -f public/sw.js ]         && cp public/sw.js         dist/sw.js
+          [ -f public/manifest.json ] && cp public/manifest.json dist/manifest.json
+          [ -f public/.htaccess ]     && cp public/.htaccess     dist/.htaccess
+          BUILD_TS=$(date +%Y%m%d%H%M%S)
+          sed -i "s/__SW_CACHE_VERSION__/bibliaalpha-${BUILD_TS}/" dist/sw.js || true
+          echo "dist/ contents:"; ls -la dist/
+          echo "sw.js head:"; head -3 dist/sw.js
 
-          - name: Injetar versão única no Service Worker
-            run: |
-              BUILD_TS=$(date +%Y%m%d%H%M%S)
-              echo "SW version: bibliaalpha-${BUILD_TS}"
-              sed -i "s/__SW_CACHE_VERSION__/bibliaalpha-${BUILD_TS}/" dist/sw.js
-              echo "--- sw.js após injeção ---"
-              head -3 dist/sw.js
-
-          - name: Deploy to Firebase Hosting
-            uses: FirebaseExtended/action-hosting-deploy@v0
-            with:
-              repoToken: ${{ secrets.GITHUB_TOKEN }}
-              firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENTINELA_AI_489015 }}
-              channelId: live
-              projectId: sentinela-ai-489015
-              target: sentinela-ai-489015
-
-          - name: Deploy Firestore Rules
-            env:
-              GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENTINELA_AI_489015 }}
-            run: |
-              echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/sa.json
-              pip install google-auth requests --break-system-packages -q
-              python3 scripts/deploy_firestore_rules.py
-
-          - name: Resumo
-            run: |
-              echo "=========================================="
-              echo "  Deploy concluido!"
-              echo "  Firebase Hosting: sentinela-ai-489015"
-              echo "  URL: https://bibliaalpha.org"
-              echo "=========================================="
-    
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENTINELA_AI_489015 }}
+          channelId: live
+          projectId: sentinela-ai-489015
+          target: sentinela-ai-489015
