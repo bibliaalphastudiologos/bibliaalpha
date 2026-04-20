@@ -1,7 +1,8 @@
-// Biblia Alpha Service Worker - v4 (force-update)
-    const CACHE_VERSION = 'bibliaalpha-v4';
-    const ASSETS_CACHE  = 'bibliaalpha-assets-v4';
-    const STATIC_CACHE  = 'bibliaalpha-static-v4';
+// Biblia Alpha Service Worker
+    // CACHE_VERSION é injetado pelo CI no deploy (timestamp único por build)
+    const CACHE_VERSION = '__SW_CACHE_VERSION__';
+    const ASSETS_CACHE  = 'bibliaalpha-assets-' + CACHE_VERSION;
+    const STATIC_CACHE  = 'bibliaalpha-static-' + CACHE_VERSION;
 
     const BYPASS_HOSTS = [
       'firestore.googleapis.com',
@@ -14,25 +15,25 @@
 
     // Install - ativa imediatamente sem esperar abas fecharem
     self.addEventListener('install', (event) => {
-      console.log('[SW v4] Installing...');
+      console.log('[SW] Installing version:', CACHE_VERSION);
       self.skipWaiting();
     });
 
     // Activate - limpa TODOS os caches antigos
     self.addEventListener('activate', (event) => {
-      console.log('[SW v4] Activating - clearing old caches...');
+      console.log('[SW] Activating - clearing old caches...');
       event.waitUntil(
         caches.keys().then((keys) => {
           return Promise.all(
             keys
-              .filter((k) => k !== CACHE_VERSION && k !== ASSETS_CACHE && k !== STATIC_CACHE)
+              .filter((k) => k !== ASSETS_CACHE && k !== STATIC_CACHE)
               .map((k) => {
-                console.log('[SW v4] Deleting old cache:', k);
+                console.log('[SW] Deleting old cache:', k);
                 return caches.delete(k);
               })
           );
         }).then(() => {
-          console.log('[SW v4] Claiming all clients...');
+          console.log('[SW] Claiming all clients...');
           return self.clients.claim();
         })
       );
@@ -41,7 +42,7 @@
     // Message - force update / skip waiting
     self.addEventListener('message', (event) => {
       if (event.data && (event.data.type === 'SKIP_WAITING' || event.data.type === 'FORCE_UPDATE')) {
-        console.log('[SW v4] Force skip waiting');
+        console.log('[SW] Force skip waiting');
         self.skipWaiting();
       }
     });
