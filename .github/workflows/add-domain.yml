@@ -1,0 +1,68 @@
+name: Firebase Add Custom Domain
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add bibliaalpha.org to Firebase Hosting
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENTINELA_AI_489015 }}
+        run: |
+          pip install google-auth requests --break-system-packages -q
+
+          python3 - <<'PYEOF'
+import json, os, requests
+import google.auth
+import google.oauth2.service_account as sa
+import google.auth.transport.requests
+
+creds_info = json.loads(os.environ['SA_JSON'])
+creds = sa.Credentials.from_service_account_info(
+    creds_info,
+    scopes=['https://www.googleapis.com/auth/cloud-platform',
+            'https://www.googleapis.com/auth/firebase']
+)
+auth_req = google.auth.transport.requests.Request()
+creds.refresh(auth_req)
+token = creds.token
+
+site = 'sentinela-ai-489015'
+domain = 'bibliaalpha.org'
+base = f'https://firebasehosting.googleapis.com/v1beta1/sites/{site}/domains'
+headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+# Verificar se já existe
+r = requests.get(f'{base}/{domain}', headers=headers)
+print(f'GET status: {r.status_code}')
+if r.status_code == 200:
+    data = r.json()
+    print('Dominio JA existe:')
+    print(json.dumps(data, indent=2))
+else:
+    # Criar
+    r2 = requests.post(base, headers=headers, json={'domainName': domain})
+    print(f'POST status: {r2.status_code}')
+    data = r2.json()
+    print(json.dumps(data, indent=2))
+
+# Verificar status e DNS records necessários
+r3 = requests.get(f'{base}/{domain}', headers=headers)
+if r3.status_code == 200:
+    info = r3.json()
+    print()
+    print('=== STATUS DO DOMINIO ===')
+    print(f'Status: {info.get("status")}')
+    print()
+    prov = info.get('provisioning', {})
+    for rec in prov.get('dnsRecordSets', []):
+        print(f'DNS NECESSARIO:')
+        print(f'  Tipo: {rec.get("checkError", {}) or rec}')
+    for rec in prov.get('expectedDnsRecordSets', []):
+        print(f'DNS ESPERADO: domainName={rec.get("domainName")} type={rec.get("records")}')
+    print()
+    print('FULL provisioning:')
+    print(json.dumps(prov, indent=2))
+PYEOF
