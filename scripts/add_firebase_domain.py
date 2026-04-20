@@ -1,20 +1,24 @@
-import json, os, requests
+import json
+    import os
+    import requests
     import google.oauth2.service_account as sa
     import google.auth.transport.requests
 
     creds_info = json.loads(os.environ['SA_JSON'])
     creds = sa.Credentials.from_service_account_info(
         creds_info,
-        scopes=['https://www.googleapis.com/auth/cloud-platform',
-                'https://www.googleapis.com/auth/firebase']
+        scopes=[
+            'https://www.googleapis.com/auth/cloud-platform',
+            'https://www.googleapis.com/auth/firebase',
+        ]
     )
     auth_req = google.auth.transport.requests.Request()
     creds.refresh(auth_req)
     token = creds.token
 
-    project_id   = 'sentinela-ai-489015'
-    project_num  = '188238488601'
-    site         = 'sentinela-ai-489015'
+    project_id  = 'sentinela-ai-489015'
+    project_num = '188238488601'
+    site        = 'sentinela-ai-489015'
     hdrs = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
     base_cd = f'https://firebasehosting.googleapis.com/v1beta1/projects/{project_num}/sites/{site}/customDomains'
 
@@ -35,9 +39,12 @@ import json, os, requests
             else:
                 print(f'Ja existe: {new_domain}')
         if changed:
-            r_p = requests.patch(auth_url, headers=hdrs,
+            r_p = requests.patch(
+                auth_url,
+                headers=hdrs,
                 params={'updateMask': 'authorizedDomains'},
-                json={'authorizedDomains': domains})
+                json={'authorizedDomains': domains}
+            )
             print(f'PATCH authorized domains: HTTP {r_p.status_code}')
             if r_p.status_code == 200:
                 print('OK -- dominios atualizados')
@@ -50,7 +57,7 @@ import json, os, requests
         print(r_cfg.text[:300])
 
     # 2. GET status dos custom domains
-    print(f'\n=== GET status bibliaalpha.org ===')
+    print('\n=== GET status custom domains ===')
     for domain in ['bibliaalpha.org', 'www.bibliaalpha.org']:
         r_get = requests.get(f'{base_cd}/{domain}', headers=hdrs)
         print(f'  {domain}: HTTP {r_get.status_code}')
@@ -58,11 +65,11 @@ import json, os, requests
             info = r_get.json()
             print(f'    hostState:      {info.get("hostState")}')
             print(f'    ownershipState: {info.get("ownershipState")}')
-            cert = info.get("cert", {})
+            cert = info.get('cert', {})
             print(f'    cert.state:     {cert.get("state")}')
 
     # 3. Lista todos custom domains
-    print(f'\n=== LISTA customDomains ===')
+    print('\n=== LISTA customDomains ===')
     r_list = requests.get(base_cd, headers=hdrs)
     print(f'HTTP {r_list.status_code}')
     for cd in r_list.json().get('customDomains', []):
