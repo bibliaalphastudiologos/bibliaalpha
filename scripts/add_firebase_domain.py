@@ -5,57 +5,64 @@ import google.auth.transport.requests
 creds_info = json.loads(os.environ['SA_JSON'])
 creds = sa.Credentials.from_service_account_info(
     creds_info,
-    scopes=[
-        'https://www.googleapis.com/auth/cloud-platform',
-        'https://www.googleapis.com/auth/firebase',
-        'https://www.googleapis.com/auth/webmasters',
-    ]
+    scopes=['https://www.googleapis.com/auth/cloud-platform',
+            'https://www.googleapis.com/auth/firebase']
 )
 auth_req = google.auth.transport.requests.Request()
 creds.refresh(auth_req)
 token = creds.token
 
 project_number = '188238488601'
-project_id = 'sentinela-ai-489015'
 site = 'sentinela-ai-489015'
 new_domain = 'bibliaalpha.org'
 old_domain = 'bibliaalpha.studiologos.com.br'
 hdrs = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-
-# Tentar endpoint v1beta1/projects/{project}/sites/{site}/customDomains
 base_cd = f'https://firebasehosting.googleapis.com/v1beta1/projects/{project_number}/sites/{site}/customDomains'
-print(f'=== TESTE: customDomains via projects path ===')
-r_list = requests.get(base_cd, headers=hdrs)
-print(f'LIST customDomains: HTTP {r_list.status_code}')
-print(r_list.text[:600])
 
-# DELETE domínio antigo via customDomains
-print(f'\n=== DELETE {old_domain} via customDomains ===')
-r_del = requests.delete(f'{base_cd}/{old_domain}', headers=hdrs)
-print(f'HTTP {r_del.status_code}: {r_del.text[:200]}')
+# 1. Remover domínio antigo do Auth config
+print('=== Remover old domain do Auth ===')
+auth_url = f'https://identitytoolkit.googleapis.com/v2/projects/{site}/config'
+r_cfg = requests.get(auth_url, headers=hdrs)
+if r_cfg.status_code == 200:
+    cfg = r_cfg.json()
+    domains = cfg.get('authorizedDomains', [])
+    if old_domain in domains:
+        domains.remove(old_domain)
+        r_p = requests.patch(auth_url, headers=hdrs,
+            params={'updateMask': 'authorizedDomains'},
+            json={'authorizedDomains': domains})
+        print(f'PATCH remove old: HTTP {r_p.status_code}')
+    else:
+        print(f'{old_domain} nao estava na lista de auth domains')
 
-# POST novo domínio via customDomains
-print(f'\n=== POST {new_domain} via customDomains ===')
-r_post = requests.post(base_cd, headers=hdrs,
+# 2. POST bibliaalpha.org com body vazio {} e customDomainId como param
+print(f'\n=== POST {new_domain} — body vazio + customDomainId param ===')
+r_post = requests.post(
+    base_cd,
+    headers=hdrs,
     params={'customDomainId': new_domain},
-    json={'hostingConfig': {}})
+    json={}
+)
 print(f'HTTP {r_post.status_code}')
-print(r_post.text[:600])
+try:
+    print(json.dumps(r_post.json(), indent=2))
+except Exception:
+    print(r_post.text[:600])
 
-# Tentar também sem params
-if r_post.status_code not in [200, 201]:
-    print('\nTentando sem customDomainId param...')
-    r_post2 = requests.post(base_cd, headers=hdrs, json={'name': f'{base_cd}/{new_domain}'})
-    print(f'HTTP {r_post2.status_code}')
-    print(r_post2.text[:400])
+# 3. GET status
+print(f'\n=== GET status {new_domain} ===')
+r_get = requests.get(f'{base_cd}/{new_domain}', headers=hdrs)
+print(f'HTTP {r_get.status_code}')
+if r_get.status_code == 200:
+    info = r_get.json()
+    print(f'state: {info.get("state")}')
+    prov = info.get('provisioning', info)
+    print(json.dumps(info, indent=2))
+else:
+    print(r_get.text[:400])
 
-# Google Site Verification API para obter TXT token
-print(f'\n=== Google Site Verification Token para {new_domain} ===')
-sv_url = 'https://www.googleapis.com/siteVerification/v1/token'
-sv_body = {
-    'verificationMethod': 'DNS_TXT',
-    'site': {'type': 'INET_DOMAIN', 'identifier': new_domain}
-}
-r_sv = requests.post(sv_url, headers=hdrs, json=sv_body)
-print(f'HTTP {r_sv.status_code}')
-print(r_sv.text[:400])
+# 4. Lista final
+print(f'\n=== LISTA FINAL customDomains ===')
+r_list = requests.get(base_cd, headers=hdrs)
+print(f'HTTP {r_list.status_code}')
+print(json.dumps(r_list.json(), indent=2)[:600])
