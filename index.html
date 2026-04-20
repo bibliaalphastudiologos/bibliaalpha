@@ -9,16 +9,16 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="build" content="202604200300" />
+    <meta name="build" content="202604201800" />
 
-    <!-- PW@ — Theme & manifest -->
+    <!-- PWA — Theme & manifest -->
     <meta name="theme-color" content="#1e293b" />
     <link rel="manifest" href="/manifest.json" />
 
     <!-- PWA — Icone -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
 
-    <!-- PW@ — iOS Safari -->
+    <!-- PWA — iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Biblia Alpha" />
@@ -29,51 +29,6 @@
     <meta name="application-name" content="Biblia Alpha" />
 
     <title>Biblia Alpha</title>
-
-    <script>
-      /**
-       * FORCE-UPDATE: Limpeza profunda de Service Workers e Caches.
-       * Este script força o navegador a descartar versões antigas presas na cache.
-       */
-      (function () {
-        console.log('[FORCE-UPDATE] Iniciando limpeza de emergência...');
-
-        // 1. Desregistar todos os Service Workers
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function (regs) {
-            regs.forEach(function (reg) {
-              reg.unregister().then(function (ok) {
-                if (ok) console.log('[FORCE-UPDATE] SW Removido:', reg.scope);
-              });
-            });
-          });
-        }
-
-        // 2. Apagar todas as caches do navegador
-        if ('caches' in window) {
-          caches.keys().then(function (keys) {
-            keys.forEach(function (key) {
-              caches.delete(key).then(function () {
-                console.log('[FORCE-UPDATE] Cache apagada:', key);
-              });
-            });
-          });
-        }
-
-        // 3. Limpar storages
-        try { localStorage.clear(); } catch (e) {}
-        try { sessionStorage.clear(); } catch (e) {}
-
-        // 4. Forçar recarregamento único para garantir nova versão do servidor
-        if (!window.name.includes('reloaded_by_manus')) {
-          window.name += '_reloaded_by_manus';
-          setTimeout(function() {
-            console.log('[FORCE-UPDATE] Recarregando para aplicar versão do servidor...');
-            window.location.reload(true);
-          }, 500);
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>
