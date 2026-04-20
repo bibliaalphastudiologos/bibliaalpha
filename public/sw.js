@@ -1,12 +1,13 @@
 /**
- * sw.js — Biblia Alpha Service Worker v5
+ * sw.js — Biblia Alpha Service Worker v6
  *
- * v5: remove force-navigate no activate (evita loop infinito de reload)
- *     network-first para HTML (garante index.html sempre atualizado)
- *     cache-first para /assets/* (hashes imutaveis)
+ * v6: staleWhileRevalidate para /assets/* (garante que updates cheguem na proxima carga)
+ *     networkFirst para HTML/navigate (sempre busca index.html atualizado)
+ *     message SKIP_WAITING para atualização forçada via UI
+ *     limpeza agressiva de caches antigos
  */
 
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const SHELL_CACHE    = 'bibliaalpha-shell-'    + CACHE_VERSION;
 const BIBLE_CACHE    = 'bibliaalpha-bible-'    + CACHE_VERSION;
 const RESEARCH_CACHE = 'bibliaalpha-research-' + CACHE_VERSION;
@@ -33,11 +34,23 @@ self.addEventListener('activate', (event) => {
     await Promise.all(
       names
         .filter(n => n.startsWith('bibliaalpha-') && ![SHELL_CACHE, BIBLE_CACHE, RESEARCH_CACHE].includes(n))
-        .map(n => caches.delete(n))
+        .map(n => {
+          console.log('[SW v6] Removendo cache antigo:', n);
+          return caches.delete(n);
+        })
     );
     await self.clients.claim();
-    // REMOVIDO: clients.forEach(c => c.navigate(c.url)) causava loop de reload
+    console.log('[SW v6] Ativado — todos os caches antigos removidos');
   })());
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))));
+  }
 });
 
 self.addEventListener('fetch', (event) => {
@@ -61,8 +74,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // v6: staleWhileRevalidate para assets — serve do cache mas ja busca versao nova
+  // em background. Na proxima visita o usuario ja tem o asset atualizado.
+  // Hashes Vite garantem que assets novos (novo hash) sao sempre buscados da rede.
   if (url.pathname.startsWith('/assets/')) {
-    event.respondWith(cacheFirst(SHELL_CACHE, event.request));
+    event.respondWith(staleWhileRevalidate(SHELL_CACHE, event.request));
     return;
   }
 
@@ -80,21 +96,6 @@ async function networkFirst(cacheName, request) {
   } catch {
     const cached = await caches.match(request);
     return cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
-  }
-}
-
-async function cacheFirst(cacheName, request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response.ok || response.type === 'opaque') {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
   }
 }
 
