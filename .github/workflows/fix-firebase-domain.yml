@@ -1,0 +1,33 @@
+name: Fix - Firebase Custom Domain + DNS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencias Python
+        run: pip install google-auth requests --break-system-packages -q
+
+      - name: Adicionar dominio customizado no Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENTINELA_AI_489015 }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/sa.json
+          python3 scripts/add_firebase_domain.py
+
+      - name: Corrigir DNS na Hostinger (requer HOSTINGER_API_TOKEN secret)
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: python3 scripts/fix_hostinger_dns.py
+
+      - name: Resumo
+        run: |
+          echo "========================================================"
+          echo "  Dominio Firebase: verificar output acima"
+          echo "  DNS Hostinger: verificar output acima"
+          echo "  Monitorar propagacao: https://dnschecker.org/#CNAME/bibliaalpha.studiologos.com.br"
+          echo "========================================================"
