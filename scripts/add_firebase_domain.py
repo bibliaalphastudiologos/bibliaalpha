@@ -26,9 +26,10 @@ r = requests.get(f'{base}/{domain}', headers=hdrs)
 print(f'GET {domain}: HTTP {r.status_code}')
 
 if r.status_code != 200:
-    r2 = requests.post(base, headers=hdrs, json={'domainName': domain})
+    body = {'domainName': domain, 'site': site}
+    r2 = requests.post(base, headers=hdrs, json=body)
     print(f'POST criar: HTTP {r2.status_code}')
-    print(r2.text[:500])
+    print(r2.text[:800])
 
 r3 = requests.get(f'{base}/{domain}', headers=hdrs)
 print(f'Status final: HTTP {r3.status_code}')
@@ -38,10 +39,14 @@ if r3.status_code == 200:
     prov = info.get('provisioning', {})
     print()
     print('=== REGISTROS DNS NECESSARIOS ===')
-    for rset in prov.get('expectedDnsRecordSets', []):
-        print(f'domainName: {rset.get("domainName")}')
-        for rec in rset.get('records', []):
-            print(f'  TYPE={rec.get("type")}  NAME={rec.get("name","@")}  DATA={rec.get("data","")}')
-    if not prov.get('expectedDnsRecordSets'):
-        print('(sem expectedDnsRecordSets)')
+    expected = prov.get('expectedDnsRecordSets', [])
+    if expected:
+        for rset in expected:
+            print(f'domainName: {rset.get("domainName")}')
+            for rec in rset.get('records', []):
+                print(f'  TYPE={rec.get("type")}  NAME={rec.get("name","@")}  DATA={rec.get("data","")}')
+    else:
+        print('(sem expectedDnsRecordSets — verificar dnsFetchError)')
         print(json.dumps(info, indent=2))
+else:
+    print(r3.text[:500])
