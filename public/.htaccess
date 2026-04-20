@@ -1,55 +1,57 @@
-# Biblia Alpha — Cache Control para Hostinger/LiteSpeed (v3)
+# Biblia Alpha — Cache Control para Hostinger/LiteSpeed (v4)
 
-# ─── LiteSpeed: desabilitar cache do LSCache para arquivos criticos ──────────────
+# ─── LiteSpeed Cache ──────────────────────────────────────────────────────────
 <IfModule LiteSpeed>
   <FilesMatch "^(index\.html|sw\.js|manifest\.json)$">
     Header always set X-LiteSpeed-Cache-Control "no-cache"
-    Header always set X-LiteSpeed-Purge "all"
   </FilesMatch>
 </IfModule>
 
-# ─── Headers de cache — Apache mod_headers ────────────────────────────────────
+# ─── Headers de Cache ─────────────────────────────────────────────────────────
 <IfModule mod_headers.c>
 
-  # Assets com hash Vite (imutaveis): cache longo
-  # NOTA: sw.js nao tem hash no nome — sera sobrescrito abaixo
+  # 1. Assets Vite com hash no nome (imutaveis) — cache longo
   <FilesMatch "\.(js|css|woff2?|ttf|eot)$">
     Header always set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 
-  # Imagens: cache de 1 dia
+  # 2. Imagens — cache de 1 dia
   <FilesMatch "\.(png|jpg|jpeg|gif|webp|svg|ico)$">
     Header always set Cache-Control "public, max-age=86400"
   </FilesMatch>
 
-  # index.html + manifest: sempre buscar versao nova
-  # (vem APOS a regra geral .js para garantir override)
+  # 3. index.html e manifest.json — sem cache NUNCA
   <FilesMatch "^(index\.html|manifest\.json)$">
+    Header always unset Cache-Control
     Header always set Cache-Control "no-cache, no-store, must-revalidate"
     Header always set Pragma "no-cache"
     Header always set Expires "0"
     Header always set X-LiteSpeed-Cache-Control "no-cache"
   </FilesMatch>
 
-  # sw.js: NUNCA cachear — browser precisa detectar updates do SW
-  # DEVE ser a ULTIMA regra .js para sobrescrever a regra geral acima
+  # 4. sw.js — sem cache NUNCA (DEVE vir APOS a regra geral .js)
+  #    Usa unset antes de set para GARANTIR que nao ha header duplicado
   <Files "sw.js">
+    Header always unset Cache-Control
     Header always set Cache-Control "no-cache, no-store, must-revalidate"
+    Header always unset Pragma
     Header always set Pragma "no-cache"
+    Header always unset Expires
     Header always set Expires "0"
     Header always set Content-Type "application/javascript"
     Header always set X-LiteSpeed-Cache-Control "no-cache"
+    Header always set Service-Worker-Allowed "/"
   </Files>
 
 </IfModule>
 
-# ─── Compressao Gzip ────────────────────────────────────────────────────────────
+# ─── Compressao Gzip ──────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css application/javascript
   AddOutputFilterByType DEFLATE application/json application/manifest+json
 </IfModule>
 
-# ─── SPA Routing (React Router) ─────────────────────────────────────────────────
+# ─── SPA Routing (React Router / Vite) ───────────────────────────────────────
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
