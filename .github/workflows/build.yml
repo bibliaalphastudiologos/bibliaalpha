@@ -1,4 +1,5 @@
 name: Build and Deploy
+
 on:
   push:
     branches: [main]
@@ -28,23 +29,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-      - name: Prepare dist
+      - name: Preparar dist (copiar SW e assets públicos)
         run: |
-          if [ -f public/.htaccess ]; then cp public/.htaccess dist/.htaccess; fi
-          if [ -f public/sw.js ]; then cp public/sw.js dist/sw.js; fi
+          if [ -f public/sw.js ];       then cp public/sw.js       dist/sw.js;       fi
+          if [ -f public/.htaccess ];   then cp public/.htaccess   dist/.htaccess;   fi
+          if [ -f public/manifest.json ]; then cp public/manifest.json dist/manifest.json; fi
           echo "--- dist/ ---"
           ls -la dist/
-          echo "--- sw.js version ---"
-          head -3 dist/sw.js
-
-      - name: Deploy via FTP to Hostinger (Python ftplib — passive mode)
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          pip install --quiet --break-system-packages ftplib 2>/dev/null || true
-          python3 scripts/ftp_deploy.py
+          echo "--- sw.js ---"
+          head -5 dist/sw.js
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -63,11 +56,10 @@ jobs:
           pip install google-auth requests --break-system-packages -q
           python3 scripts/deploy_firestore_rules.py
 
-      - name: Resumo do deploy
+      - name: Resumo
         run: |
           echo "=========================================="
           echo "  Deploy concluido!"
-          echo "  Hostinger FTP: Python ftplib passive mode"
-          echo "  Firebase Hosting: atualizado"
-          echo "  Service Worker: v6"
+          echo "  Firebase Hosting: sentinela-ai-489015"
+          echo "  URL: https://sentinela-ai-489015.web.app"
           echo "=========================================="
