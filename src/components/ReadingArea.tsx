@@ -18,13 +18,14 @@ interface ReadingAreaProps {
   onOpenBookList?: () => void;
   onNotepadOpen?: () => void;
   onPlansOpen?: () => void;
+  onResearchOpen?: () => void;
   onPrevChapter?: () => void;
   onNextChapter?: () => void;
   onSelectChapter?: (c: number) => void;
   onToggleSidebar?: () => void;
 }
 
-export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar }: ReadingAreaProps) {
+export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar }: ReadingAreaProps) {
   
   // Highlight system per chapter
   const highlightKey = `hl_${bookId}_${chapter}`;
@@ -172,6 +173,13 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors font-medium border border-transparent hover:border-sleek-border bg-white shadow-sm"
           >
             <MessageSquareText size={13} /> Bloco de Notas
+          </button>
+          <button
+            onClick={onResearchOpen}
+            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-purple-600 bg-purple-50/50 hover:bg-purple-100/50 rounded-md transition-colors font-medium border border-purple-100 hover:border-purple-200"
+            title="Pesquisa Bíblica — Wikipedia e Google Books"
+          >
+            <Globe size={13} /> Pesquisa
           </button>
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
           <button className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:bg-sleek-hover rounded-md transition-colors">
