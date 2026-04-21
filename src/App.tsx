@@ -16,6 +16,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const LAST_BOOK_KEY = 'bibliaalpha_last_book_id';
+const LAST_CHAPTER_KEY = 'bibliaalpha_last_chapter';
+
 export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeBook, setActiveBook] = useState<Book | null>(null);
@@ -39,11 +42,24 @@ export default function App() {
       try {
         const fetchedBooks = await getBooks();
         setBooks(fetchedBooks);
-        if (fetchedBooks.length > 0) setActiveBook(fetchedBooks[1]);
+        if (fetchedBooks.length > 0) {
+          const savedBookId = localStorage.getItem(LAST_BOOK_KEY);
+          const savedChapter = parseInt(localStorage.getItem(LAST_CHAPTER_KEY) || '1', 10);
+          const savedBook = savedBookId ? fetchedBooks.find(b => b.id === savedBookId) : null;
+          setActiveBook(savedBook || fetchedBooks[1]);
+          setActiveChapter(savedBook ? (isNaN(savedChapter) ? 1 : savedChapter) : 1);
+        }
       } catch (error) { console.error("Failed to load books", error); }
     }
     init();
   }, []);
+
+  useEffect(() => {
+    if (activeBook) {
+      localStorage.setItem(LAST_BOOK_KEY, activeBook.id);
+      localStorage.setItem(LAST_CHAPTER_KEY, String(activeChapter));
+    }
+  }, [activeBook, activeChapter]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,7 +85,6 @@ export default function App() {
           ptContent = await getChapterFromApiBible(activeTranslation, activeBook!.id, activeChapter);
         } catch(e: any) {
           console.error("API err", e);
-          // Substituindo alert() por banner de erro inline
           if (isMounted) setApiErrorBanner("Erro na API (" + activeTranslation + "): " + e.message + ". Tente outra tradução.");
           if (isMounted && activeTranslation !== 'almeida') setActiveTranslation('almeida');
           return;
@@ -132,6 +147,7 @@ export default function App() {
               onOpenBookList={() => { if (window.innerWidth < 1024) setIsSidebarOpen(true); else setIsCommandModeOpen(true); }}
               onNotepadOpen={() => setIsNotepadOpen(true)}
               onPlansOpen={() => setIsPlansOpen(true)}
+              onResearchOpen={() => setIsResearchOpen(true)}
               onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
               onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
               onSelectChapter={setActiveChapter}
