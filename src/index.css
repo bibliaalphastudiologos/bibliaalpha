@@ -3,31 +3,74 @@
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Georgia', 'Times New Roman', serif;
-  
-  --color-sleek-sidebar-bg: #F7F7F5;
-  --color-sleek-border: #E9E9E7;
-  --color-sleek-text-main: #37352F;
-  --color-sleek-text-muted: #7A7A77;
-  --color-sleek-accent: #D32F2F;
-  --color-sleek-hover: #EBEBE9;
-  --color-sleek-bg: #FFFFFF;
-  --color-sleek-reading-text: #1A1A1A;
-  --color-sleek-comment-text: #4A4A4A;
-  --color-sleek-avatar-bg: #F1F1EF;
+
+  /* ── TEMA CLARO (padrão) ── */
+  --color-sleek-sidebar-bg:     #F7F7F5;
+  --color-sleek-border:         #E9E9E7;
+  --color-sleek-text-main:      #37352F;
+  --color-sleek-text-muted:     #7A7A77;
+  --color-sleek-accent:         #D32F2F;
+  --color-sleek-hover:          #EBEBE9;
+  --color-sleek-bg:             #FFFFFF;
+  --color-sleek-reading-text:   #1A1A1A;
+  --color-sleek-comment-text:   #4A4A4A;
+  --color-sleek-avatar-bg:      #F1F1EF;
 }
 
+/* ── TEMA NOITE (dark) ── */
+html[data-theme="dark"] {
+  --color-sleek-sidebar-bg:     #161618;
+  --color-sleek-border:         #2E2E33;
+  --color-sleek-text-main:      #E8E8E6;
+  --color-sleek-text-muted:     #888886;
+  --color-sleek-accent:         #FF6B6B;
+  --color-sleek-hover:          #26262A;
+  --color-sleek-bg:             #1C1C1F;
+  --color-sleek-reading-text:   #D4D4CF;
+  --color-sleek-comment-text:   #A0A09C;
+  --color-sleek-avatar-bg:      #232327;
+  color-scheme: dark;
+}
+html[data-theme="dark"] body { background: #1C1C1F; }
+
+/* ── TEMA GRAFITE ── */
+html[data-theme="graphite"] {
+  --color-sleek-sidebar-bg:     #2A2B2E;
+  --color-sleek-border:         #3D3E43;
+  --color-sleek-text-main:      #C9CAC6;
+  --color-sleek-text-muted:     #7B7C78;
+  --color-sleek-accent:         #E07B54;
+  --color-sleek-hover:          #35363B;
+  --color-sleek-bg:             #313235;
+  --color-sleek-reading-text:   #BABBB6;
+  --color-sleek-comment-text:   #9A9B97;
+  --color-sleek-avatar-bg:      #3C3D42;
+  color-scheme: dark;
+}
+html[data-theme="graphite"] body { background: #313235; }
+
+/* ── ZOOM DE FONTE ── */
+html[data-fontsize="sm"]  { --reading-font-size: 15px; --reading-line-height: 1.65; }
+html[data-fontsize="md"]  { --reading-font-size: 18px; --reading-line-height: 1.7;  }
+html[data-fontsize="lg"]  { --reading-font-size: 21px; --reading-line-height: 1.75; }
+html[data-fontsize="xl"]  { --reading-font-size: 25px; --reading-line-height: 1.8;  }
+
+/* Default para não quebrar sem data-fontsize */
+:root {
+  --reading-font-size: 18px;
+  --reading-line-height: 1.7;
+}
+
+/* ── Leitura com fonte dinâmica ── */
+.reading-text {
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+}
+
+/* ── Scrollbar ── */
 @layer utilities {
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 rounded-full;
-  }
-  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    @apply bg-slate-300;
-  }
+  .custom-scrollbar::-webkit-scrollbar       { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-sleek-border); border-radius: 9999px; }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: var(--color-sleek-text-muted); }
 }
