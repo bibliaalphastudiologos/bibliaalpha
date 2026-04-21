@@ -115,11 +115,11 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
       )}
     >
       <div className={cn("flex-1 overflow-y-auto py-4 custom-scrollbar w-[85vw] sm:w-[240px]", !isOpen && "hidden")}>
-        <div className="flex items-center justify-center px-4 pt-1 pb-4">
+        <div className="flex items-center justify-center px-4 pt-4 pb-5">
           <img
             src="/icon.svg"
             alt="Bíblia de Estudo Alpha"
-            className="h-9 w-auto object-contain opacity-90"
+            className="h-24 w-auto object-contain"
             draggable={false}
           />
         </div>
