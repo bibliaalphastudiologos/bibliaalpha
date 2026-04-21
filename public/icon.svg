@@ -1,36 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
       <defs>
-        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#F0D080"/>
-          <stop offset="100%" stop-color="#C08030"/>
+        <linearGradient id="gStar" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stop-color="#EDD264"/>
+          <stop offset="45%"  stop-color="#B87B20"/>
+          <stop offset="100%" stop-color="#EDD264"/>
         </linearGradient>
-        <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#F0D080"/>
-          <stop offset="100%" stop-color="#C08030"/>
+        <linearGradient id="gBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#0e1621"/>
+          <stop offset="100%" stop-color="#172030"/>
         </linearGradient>
       </defs>
 
-      <!-- Círculo de fundo escuro suave -->
-      <circle cx="96" cy="96" r="90" fill="#0d1b2a"/>
+      <!-- Fundo -->
+      <circle cx="96" cy="96" r="92" fill="url(#gBg)"/>
+      <circle cx="96" cy="96" r="88" fill="none" stroke="#EDD264" stroke-width="0.7" opacity="0.35"/>
 
-      <!-- Borda circular fina dourada -->
-      <circle cx="96" cy="96" r="86" fill="none" stroke="#C9A040" stroke-width="1" opacity="0.6"/>
+      <!-- Estrela de Davi completa preenchida -->
+      <polygon
+        points="96.0,24.0 116.78,60.0 158.35,60.0 137.57,96.0 158.35,132.0 116.78,132.0 96.0,168.0 75.22,132.0 33.65,132.0 54.43,96.0 33.65,60.0 75.22,60.0"
+        fill="url(#gStar)"
+        stroke="none"
+      />
 
-      <!-- Triângulo 1 — aponta para cima — preenchido semitransparente -->
-      <polygon points="96,28 154.89,130 37.11,130"
-        fill="#C9A040" fill-opacity="0.10"
-        stroke="url(#g1)" stroke-width="3.5" stroke-linejoin="round"/>
+      <!-- Hexágono central escuro — cria o efeito visual clássico da Estrela de Davi -->
+      <polygon
+        points="116.78,60.0 137.57,96.0 116.78,132.0 75.22,132.0 54.43,96.0 75.22,60.0"
+        fill="#0e1621"
+        fill-opacity="0.40"
+      />
 
-      <!-- Triângulo 2 — aponta para baixo — preenchido semitransparente -->
-      <polygon points="96,164 37.11,62 154.89,62"
-        fill="#C9A040" fill-opacity="0.10"
-        stroke="url(#g2)" stroke-width="3.5" stroke-linejoin="round"/>
-
-      <!-- Hexágono central preenchido (área de interseção destacada) -->
-      <polygon points="96,62 154.89,96 96,130 37.11,96"
-        fill="#0d1b2a" fill-opacity="0"/>
-
-      <!-- Ponto central dourado -->
-      <circle cx="96" cy="96" r="5" fill="#D4A843" opacity="0.9"/>
+      <!-- Pequeno círculo central -->
+      <circle cx="96" cy="96" r="3.5" fill="#EDD264" opacity="0.8"/>
 
     </svg>
