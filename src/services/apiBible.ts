@@ -21,8 +21,9 @@ export interface ApiBibleTranslation {
 }
 
 export const AVAILABLE_TRANSLATIONS: ApiBibleTranslation[] = [
-  // ── Português — bible-api.com ────────────────────────────────────────────
-  { id: 'arc',        name: 'Almeida Revista e Corrigida (ARC)',    language: 'pt', source: 'bible-api' },
+  // ── Padrão recomendado ───────────────────────────────────────────────────
+  { id: 'arc',        name: '✓ Almeida Revista e Corrigida (ARC) — Padrão',  language: 'pt', source: 'bible-api' },
+
 
   // ── Português — api.getbible.net ────────────────────────────────────────
   { id: 'gb_almeida', name: 'Almeida Atualizada (AA)',              language: 'pt', source: 'getbible'  },
