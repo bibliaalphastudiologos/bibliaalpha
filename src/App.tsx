@@ -9,6 +9,7 @@ import ReadingPlansPanel from './components/ReadingPlansPanel';
 import ResearchPanel from './components/ResearchPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
 import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X } from 'lucide-react';
+import SplashScreen from './components/SplashScreen';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -37,6 +38,7 @@ export default function App() {
   const [isPlansOpen, setIsPlansOpen] = useState(false);
   const [isResearchOpen, setIsResearchOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [apiErrorBanner, setApiErrorBanner] = useState<string | null>(null);
 
   // Carrega livros e restaura última posição + tradução do localStorage
@@ -117,6 +119,8 @@ export default function App() {
   }, [activeBook, activeChapter, activeTranslation]);
 
   return (
+    <>
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
     <div className="flex h-screen w-full bg-sleek-bg font-sans overflow-hidden text-sleek-text-main">
       {isSidebarOpen && <div className="fixed inset-0 bg-black/10 z-10 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
       <Sidebar isOpen={isSidebarOpen} books={books} activeBook={activeBook} activeChapter={activeChapter}
@@ -184,5 +188,6 @@ export default function App() {
         onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
       />
     </div>
+    </>
   );
 }
