@@ -120,7 +120,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
             src="/icon.svg"
             alt="Bíblia de Estudo Alpha"
             className="w-full h-auto object-contain"
-            style={{ maxHeight: '200px' }}
+            style={{ maxHeight: '72px' }}
             draggable={false}
           />
         </div>
