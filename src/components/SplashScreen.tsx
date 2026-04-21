@@ -70,7 +70,7 @@ import { useEffect, useState } from 'react';
             <img
               src="/icon.svg"
               alt="Bíblia Alpha — Estrela de Davi"
-              style={{ width: '120px', height: '120px', objectFit: 'contain' }}
+              style={{ width: '80px', height: '80px', objectFit: 'contain' }}
               draggable={false}
             />
           </div>
