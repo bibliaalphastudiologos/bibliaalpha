@@ -11,9 +11,9 @@ import { useEffect, useState } from 'react';
         // Fase 1: entra (fade-in do logo e texto)
         const t1 = setTimeout(() => setPhase('visible'), 100);
         // Fase 2: começa a sair após 19.5 s (tela visível por ~20 s)
-        const t2 = setTimeout(() => setPhase('exit'), 14500);
+        const t2 = setTimeout(() => setPhase('exit'), 11500);
         // Fase 3: desmonta após a animação de saída
-        const t3 = setTimeout(() => onFinish(), 15300);
+        const t3 = setTimeout(() => onFinish(), 12300);
         return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
       }, [onFinish]);
 
@@ -149,7 +149,7 @@ import { useEffect, useState } from 'react';
               style={{
                 background: 'linear-gradient(90deg, transparent, #c9a96e, transparent)',
                 width: phase === 'enter' ? '0%' : '100%',
-                transition: 'width 14.5s linear 0.2s',
+                transition: 'width 11.5s linear 0.2s',
               }}
             />
           </div>
