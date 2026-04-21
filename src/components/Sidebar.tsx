@@ -1,7 +1,16 @@
 import { Book } from '../services/bibleApi';
-import { ChevronDown, ChevronRight, Book as BookIcon, Search, Shield } from 'lucide-react';
-import { useState, useMemo } from 'react';
-import { cn } from '../App';
+import {
+  ChevronDown,
+  ChevronRight,
+  Book as BookIcon,
+  Search,
+  Shield,
+  LogOut,
+  Loader2,
+} from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import cn from '../App';
 import { useAuth } from './AuthProvider';
 
 interface SidebarProps {
@@ -14,183 +23,246 @@ interface SidebarProps {
   onSearchClick?: () => void;
 }
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick }: SidebarProps) {
+const AUTH_STORAGE_KEYS = [
+  'token',
+  'authToken',
+  'refreshToken',
+  'supabase.auth.token',
+  'firebase:authUser',
+];
+
+export default function Sidebar({
+  isOpen,
+  books,
+  activeBook,
+  activeChapter,
+  onSelectBook,
+  onSelectChapter,
+  onSearchClick,
+}: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
-  const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>('old');
-  const { profile, user } = useAuth();
-  
+  const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { profile, user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const isSuperAdmin = user?.email === 'analista.ericksilva@gmail.com';
   const showAdminButton = profile?.isAdmin || isSuperAdmin;
 
-  // Group books by Old/New Testament simply by index (first 39 are OT)
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
   const newTestament = useMemo(() => books.slice(39), [books]);
 
   const toggleBook = (book: Book) => {
-    if (expandedBookId === book.id) {
-      setExpandedBookId(null);
-    } else {
-      setExpandedBookId(book.id);
-      onSelectBook(book); // Optionally select the book when expanded
-    }
+    if (expandedBookId === book.id) setExpandedBookId(null);
+    else setExpandedBookId(book.id);
+    onSelectBook(book);
   };
 
-  const renderBookList = (list: Book[], title: string, id: 'old' | 'new') => {
-    const isTestamentExpanded = expandedTestament === id;
-    
-    return (
-      <div className="mb-3 px-2">
-        <button 
-          onClick={() => setExpandedTestament(isTestamentExpanded ? null : id)}
-          className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
-        >
-          <span>{title}</span>
-          {isTestamentExpanded ? <ChevronDown size={15} className="text-sleek-text-muted" /> : <ChevronRight size={15} className="text-sleek-text-muted" />}
-        </button>
-        
-        {isTestamentExpanded && (
-          <div className="space-y-0.5 px-1 mt-2 mb-4">
-            {list.map(book => {
-              const isExpanded = expandedBookId === book.id;
-              const isActive = activeBook?.id === book.id;
-              
-              return (
-                <div key={book.id}>
-                  <button
-                    onClick={() => toggleBook(book)}
-                    className={cn(
-                      "w-full flex items-center justify-between px-2 py-1.5 text-[14px] rounded-md transition-colors cursor-pointer",
-                      isActive ? "bg-sleek-hover font-semibold text-sleek-text-main" : "text-sleek-text-main hover:bg-sleek-hover"
-                    )}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <span className="truncate">{book.name}</span>
-                    </div>
-                    {isExpanded ? <ChevronDown size={14} className="text-sleek-text-muted shrink-0" /> : <ChevronRight size={14} className="text-sleek-text-muted shrink-0" />}
-                  </button>
-                  
-                  {isExpanded && (
-                    <div className="pl-6 py-2 grid grid-cols-4 gap-1">
-                      {Array.from({ length: book.numberOfChapters }).map((_, i) => {
-                        const chapterNum = i + 1;
-                        const isChapterActive = isActive && activeChapter === chapterNum;
-                        return (
-                          <button
-                            key={chapterNum}
-                            onClick={() => {
-                              onSelectBook(book);
-                              onSelectChapter(chapterNum);
-                            }}
-                            className={cn(
-                              "aspect-square flex items-center justify-center text-[13px] rounded-md transition-colors",
-                              isChapterActive 
-                                ? "font-semibold bg-sleek-hover text-sleek-text-main" 
-                                : "hover:bg-sleek-hover text-sleek-text-muted"
-                            )}
-                          >
-                            {chapterNum}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+  const toggleTestament = (testament: 'old' | 'new') => {
+    setExpandedTestament((current) => (current === testament ? null : testament));
+  };
+
+  const clearLocalAuthData = useCallback(() => {
+    AUTH_STORAGE_KEYS.forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+
+    Object.keys(localStorage).forEach((key) => {
+      if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('token')) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    Object.keys(sessionStorage).forEach((key) => {
+      if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('token')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+
+    document.cookie.split(';').forEach((cookie) => {
+      const cookieName = cookie.split('=')[0]?.trim();
+      if (!cookieName) return;
+
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+    });
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      await logout();
+    } finally {
+      clearLocalAuthData();
+      navigate('/login', { replace: true });
+      setIsLoggingOut(false);
+    }
+  }, [clearLocalAuthData, isLoggingOut, logout, navigate]);
+
+  const renderBooks = (items: Book[]) => (
+    <div className="space-y-1">
+      {items.map((book) => {
+        const isExpanded = expandedBookId === book.id;
+        const isActiveBook = activeBook?.id === book.id;
+
+        return (
+          <div key={book.id} className="rounded-lg">
+            <button
+              type="button"
+              onClick={() => toggleBook(book)}
+              className={cn(
+                'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
+                isActiveBook
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'text-slate-700 hover:bg-slate-100'
+              )}
+              aria-expanded={isExpanded}
+              aria-controls={`chapters-${book.id}`}
+            >
+              <span className="truncate">{book.name}</span>
+              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
+
+            {isExpanded && (
+              <div id={`chapters-${book.id}`} className="mt-1 grid grid-cols-4 gap-1 pl-2">
+                {Array.from({ length: book.chapters }, (_, index) => {
+                  const chapter = index + 1;
+                  const isActiveChapter = isActiveBook && activeChapter === chapter;
+
+                  return (
+                    <button
+                      key={chapter}
+                      type="button"
+                      onClick={() => onSelectChapter(chapter)}
+                      className={cn(
+                        'rounded-md px-2 py-1 text-xs transition-colors',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
+                        isActiveChapter
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      )}
+                      aria-label={`Selecionar capítulo ${chapter} de ${book.name}`}
+                    >
+                      {chapter}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    );
-  };
-
-  const handleAction = (type: string) => {
-    // Quick Intents for Productivity Apps
-    if (type === 'notion') {
-      window.open('https://www.notion.so/', '_blank', 'noopener,noreferrer');
-    } else if (type === 'gmail') {
-      const subject = encodeURIComponent("Meus Estudos da Bíblia Alpha");
-      window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}`, '_blank', 'popup=yes,width=800,height=600');
-    } else if (type === 'drive') {
-      window.open('https://drive.google.com/', '_blank', 'noopener,noreferrer');
-    } else if (type === 'calendar') {
-      const title = encodeURIComponent("Tempo de Estudo: Bíblia Alpha");
-      const details = encodeURIComponent("Momento diário de meditação e estudo na Bíblia Alpha.");
-      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`, '_blank', 'popup=yes,width=800,height=600');
-    }
-  };
+        );
+      })}
+    </div>
+  );
 
   return (
-    <div 
+    <aside
       className={cn(
-        "flex-shrink-0 bg-sleek-sidebar-bg border-r border-sleek-border h-full flex flex-col flex-nowrap overflow-hidden transition-all duration-300 z-20 absolute lg:static left-0 inset-y-0",
-        isOpen ? "w-[85vw] sm:w-[240px]" : "w-0 border-none"
+        'fixed left-0 top-0 z-40 flex h-full w-[85vw] max-w-[320px] flex-col border-r border-slate-200 bg-white transition-transform duration-300 sm:w-[240px]',
+        isOpen ? 'translate-x-0' : '-translate-x-full'
       )}
+      aria-label="Menu lateral"
     >
-      <div className={cn("flex-1 overflow-y-auto py-4 custom-scrollbar w-[85vw] sm:w-[240px]", !isOpen && "hidden")}>
-        {/* Logo discreta no topo do sidebar */}
-        <div className="flex items-center justify-center px-4 pt-1 pb-4">
-          <img
-            src="/icon.svg"
-            alt="Bíblia de Estudo Alpha"
-            className="h-9 w-auto object-contain opacity-90"
-            draggable={false}
-          />
+      <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-4">
+        <BookIcon className="h-5 w-5 text-emerald-600" />
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Biblia Alpha</p>
+          <p className="text-xs text-slate-500">Estudo e navegação</p>
         </div>
-        <button 
-          onClick={onSearchClick}
-          className="mx-3 mb-4 px-2.5 py-1.5 w-[calc(100%-24px)] bg-white border border-sleek-border hover:bg-sleek-hover rounded-md text-[12px] text-sleek-text-muted flex items-center justify-between transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer"
-        >
-          <span className="flex items-center gap-1.5"><Search size={14} className="opacity-70" /> Buscar livro...</span>
-          <span className="font-mono text-[9px] bg-sleek-avatar-bg px-1 rounded text-sleek-text-muted">⌘K</span>
-        </button>
-        {renderBookList(oldTestament, "Antigo Testamento", 'old')}
-        {renderBookList(newTestament, "Novo Testamento", 'new')}
-        
-        {/* Conexões */}
-        <div className="mt-8 mb-6">
-          <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
-            Extensões e Conexões
-          </div>
-          <div className="pl-4 pr-3 space-y-1">
-            <button onClick={() => handleAction('notion')} className="w-full flex items-center justify-between px-2 py-1.5 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded flex items-center justify-center bg-[#F1F1F1] text-black">N</div>
-                Abrir no Notion
-              </div>
-            </button>
-            <button onClick={() => handleAction('gmail')} className="w-full flex items-center justify-between px-2 py-1.5 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded flex items-center justify-center bg-[#EA4335] text-white font-bold text-[10px]">M</div>
-                Escrever no Gmail
-              </div>
-            </button>
-            <button onClick={() => handleAction('drive')} className="w-full flex items-center justify-between px-2 py-1.5 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded flex items-center justify-center bg-[#4285F4] text-white text-[10px] font-bold">D</div>
-                Abrir Google Drive
-              </div>
-            </button>
-            <button onClick={() => handleAction('calendar')} className="w-full flex items-center justify-between px-2 py-1.5 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded flex items-center justify-center bg-[#1B73E8] text-white text-[10px]">C</div>
-                Agendar Estudo
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {showAdminButton && (
-          <div className="px-3 pb-4">
-            <a
-              href="/admin"
-              className="w-full flex items-center gap-2 px-3 py-2 text-[12px] rounded-md transition-colors text-sleek-text-muted hover:bg-sleek-hover"
-            >
-              <Shield size={13} className="text-sleek-text-muted" />
-              Painel Admin
-            </a>
-          </div>
-        )}
       </div>
-    </div>
+
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={onSearchClick}
+            className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+            aria-label="Abrir busca"
+          >
+            <Search className="h-4 w-4" />
+            <span>Buscar</span>
+          </button>
+
+          <section aria-labelledby="old-testament-heading" className="space-y-2">
+            <button
+              type="button"
+              onClick={() => toggleTestament('old')}
+              className="flex w-full items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-left text-sm font-medium text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              aria-expanded={expandedTestament === 'old'}
+              aria-controls="old-testament-list"
+            >
+              <span id="old-testament-heading">Antigo Testamento</span>
+              {expandedTestament === 'old' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
+            {expandedTestament === 'old' && <div id="old-testament-list">{renderBooks(oldTestament)}</div>}
+          </section>
+
+          <section aria-labelledby="new-testament-heading" className="space-y-2">
+            <button
+              type="button"
+              onClick={() => toggleTestament('new')}
+              className="flex w-full items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-left text-sm font-medium text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              aria-expanded={expandedTestament === 'new'}
+              aria-controls="new-testament-list"
+            >
+              <span id="new-testament-heading">Novo Testamento</span>
+              {expandedTestament === 'new' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
+            {expandedTestament === 'new' && <div id="new-testament-list">{renderBooks(newTestament)}</div>}
+          </section>
+
+          <section className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3" aria-label="Conexões e ações da conta">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Shield className="h-4 w-4 text-emerald-600" />
+              <span>Conexões</span>
+            </div>
+
+            {showAdminButton && (
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                aria-label="Abrir área administrativa"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Administração</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={cn(
+                'flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2',
+                isLoggingOut
+                  ? 'cursor-not-allowed bg-red-100 text-red-500'
+                  : 'bg-red-50 text-red-700 hover:bg-red-100'
+              )}
+              aria-label={isLoggingOut ? 'Saindo da conta' : 'Sair da conta'}
+              aria-busy={isLoggingOut}
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Saindo...</span>
+                </>
+              ) : (
+                <>
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  <span>Sair</span>
+                </>
+              )}
+            </button>
+          </section>
+        </div>
+      </div>
+    </aside>
   );
 }
