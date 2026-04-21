@@ -1,39 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
       <defs>
-        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#e8c97a"/>
-          <stop offset="100%" stop-color="#b8893a"/>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F0D080"/>
+          <stop offset="100%" stop-color="#C08030"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#F0D080"/>
+          <stop offset="100%" stop-color="#C08030"/>
         </linearGradient>
       </defs>
 
-      <!-- Triângulo apontando para cima -->
-      <polygon
-        points="96,28 168,156 24,156"
-        fill="none"
-        stroke="url(#gold)"
-        stroke-width="4.5"
-        stroke-linejoin="round"
-      />
+      <!-- Círculo de fundo escuro suave -->
+      <circle cx="96" cy="96" r="90" fill="#0d1b2a"/>
 
-      <!-- Triângulo apontando para baixo -->
-      <polygon
-        points="96,164 24,36 168,36"
-        fill="none"
-        stroke="url(#gold)"
-        stroke-width="4.5"
-        stroke-linejoin="round"
-      />
+      <!-- Borda circular fina dourada -->
+      <circle cx="96" cy="96" r="86" fill="none" stroke="#C9A040" stroke-width="1" opacity="0.6"/>
 
-      <!-- Ponto central -->
-      <circle cx="96" cy="96" r="4" fill="#c9a96e"/>
+      <!-- Triângulo 1 — aponta para cima — preenchido semitransparente -->
+      <polygon points="96,28 154.89,130 37.11,130"
+        fill="#C9A040" fill-opacity="0.10"
+        stroke="url(#g1)" stroke-width="3.5" stroke-linejoin="round"/>
 
-      <!-- Letra Alpha -->
-      <text
-        x="96" y="101"
-        text-anchor="middle"
-        font-family="Georgia, serif"
-        font-size="11"
-        fill="#c9a96e"
-        opacity="0.85"
-      >α</text>
+      <!-- Triângulo 2 — aponta para baixo — preenchido semitransparente -->
+      <polygon points="96,164 37.11,62 154.89,62"
+        fill="#C9A040" fill-opacity="0.10"
+        stroke="url(#g2)" stroke-width="3.5" stroke-linejoin="round"/>
+
+      <!-- Hexágono central preenchido (área de interseção destacada) -->
+      <polygon points="96,62 154.89,96 96,130 37.11,96"
+        fill="#0d1b2a" fill-opacity="0"/>
+
+      <!-- Ponto central dourado -->
+      <circle cx="96" cy="96" r="5" fill="#D4A843" opacity="0.9"/>
+
     </svg>
