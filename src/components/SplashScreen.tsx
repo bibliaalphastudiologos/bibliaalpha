@@ -154,12 +154,12 @@ import { useEffect, useState } from 'react';
             />
           </div>
 
-          <style>{\`
+          <style>{`
             @keyframes twinkle {
               0%, 100% { opacity: 0.2; }
               50% { opacity: 0.7; }
             }
-          \`}</style>
+          `}</style>
         </div>
       );
     }
