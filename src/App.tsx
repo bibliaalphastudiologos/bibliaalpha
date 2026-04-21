@@ -16,14 +16,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const LAST_BOOK_KEY = 'bibliaalpha_last_book_id';
-const LAST_CHAPTER_KEY = 'bibliaalpha_last_chapter';
+const LAST_BOOK_KEY        = 'bibliaalpha_last_book_id';
+const LAST_CHAPTER_KEY     = 'bibliaalpha_last_chapter';
+const LAST_TRANSLATION_KEY = 'bibliaalpha_last_translation';
+const DEFAULT_TRANSLATION  = 'arc'; // bible-api.com — Almeida Revista e Corrigida (funciona)
 
 export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeBook, setActiveBook] = useState<Book | null>(null);
   const [activeChapter, setActiveChapter] = useState<number>(1);
-  const [activeTranslation, setActiveTranslation] = useState<string>('almeida');
+  const [activeTranslation, setActiveTranslation] = useState<string>(DEFAULT_TRANSLATION);
   const [chapterContent, setChapterContent] = useState<any[]>([]);
   const [isLoadingChapter, setIsLoadingChapter] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
@@ -37,42 +39,55 @@ export default function App() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [apiErrorBanner, setApiErrorBanner] = useState<string | null>(null);
 
+  // Carrega livros e restaura última posição + tradução do localStorage
   useEffect(() => {
     async function init() {
       try {
         const fetchedBooks = await getBooks();
         setBooks(fetchedBooks);
         if (fetchedBooks.length > 0) {
-          const savedBookId = localStorage.getItem(LAST_BOOK_KEY);
-          const savedChapter = parseInt(localStorage.getItem(LAST_CHAPTER_KEY) || '1', 10);
-          const savedBook = savedBookId ? fetchedBooks.find(b => b.id === savedBookId) : null;
-          setActiveBook(savedBook || fetchedBooks[1]);
-          setActiveChapter(savedBook ? (isNaN(savedChapter) ? 1 : savedChapter) : 1);
+          const savedBookId     = localStorage.getItem(LAST_BOOK_KEY);
+          const savedChapterRaw = localStorage.getItem(LAST_CHAPTER_KEY);
+          const savedTranslation = localStorage.getItem(LAST_TRANSLATION_KEY);
+          const savedChapter    = savedChapterRaw ? parseInt(savedChapterRaw, 10) : 1;
+          const savedBook       = savedBookId ? fetchedBooks.find(b => b.id === savedBookId) : null;
+          // Restaura tradução salva (valida se ainda existe)
+          if (savedTranslation && AVAILABLE_TRANSLATIONS.find(t => t.id === savedTranslation)) {
+            setActiveTranslation(savedTranslation);
+          }
+          // Restaura livro e capítulo salvos; default: Gênesis cap 1
+          setActiveBook(savedBook ?? fetchedBooks[0]);
+          setActiveChapter((savedBook && !isNaN(savedChapter)) ? savedChapter : 1);
         }
-      } catch (error) { console.error("Failed to load books", error); }
+      } catch (error) {
+        console.error("Failed to load books", error);
+      }
     }
     init();
   }, []);
 
+  // Persiste última posição e tradução no localStorage
   useEffect(() => {
     if (activeBook) {
-      localStorage.setItem(LAST_BOOK_KEY, activeBook.id);
-      localStorage.setItem(LAST_CHAPTER_KEY, String(activeChapter));
+      localStorage.setItem(LAST_BOOK_KEY,        activeBook.id);
+      localStorage.setItem(LAST_CHAPTER_KEY,     String(activeChapter));
+      localStorage.setItem(LAST_TRANSLATION_KEY, activeTranslation);
     }
-  }, [activeBook, activeChapter]);
+  }, [activeBook, activeChapter, activeTranslation]);
 
+  // Atalho de teclado Ctrl/Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setIsCommandModeOpen(true); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandModeOpen(true);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (books.length > 0 && !activeBook) setActiveBook(books[0]);
-  }, [books]);
-
+  // Carrega conteúdo do capítulo quando livro / capítulo / tradução mudam
   useEffect(() => {
     if (!activeBook) return;
     let isMounted = true;
@@ -80,20 +95,22 @@ export default function App() {
       setIsLoadingChapter(true);
       setApiErrorBanner(null);
       try {
-        let ptContent;
-        try {
-          ptContent = await getChapterFromApiBible(activeTranslation, activeBook!.id, activeChapter);
-        } catch(e: any) {
-          console.error("API err", e);
-          if (isMounted) setApiErrorBanner("Erro na API (" + activeTranslation + "): " + e.message + ". Tente outra tradução.");
-          if (isMounted && activeTranslation !== 'almeida') setActiveTranslation('almeida');
-          return;
-        }
+        const ptContent = await getChapterFromApiBible(activeTranslation, activeBook!.id, activeChapter);
         if (isMounted) setChapterContent(ptContent);
-      } catch (error) {
-        console.error("Failed to load chapter", error);
-        if (isMounted) setChapterContent([]);
-      } finally { if (isMounted) setIsLoadingChapter(false); }
+      } catch (e: any) {
+        console.error("[App] Erro ao carregar capítulo:", e);
+        if (isMounted) {
+          setApiErrorBanner(`Erro na tradução "${activeTranslation}": ${e.message}. Tentando Almeida…`);
+          // Fallback para ARC (Almeida) se a tradução atual falhar
+          if (activeTranslation !== DEFAULT_TRANSLATION) {
+            setActiveTranslation(DEFAULT_TRANSLATION);
+          } else {
+            setChapterContent([{ type: 'verse', number: 1, content: ['Erro ao carregar. Verifique sua conexão.'] }]);
+          }
+        }
+      } finally {
+        if (isMounted) setIsLoadingChapter(false);
+      }
     }
     loadChapter();
     return () => { isMounted = false; };
@@ -116,6 +133,7 @@ export default function App() {
             </button>
           </div>
         )}
+        {/* Header mobile */}
         <header className="h-14 flex items-center justify-between px-6 sm:px-10 border-b border-sleek-border bg-white shrink-0 z-10 lg:hidden">
           <div className="flex items-center gap-3">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors">
@@ -126,7 +144,7 @@ export default function App() {
           <div className="flex items-center gap-1">
             <button onClick={() => setIsPlansOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-blue-600 transition-colors"><BookOpen size={18} /></button>
             <button onClick={() => setIsNotepadOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"><Edit3 size={18} /></button>
-            <button onClick={() => setIsResearchOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-purple-600 transition-colors" title="Pesquisa Biblica"><Globe size={18} /></button>
+            <button onClick={() => setIsResearchOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-purple-600 transition-colors" title="Pesquisa Bíblica"><Globe size={18} /></button>
             <div className="relative">
               <button onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"><MoreHorizontal size={18} /></button>
               {isMoreMenuOpen && <ConnectionsDropdown onClose={() => setIsMoreMenuOpen(false)} className="right-0 top-12" />}
