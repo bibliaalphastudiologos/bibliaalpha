@@ -203,7 +203,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       </header>
 
       <div
-        className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-left text-[18px] sm:text-[20px] leading-[1.6] text-sleek-reading-text relative animate-fade-in"
+        className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-left reading-text text-sleek-reading-text relative animate-fade-in"
       >
         <div className="pb-8 border-b border-sleek-border mb-8">
           <h1 
