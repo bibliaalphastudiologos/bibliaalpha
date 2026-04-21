@@ -1,108 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1e3a5f" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#0a1628" stop-opacity="1"/>
-    </radialGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f5e09a"/>
-      <stop offset="30%" stop-color="#c9a96e"/>
-      <stop offset="60%" stop-color="#e8c97a"/>
-      <stop offset="100%" stop-color="#a87840"/>
-    </linearGradient>
-    <linearGradient id="goldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#f5e09a"/>
-      <stop offset="30%" stop-color="#c9a96e"/>
-      <stop offset="60%" stop-color="#e8c97a"/>
-      <stop offset="100%" stop-color="#a87840"/>
-    </linearGradient>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="outerGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
+      <defs>
+        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e8c97a"/>
+          <stop offset="100%" stop-color="#b8893a"/>
+        </linearGradient>
+      </defs>
 
-  <!-- Fundo circular escuro com brilho suave -->
-  <circle cx="96" cy="96" r="90" fill="url(#bgGlow)" opacity="0.85"/>
-  <circle cx="96" cy="96" r="88" fill="none" stroke="#c9a96e" stroke-width="1.2" opacity="0.5"/>
-  <circle cx="96" cy="96" r="80" fill="none" stroke="#c9a96e" stroke-width="0.4" opacity="0.3"/>
+      <!-- Triângulo apontando para cima -->
+      <polygon
+        points="96,28 168,156 24,156"
+        fill="none"
+        stroke="url(#gold)"
+        stroke-width="4.5"
+        stroke-linejoin="round"
+      />
 
-  <!-- Estrela de Davi — Triângulo apontando para CIMA -->
-  <!-- vertices: topo(96,22), baixo-esq(30,126), baixo-dir(162,126) -->
-  <polygon
-    points="96,24 28,128 164,128"
-    fill="none"
-    stroke="url(#goldGrad)"
-    stroke-width="5"
-    stroke-linejoin="round"
-    filter="url(#glow)"
-    opacity="0.95"
-  />
+      <!-- Triângulo apontando para baixo -->
+      <polygon
+        points="96,164 24,36 168,36"
+        fill="none"
+        stroke="url(#gold)"
+        stroke-width="4.5"
+        stroke-linejoin="round"
+      />
 
-  <!-- Estrela de Davi — Triângulo apontando para BAIXO -->
-  <!-- vertices: topo-esq(28,64), topo-dir(164,64), baixo(96,168) -->
-  <polygon
-    points="28,64 164,64 96,168"
-    fill="none"
-    stroke="url(#goldGrad2)"
-    stroke-width="5"
-    stroke-linejoin="round"
-    filter="url(#glow)"
-    opacity="0.95"
-  />
+      <!-- Ponto central -->
+      <circle cx="96" cy="96" r="4" fill="#c9a96e"/>
 
-  <!-- Preenchimento leve das estrelas para dar profundidade -->
-  <polygon
-    points="96,24 28,128 164,128"
-    fill="#c9a96e"
-    opacity="0.06"
-  />
-  <polygon
-    points="28,64 164,64 96,168"
-    fill="#c9a96e"
-    opacity="0.06"
-  />
-
-  <!-- Pontos decorativos nos 6 vértices da estrela -->
-  <!-- Vértice topo -->
-  <circle cx="96" cy="24" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-  <!-- Vértice baixo -->
-  <circle cx="96" cy="168" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-  <!-- Vértice topo-esquerda -->
-  <circle cx="28" cy="64" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-  <!-- Vértice topo-direita -->
-  <circle cx="164" cy="64" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-  <!-- Vértice baixo-esquerda -->
-  <circle cx="28" cy="128" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-  <!-- Vértice baixo-direita -->
-  <circle cx="164" cy="128" r="3.5" fill="#f5e09a" filter="url(#glow)" opacity="0.9"/>
-
-  <!-- Centro: círculo pequeno dourado -->
-  <circle cx="96" cy="96" r="8" fill="none" stroke="#c9a96e" stroke-width="1.5" opacity="0.7"/>
-  <circle cx="96" cy="96" r="3" fill="#f5e09a" opacity="0.85" filter="url(#glow)"/>
-
-  <!-- Letra Alpha no centro (α) em grego, elegante -->
-  <!-- Usando texto em vez de path para simplicidade -->
-  <text
-    x="96" y="101"
-    text-anchor="middle"
-    font-family="Georgia, serif"
-    font-size="13"
-    font-weight="600"
-    fill="#f5e09a"
-    opacity="0.9"
-    filter="url(#glow)"
-    letter-spacing="0.5"
-  >α</text>
-
-</svg>
+      <!-- Letra Alpha -->
+      <text
+        x="96" y="101"
+        text-anchor="middle"
+        font-family="Georgia, serif"
+        font-size="11"
+        fill="#c9a96e"
+        opacity="0.85"
+      >α</text>
+    </svg>
