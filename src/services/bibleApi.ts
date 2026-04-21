@@ -108,7 +108,7 @@ export async function getVerseCommentaries(bookId: string, chapter: number, vers
         'john-gill': 'John Gill',
         'tyndale': 'Tyndale',
       };
-      return { id: commentaryId, name: names[commentaryId] ?? commentaryId, paragraphs };
+      return { id: commentaryId, author: names[commentaryId] ?? commentaryId, texts: paragraphs };
     } catch {
       return null;
     }
