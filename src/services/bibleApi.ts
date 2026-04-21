@@ -119,3 +119,34 @@ export async function getVerseCommentaries(bookId: string, chapter: number, vers
     .filter((r) => r.status === 'fulfilled' && r.value !== null)
     .map((r) => (r as PromiseFulfilledResult<any>).value);
 }
+
+/**
+ * Returns verse numbers that have at least one commentary available.
+ * Used to show/hide the "Estudo" button per verse.
+ */
+export async function getChapterCommentMap(bookId: string, chapter: number): Promise<Set<number>> {
+  const availableSet = new Set<number>();
+
+  const promises = COMMENTARIES_IDS.map(async (commentaryId) => {
+    try {
+      const data = await safeCommentaryFetch(
+        `${BIBLE_API_BASE}/c/${commentaryId}/${bookId}/${chapter}.json`
+      );
+      if (!data?.chapter?.content) return;
+
+      data.chapter.content.forEach((v: any) => {
+        if (v.type === 'verse' && v.number && v.content?.length > 0) {
+          const hasText = v.content.some(
+            (c: any) => typeof c === 'string' && c.trim().length > 0
+          );
+          if (hasText) availableSet.add(v.number);
+        }
+      });
+    } catch {
+      // silently ignore per-commentary failures
+    }
+  });
+
+  await Promise.allSettled(promises);
+  return availableSet;
+}
