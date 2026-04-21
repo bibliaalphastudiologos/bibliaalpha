@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component } from 'react';
 import { getVerseCommentaries } from '../services/bibleApi';
 import { translateCommentaries } from '../services/aiTranslation';
 import { cn } from '../App';
@@ -11,12 +11,31 @@ interface InlineCommentsProps {
   onClose?: (e: React.MouseEvent) => void;
 }
 
-export default function InlineComments({ bookId, chapter, verseNumber, onClose }: InlineCommentsProps) {
+// Error boundary — impede que um crash nos comentários derrube a tela inteira
+class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err: any) { console.error('[InlineComments] crash capturado:', err); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="my-3 px-4 py-3 bg-red-50 border-l-2 border-red-300 rounded-r-lg text-[13px] text-red-600 font-sans">
+          Não foi possível carregar o comentário. Tente novamente.
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCommentsProps) {
   const [comments, setComments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [visible, setVisible] = useState(false);
 
-  // Trigger fade-in after mount
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10);
     return () => clearTimeout(t);
@@ -24,26 +43,22 @@ export default function InlineComments({ bookId, chapter, verseNumber, onClose }
 
   useEffect(() => {
     let isMounted = true;
-
     async function loadComments() {
       setIsLoading(true);
       setComments([]);
-
       try {
         const rawComments = await getVerseCommentaries(bookId, chapter, verseNumber);
         if (!isMounted) return;
-
         const ptComments = await translateCommentaries(bookId, chapter, verseNumber, rawComments);
         if (!isMounted) return;
-
-        setComments(ptComments.slice(0, 3));
+        setComments((ptComments ?? []).slice(0, 3));
       } catch (e) {
-        console.error('InlineComments error:', e);
+        console.error('[InlineComments] erro ao carregar:', e);
+        if (isMounted) setComments([]);
       } finally {
         if (isMounted) setIsLoading(false);
       }
     }
-
     loadComments();
     return () => { isMounted = false; };
   }, [bookId, chapter, verseNumber]);
@@ -56,7 +71,6 @@ export default function InlineComments({ bookId, chapter, verseNumber, onClose }
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
       )}
     >
-      {/* Header — clique fecha */}
       <div
         className="font-sans text-[11px] font-bold tracking-widest text-sleek-text-muted uppercase px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between cursor-pointer hover:bg-sleek-hover transition-colors"
         onClick={onClose}
@@ -85,15 +99,15 @@ export default function InlineComments({ bookId, chapter, verseNumber, onClose }
         ) : comments.length > 0 ? (
           <div className="space-y-6 pt-2">
             {comments.map((comment, idx) => (
-              <div key={comment.id || idx} className="font-sans text-[13px] sm:text-[14px]">
+              <div key={comment.id ?? idx} className="font-sans text-[13px] sm:text-[14px]">
                 <div className="flex items-center gap-2 mb-1.5 opacity-80">
                   <div className="w-5 h-5 rounded-full bg-sleek-avatar-bg text-[9px] flex items-center justify-center font-bold text-sleek-text-main shrink-0 uppercase">
-                    {comment.author.substring(0, 2)}
+                    {(comment.author ?? '??').substring(0, 2)}
                   </div>
-                  <span className="font-semibold text-sleek-text-main">{comment.author}</span>
+                  <span className="font-semibold text-sleek-text-main">{comment.author ?? 'Comentarista'}</span>
                 </div>
                 <div className="text-sleek-comment-text leading-relaxed pl-7">
-                  {comment.texts.map((text: string, tIdx: number) => (
+                  {(comment.texts ?? []).map((text: string, tIdx: number) => (
                     <p key={tIdx} className={tIdx > 0 ? 'mt-2' : ''}>{text}</p>
                   ))}
                 </div>
@@ -107,5 +121,13 @@ export default function InlineComments({ bookId, chapter, verseNumber, onClose }
         )}
       </div>
     </div>
+  );
+}
+
+export default function InlineComments(props: InlineCommentsProps) {
+  return (
+    <CommentErrorBoundary>
+      <InlineCommentsInner {...props} />
+    </CommentErrorBoundary>
   );
 }
