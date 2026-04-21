@@ -1,5 +1,5 @@
 import { Book } from '../services/bibleApi';
-import { ChevronDown, ChevronRight, Book as BookIcon, Search, Shield } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, LogOut } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
@@ -17,12 +17,8 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>('old');
-  const { profile, user } = useAuth();
-  
-  const isSuperAdmin = user?.email === 'analista.ericksilva@gmail.com';
-  const showAdminButton = profile?.isAdmin || isSuperAdmin;
+  const { logout } = useAuth();
 
-  // Group books by Old/New Testament simply by index (first 39 are OT)
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
   const newTestament = useMemo(() => books.slice(39), [books]);
 
@@ -31,29 +27,26 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
       setExpandedBookId(null);
     } else {
       setExpandedBookId(book.id);
-      onSelectBook(book); // Optionally select the book when expanded
+      onSelectBook(book);
     }
   };
 
   const renderBookList = (list: Book[], title: string, id: 'old' | 'new') => {
     const isTestamentExpanded = expandedTestament === id;
-    
     return (
       <div className="mb-3 px-2">
-        <button 
+        <button
           onClick={() => setExpandedTestament(isTestamentExpanded ? null : id)}
           className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
         >
           <span>{title}</span>
           {isTestamentExpanded ? <ChevronDown size={15} className="text-sleek-text-muted" /> : <ChevronRight size={15} className="text-sleek-text-muted" />}
         </button>
-        
         {isTestamentExpanded && (
           <div className="space-y-0.5 px-1 mt-2 mb-4">
             {list.map(book => {
               const isExpanded = expandedBookId === book.id;
               const isActive = activeBook?.id === book.id;
-              
               return (
                 <div key={book.id}>
                   <button
@@ -68,7 +61,6 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                     </div>
                     {isExpanded ? <ChevronDown size={14} className="text-sleek-text-muted shrink-0" /> : <ChevronRight size={14} className="text-sleek-text-muted shrink-0" />}
                   </button>
-                  
                   {isExpanded && (
                     <div className="pl-6 py-2 grid grid-cols-4 gap-1">
                       {Array.from({ length: book.numberOfChapters }).map((_, i) => {
@@ -77,25 +69,22 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                         return (
                           <button
                             key={chapterNum}
-                            onClick={() => {
-                              onSelectBook(book);
-                              onSelectChapter(chapterNum);
-                            }}
+                            onClick={() => { onSelectBook(book); onSelectChapter(chapterNum); }}
                             className={cn(
                               "aspect-square flex items-center justify-center text-[13px] rounded-md transition-colors",
-                              isChapterActive 
-                                ? "font-semibold bg-sleek-hover text-sleek-text-main" 
+                              isChapterActive
+                                ? "font-semibold bg-sleek-hover text-sleek-text-main"
                                 : "hover:bg-sleek-hover text-sleek-text-muted"
                             )}
                           >
                             {chapterNum}
                           </button>
-                        )
+                        );
                       })}
                     </div>
                   )}
                 </div>
-              )
+              );
             })}
           </div>
         )}
@@ -104,7 +93,6 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
   };
 
   const handleAction = (type: string) => {
-    // Quick Intents for Productivity Apps
     if (type === 'notion') {
       window.open('https://www.notion.so/', '_blank', 'noopener,noreferrer');
     } else if (type === 'gmail') {
@@ -120,14 +108,13 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
   };
 
   return (
-    <div 
+    <div
       className={cn(
         "flex-shrink-0 bg-sleek-sidebar-bg border-r border-sleek-border h-full flex flex-col flex-nowrap overflow-hidden transition-all duration-300 z-20 absolute lg:static left-0 inset-y-0",
         isOpen ? "w-[85vw] sm:w-[240px]" : "w-0 border-none"
       )}
     >
       <div className={cn("flex-1 overflow-y-auto py-4 custom-scrollbar w-[85vw] sm:w-[240px]", !isOpen && "hidden")}>
-        {/* Logo discreta no topo do sidebar */}
         <div className="flex items-center justify-center px-4 pt-1 pb-4">
           <img
             src="/icon.svg"
@@ -136,7 +123,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
             draggable={false}
           />
         </div>
-        <button 
+        <button
           onClick={onSearchClick}
           className="mx-3 mb-4 px-2.5 py-1.5 w-[calc(100%-24px)] bg-white border border-sleek-border hover:bg-sleek-hover rounded-md text-[12px] text-sleek-text-muted flex items-center justify-between transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer"
         >
@@ -145,9 +132,8 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         </button>
         {renderBookList(oldTestament, "Antigo Testamento", 'old')}
         {renderBookList(newTestament, "Novo Testamento", 'new')}
-        
-        {/* Conexões */}
-        <div className="mt-8 mb-6">
+
+        <div className="mt-8 mb-2">
           <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
             Extensões e Conexões
           </div>
@@ -179,17 +165,15 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           </div>
         </div>
 
-        {showAdminButton && (
-          <div className="px-3 pb-4">
-            <a
-              href="/admin"
-              className="w-full flex items-center gap-2 px-3 py-2 text-[12px] rounded-md transition-colors text-sleek-text-muted hover:bg-sleek-hover"
-            >
-              <Shield size={13} className="text-sleek-text-muted" />
-              Painel Admin
-            </a>
-          </div>
-        )}
+        <div className="px-3 pt-4 pb-6 border-t border-sleek-border mt-4">
+          <button
+            onClick={() => logout()}
+            className="w-full flex items-center gap-2 px-3 py-2 text-[13px] rounded-md transition-colors text-red-500 hover:bg-red-50 hover:text-red-600 font-medium"
+          >
+            <LogOut size={14} />
+            Sair do aplicativo
+          </button>
+        </div>
       </div>
     </div>
   );
