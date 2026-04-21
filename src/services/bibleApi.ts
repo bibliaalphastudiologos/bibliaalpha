@@ -1,5 +1,7 @@
 const BIBLE_API_BASE = 'https://bible.helloao.org/api';
-const TRANSLATION_ID = 'por_blj';
+// Usa por_onbv (Nova Bíblia Viva) para lista de livros e comentários
+// por_blj retorna capítulos vazios — não usar para conteúdo
+const BOOKS_TRANSLATION_ID = 'por_onbv';
 const COMMENTARIES_IDS = ['adam-clarke', 'jamieson-fausset-brown', 'matthew-henry', 'john-gill', 'tyndale'];
 
 export interface Book {
@@ -10,31 +12,35 @@ export interface Book {
 }
 
 export async function getBooks(): Promise<Book[]> {
-  const res = await fetch(`${BIBLE_API_BASE}/${TRANSLATION_ID}/books.json`);
+  const res = await fetch(`${BIBLE_API_BASE}/${BOOKS_TRANSLATION_ID}/books.json`);
   if (!res.ok) throw new Error('Failed to fetch books');
   const data = await res.json();
   return data.books;
 }
 
 export async function getChapter(bookId: string, chapter: number): Promise<any[]> {
-  const res = await fetch(`${BIBLE_API_BASE}/${TRANSLATION_ID}/${bookId}/${chapter}.json`);
+  const res = await fetch(`${BIBLE_API_BASE}/${BOOKS_TRANSLATION_ID}/${bookId}/${chapter}.json`);
   if (!res.ok) throw new Error('Failed to fetch chapter');
   const data = await res.json();
-  return data.chapter.content;
+  const content = data.chapter?.content ?? [];
+  return content.filter((item: any) => item.type === 'verse').map((item: any) => ({
+    type: 'verse',
+    number: item.number,
+    content: item.content.filter((c: any) => typeof c === 'string'),
+  }));
 }
 
 /**
  * Safely fetches and parses JSON from the commentary API.
- * The API returns HTML (text/html) for books/chapters that don't exist
- * instead of a proper 404 JSON — calling .json() on HTML crashes the app.
- * This wrapper checks Content-Type before parsing.
+ * The API returns HTML for books/chapters that do not exist
+ * instead of a proper 404 — calling .json() on HTML crashes the app.
  */
 async function safeCommentaryFetch(url: string): Promise<any | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
     const contentType = res.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) return null; // silently skip HTML responses
+    if (!contentType.includes('application/json')) return null;
     return await res.json();
   } catch {
     return null;
@@ -92,58 +98,24 @@ export async function getVerseCommentaries(bookId: string, chapter: number, vers
       );
       if (rawTexts.length === 0) return null;
 
-      const texts = splitCommentaryText(rawTexts.join(' '));
-      if (texts.length === 0) return null;
+      const paragraphs = splitCommentaryText(rawTexts.join(' '));
+      if (paragraphs.length === 0) return null;
 
-      let commentaryName = commentaryId;
-      switch (commentaryId) {
-        case 'adam-clarke': commentaryName = 'Adam Clarke'; break;
-        case 'jamieson-fausset-brown': commentaryName = 'Jamieson-Fausset-Brown'; break;
-        case 'matthew-henry': commentaryName = 'Matthew Henry'; break;
-        case 'john-gill': commentaryName = 'John Gill'; break;
-        case 'tyndale': commentaryName = 'Tyndale Open Study Notes'; break;
-        case 'keil-delitzsch': commentaryName = 'Keil & Delitzsch'; break;
-      }
-
-      return { author: commentaryName, texts, id: commentaryId };
+      const names: Record<string, string> = {
+        'adam-clarke': 'Adam Clarke',
+        'jamieson-fausset-brown': 'Jamieson, Fausset & Brown',
+        'matthew-henry': 'Matthew Henry',
+        'john-gill': 'John Gill',
+        'tyndale': 'Tyndale',
+      };
+      return { id: commentaryId, name: names[commentaryId] ?? commentaryId, paragraphs };
     } catch {
       return null;
     }
   });
 
-  const settled = await Promise.allSettled(promises);
-  return settled
-    .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value !== null)
-    .map((r) => r.value);
-}
-
-/**
- * Returns verse numbers that have at least one commentary available.
- * Used to show/hide the "Estudo" button per verse.
- */
-export async function getChapterCommentMap(bookId: string, chapter: number): Promise<Set<number>> {
-  const availableSet = new Set<number>();
-
-  const promises = COMMENTARIES_IDS.map(async (commentaryId) => {
-    try {
-      const data = await safeCommentaryFetch(
-        `${BIBLE_API_BASE}/c/${commentaryId}/${bookId}/${chapter}.json`
-      );
-      if (!data?.chapter?.content) return;
-
-      data.chapter.content.forEach((v: any) => {
-        if (v.type === 'verse' && v.number && v.content?.length > 0) {
-          const hasText = v.content.some(
-            (c: any) => typeof c === 'string' && c.trim().length > 0
-          );
-          if (hasText) availableSet.add(v.number);
-        }
-      });
-    } catch {
-      // silently ignore per-commentary failures
-    }
-  });
-
-  await Promise.allSettled(promises);
-  return availableSet;
+  const results = await Promise.allSettled(promises);
+  return results
+    .filter((r) => r.status === 'fulfilled' && r.value !== null)
+    .map((r) => (r as PromiseFulfilledResult<any>).value);
 }
