@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, Search, BookOpen, ExternalLink, Info, Sparkles } from 'lucide-react';
+import { X, Search, BookOpen, ExternalLink, Info, Sparkles, Library } from 'lucide-react';
 import { cn } from '../App';
 import { EBOOKS_INICIAIS, EBOOK_CATEGORIAS, Ebook } from '../data/ebooks';
 import { expandirEbooks } from '../services/ebooksApi';
@@ -62,50 +62,53 @@ export default function EbooksPanel({ isOpen, onClose }: EbooksPanelProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-sleek-bg flex flex-col">
-      <header className="h-14 flex items-center justify-between px-6 sm:px-10 border-b border-sleek-border bg-sleek-bg shrink-0">
-        <div className="flex items-center gap-3">
-          <BookOpen size={18} className="text-sleek-text-muted" />
-          <h1 className="text-[15px] font-semibold text-sleek-text-main tracking-wide">Biblioteca Teológica</h1>
+      {/* Header compacto */}
+      <header className="h-12 flex items-center justify-between px-5 sm:px-8 border-b border-sleek-border bg-sleek-bg shrink-0">
+        <div className="flex items-center gap-2.5">
+          <Library size={16} className="text-sleek-text-muted" />
+          <h1 className="text-[14px] font-semibold text-sleek-text-main tracking-wide">Biblioteca Teológica</h1>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-sleek-text-muted ml-1 border border-sleek-border px-2 py-0.5 rounded-full">
+            <Sparkles size={9} /> Domínio Público
+          </span>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors" aria-label="Fechar">
-          <X size={18} />
+        <button onClick={onClose} className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors" aria-label="Fechar">
+          <X size={16} />
         </button>
       </header>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="max-w-6xl mx-auto px-5 sm:px-10 py-8 sm:py-12">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-sleek-text-muted mb-3">
-              <Sparkles size={12} /> Biblioteca Clássica · Domínio Público
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-5">
+          
+          {/* Cabeçalho elegante e compacto */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5 pb-4 border-b border-sleek-border/50">
+            <div>
+              <h2 className="text-[22px] font-semibold tracking-wide" style={{ fontFamily: 'Georgia, serif', color: 'var(--color-sleek-text-main, #1f2937)' }}>
+                Estante Virtual
+              </h2>
+              <p className="text-[12px] text-sleek-text-muted mt-0.5 italic">
+                Pais da Igreja · Reformadores · Puritanos · Comentaristas
+              </p>
             </div>
-            <h2 className="text-[32px] sm:text-[40px] font-semibold tracking-wide" style={{ fontFamily: 'Georgia, serif', color: 'var(--color-sleek-text-main, #1f2937)' }}>
-              Biblioteca Teológica
-            </h2>
-            <p className="text-[14px] text-sleek-text-muted mt-2 italic max-w-xl mx-auto">
-              Uma coleção curada de obras cristãs — Pais da Igreja, Reformadores, Puritanos e comentaristas. Clique em qualquer volume para ler.
-            </p>
+            <div className="flex items-center gap-2 text-[11px] text-sleek-text-muted bg-sleek-hover/50 px-3 py-1.5 rounded-md border border-sleek-border/60">
+              <Info size={12} className="shrink-0" />
+              <span>Botão direito → <em>Traduzir página</em> para português</span>
+            </div>
           </div>
 
-          <div className="flex items-start gap-2 px-4 py-3 mb-6 rounded-md border border-sleek-border/60 bg-sleek-hover/40 text-[13px] text-sleek-text-muted">
-            <Info size={14} className="mt-0.5 shrink-0" />
-            <span>
-              Para ler em português, use a tradução automática do navegador (clique com o botão direito → <em>Traduzir página</em>).
-            </span>
-          </div>
-
-          <div className="sticky top-0 z-10 -mx-2 px-2 pt-2 pb-3 bg-sleek-bg/85 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row gap-3 mb-3">
+          {/* Barra de busca + filtros sticky */}
+          <div className="sticky top-0 z-10 -mx-1 px-1 pt-1 pb-3 bg-sleek-bg/90 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row gap-2 mb-2.5">
               <div className="flex-1 relative">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-sleek-text-muted opacity-70" />
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-sleek-text-muted opacity-70" />
                 <input
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   placeholder="Buscar por título, autor ou categoria…"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-md border border-sleek-border bg-white text-[13px] text-sleek-text-main placeholder:text-sleek-text-muted focus:outline-none focus:border-sleek-text-muted transition-colors"
+                  className="w-full pl-8 pr-3 py-2 rounded-md border border-sleek-border bg-white text-[12px] text-sleek-text-main placeholder:text-sleek-text-muted focus:outline-none focus:border-sleek-text-muted transition-colors"
                 />
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {['Todas', ...EBOOK_CATEGORIAS].map(cat => {
                 const n = contagemPorCategoria[cat] || 0;
                 const ativo = categoria === cat;
@@ -114,7 +117,7 @@ export default function EbooksPanel({ isOpen, onClose }: EbooksPanelProps) {
                     key={cat}
                     onClick={() => setCategoria(cat)}
                     className={cn(
-                      "group inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] rounded-full border transition-all",
+                      "group inline-flex items-center gap-1 px-2.5 py-1 text-[11px] rounded-full border transition-all",
                       ativo
                         ? "bg-sleek-text-main text-white border-sleek-text-main shadow-sm"
                         : "bg-white text-sleek-text-muted border-sleek-border hover:bg-sleek-hover hover:text-sleek-text-main"
@@ -122,7 +125,7 @@ export default function EbooksPanel({ isOpen, onClose }: EbooksPanelProps) {
                   >
                     {cat}
                     <span className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+                      "text-[9px] px-1 py-0.5 rounded-full font-medium",
                       ativo ? "bg-white/20 text-white" : "bg-sleek-hover text-sleek-text-muted group-hover:bg-white"
                     )}>{n}</span>
                   </button>
@@ -131,12 +134,13 @@ export default function EbooksPanel({ isOpen, onClose }: EbooksPanelProps) {
             </div>
           </div>
 
+          {/* Grid de ebooks — mais colunas, cards menores */}
           {filtrados.length === 0 ? (
             <div className="text-center py-20 text-sleek-text-muted text-[13px] italic">
               Nenhum ebook encontrado com esses filtros.
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 pt-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-x-3 gap-y-6 pt-4">
               {filtrados.map(ebook => (
                 <EbookCard key={ebook.slug} ebook={ebook} />
               ))}
@@ -144,13 +148,13 @@ export default function EbooksPanel({ isOpen, onClose }: EbooksPanelProps) {
           )}
 
           {carregandoDinamicos && (
-            <div className="mt-10 text-center text-[12px] text-sleek-text-muted italic flex items-center justify-center gap-2">
-              <span className="inline-block w-3 h-3 rounded-full border border-sleek-border border-t-sleek-text-muted animate-spin" />
-              Expandindo catálogo automaticamente…
+            <div className="mt-8 text-center text-[11px] text-sleek-text-muted italic flex items-center justify-center gap-2">
+              <span className="inline-block w-2.5 h-2.5 rounded-full border border-sleek-border border-t-sleek-text-muted animate-spin" />
+              Expandindo catálogo…
             </div>
           )}
 
-          <div className="mt-12 pb-6 text-center text-[11px] text-sleek-text-muted tracking-wider uppercase">
+          <div className="mt-10 pb-4 text-center text-[10px] text-sleek-text-muted tracking-wider uppercase">
             {filtrados.length} {filtrados.length === 1 ? 'título' : 'títulos'} · Bíblia Alpha
           </div>
         </div>
@@ -167,30 +171,32 @@ function EbookCard({ ebook }: { ebook: Ebook }) {
       rel="noopener noreferrer"
       className="group block"
       title={`${ebook.titulo} — ${ebook.autor}`}
-      style={{ perspective: '1200px' }}
+      style={{ perspective: '1000px' }}
     >
+      {/* Capa do livro — proporção 2:3, menor */}
       <div
         className="relative aspect-[2/3] w-full transition-transform duration-500 ease-out will-change-transform"
         style={{
           transformStyle: 'preserve-3d',
-          transform: 'rotateY(-14deg) rotateX(2deg)',
+          transform: 'rotateY(-12deg) rotateX(2deg)',
         }}
       >
+        {/* Lombada esquerda */}
         <div
           aria-hidden
-          className="absolute inset-y-0 left-0 w-[8px]"
+          className="absolute inset-y-0 left-0 w-[6px]"
           style={{
-            transform: 'translateZ(-6px) translateX(-3px)',
+            transform: 'translateZ(-5px) translateX(-2px)',
             background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%)',
-            borderTopLeftRadius: 3,
-            borderBottomLeftRadius: 3,
+            borderTopLeftRadius: 2,
+            borderBottomLeftRadius: 2,
             filter: 'blur(0.5px)',
           }}
         />
-
+        {/* Páginas direita */}
         <div
           aria-hidden
-          className="absolute inset-y-1 right-0 w-[4px]"
+          className="absolute inset-y-1 right-0 w-[3px]"
           style={{
             background: 'repeating-linear-gradient(90deg, #f5ecd6 0 1px, #d8c99a 1px 2px)',
             transform: 'translateZ(-1px) translateX(2px)',
@@ -200,50 +206,34 @@ function EbookCard({ ebook }: { ebook: Ebook }) {
         />
 
         <div
-          className="absolute inset-0 rounded-[4px] overflow-hidden transition-all duration-500 ease-out group-hover:rotate-0 group-hover:scale-[1.04]"
+          className="absolute inset-0 rounded-[3px] overflow-hidden transition-all duration-500 ease-out group-hover:scale-[1.05]"
           style={{
             boxShadow:
-              '0 1px 0 rgba(255,255,255,0.05) inset, 0 18px 28px -12px rgba(0,0,0,0.45), 0 6px 10px -6px rgba(0,0,0,0.35)',
+              '0 1px 0 rgba(255,255,255,0.05) inset, 0 12px 20px -10px rgba(0,0,0,0.45), 0 4px 8px -5px rgba(0,0,0,0.35)',
             transform: 'translateZ(0)',
           }}
         >
           <EbookCover ebook={ebook} />
-
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 w-[10px]"
-            style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.12) 55%, rgba(0,0,0,0) 100%)' }}
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 w-[6px]"
-            style={{ background: 'linear-gradient(270deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 100%)' }}
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            style={{
-              background:
-                'linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 60%)',
-            }}
-          />
+          <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[8px]"
+            style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0) 100%)' }} />
+          <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[4px]"
+            style={{ background: 'linear-gradient(270deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)' }} />
+          <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{ background: 'linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 60%)' }} />
         </div>
       </div>
 
-      <div className="mt-4 px-1">
-        <div className="text-[13px] font-semibold text-sleek-text-main leading-snug line-clamp-2" style={{ fontFamily: 'Georgia, serif' }}>
+      {/* Metadados compactos */}
+      <div className="mt-2.5 px-0.5">
+        <div className="text-[11px] font-semibold text-sleek-text-main leading-snug line-clamp-2" style={{ fontFamily: 'Georgia, serif' }}>
           {ebook.titulo}
         </div>
-        <div className="text-[11px] text-sleek-text-muted mt-0.5 line-clamp-1 italic">{ebook.autor}</div>
-        <div className="flex flex-wrap gap-1 mt-2">
-          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.categoria}</span>
-          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.idioma}</span>
+        <div className="text-[10px] text-sleek-text-muted mt-0.5 line-clamp-1 italic">{ebook.autor}</div>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          <span className="text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.categoria}</span>
         </div>
-        {ebook.descricao && (
-          <div className="text-[11px] text-sleek-text-muted mt-2 line-clamp-2 leading-snug">{ebook.descricao}</div>
-        )}
-        <div className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-sleek-text-main group-hover:underline underline-offset-4">
-          Ler agora <ExternalLink size={11} />
+        <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-sleek-text-main group-hover:underline underline-offset-2">
+          Ler <ExternalLink size={9} />
         </div>
       </div>
     </a>
