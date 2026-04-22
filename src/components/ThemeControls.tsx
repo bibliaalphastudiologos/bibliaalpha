@@ -136,7 +136,7 @@ export default function ThemeControls() {
       {/* Botão flutuante */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95 select-none"
+        className="fixed bottom-20 right-6 z-50 flex items-center gap-2 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95 select-none"
         style={{
           backgroundColor: current.sidebar,
           border: '1.5px solid ' + (open ? '#c9a96e' : current.border),
@@ -163,7 +163,7 @@ export default function ThemeControls() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           <div
-            className="fixed bottom-[4.5rem] right-6 z-50 rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-[8.5rem] right-6 z-50 rounded-2xl shadow-2xl overflow-hidden"
             style={{
               width: '308px',
               backgroundColor: current.bg,
