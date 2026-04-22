@@ -12,12 +12,12 @@ interface SidebarProps {
   onSelectBook: (book: Book) => void;
   onSelectChapter: (chapter: number) => void;
   onSearchClick?: () => void;
+  onEbooksOpen?: () => void;
 }
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick }: SidebarProps) {
+export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>('old');
-  const [ebookOpen, setEbookOpen] = useState<boolean>(false);
   const { logout } = useAuth();
 
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
@@ -137,19 +137,13 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
 
             <div className="mb-3 px-2">
               <button
-                onClick={() => setEbookOpen(o => !o)}
+                onClick={() => onEbooksOpen && onEbooksOpen()}
                 className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
+                title="Abrir biblioteca teológica"
               >
                 <span className="flex items-center gap-2"><BookOpen size={13} className="text-sleek-text-muted" /> Ebooks</span>
-                {ebookOpen ? <ChevronDown size={15} className="text-sleek-text-muted" /> : <ChevronRight size={15} className="text-sleek-text-muted" />}
+                <ChevronRight size={15} className="text-sleek-text-muted" />
               </button>
-              {ebookOpen && (
-                <div className="px-3 py-4 mt-2 mb-2 text-center text-[12px] text-sleek-text-muted italic border border-dashed border-sleek-border/60 rounded-md">
-                  Nenhum ebook disponível ainda.
-                  <br />
-                  Em breve novos títulos serão adicionados.
-                </div>
-              )}
             </div>
     
         <div className="mt-8 mb-2">
