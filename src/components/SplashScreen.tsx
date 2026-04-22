@@ -39,8 +39,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('visible'), 100);
-    const t2 = setTimeout(() => setPhase('exit'), 9500);
-    const t3 = setTimeout(() => onFinish(), 10300);
+    const t2 = setTimeout(() => setPhase('exit'), 15000);
+    const t3 = setTimeout(() => onFinish(), 15800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onFinish]);
 
@@ -91,7 +91,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       <div className="absolute rounded-full pointer-events-none" style={{ width: '440px', height: '440px', background: 'radial-gradient(circle, rgba(201,169,110,0.14) 0%, rgba(180,130,60,0.06) 40%, transparent 70%)', filter: 'blur(65px)', transition: 'opacity 1.6s ease', opacity: phase === 'enter' ? 0 : 1 }} />
 
       {/* Badge topo */}
-      <div style={{ transition: 'opacity 1.2s ease 0.8s, transform 1.2s ease 0.8s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(-8px)' : 'translateY(0)', marginBottom: '22px' }}>
+      <div style={{ transition: 'opacity 1.2s ease 0.8s, transform 1.2s ease 0.8s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(-8px)' : 'translateY(0)', marginBottom: '42px', marginTop: '-30px' }}>
         <span style={{ fontSize: '8.5px', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#c9a96e', border: '1px solid rgba(201,169,110,0.35)', borderRadius: '100px', padding: '5px 18px', background: 'rgba(201,169,110,0.06)', boxShadow: '0 0 18px rgba(201,169,110,0.1)' }}>
           &#9830; &nbsp; Plataforma Bíblica Completa &nbsp; &#9830;
         </span>
@@ -146,7 +146,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 
       {/* Barra de progresso */}
       <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'rgba(201,169,110,0.06)' }}>
-        <div style={{ height: '100%', background: 'linear-gradient(90deg, transparent, #c9a96e 40%, #f0d878 50%, #c9a96e 60%, transparent)', width: phase === 'enter' ? '0%' : '100%', transition: 'width 9.5s linear 0.2s', boxShadow: '0 0 6px rgba(201,169,110,0.5)' }} />
+        <div style={{ height: '100%', background: 'linear-gradient(90deg, transparent, #c9a96e 40%, #f0d878 50%, #c9a96e 60%, transparent)', width: phase === 'enter' ? '0%' : '100%', transition: 'width 15s linear 0.2s', boxShadow: '0 0 6px rgba(201,169,110,0.5)' }} />
       </div>
 
       <style>{'@keyframes twk { 0%,100%{opacity:0.12;transform:scale(1)} 50%{opacity:0.75;transform:scale(1.4)} } @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }'}</style>
