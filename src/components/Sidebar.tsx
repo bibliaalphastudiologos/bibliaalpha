@@ -1,5 +1,5 @@
 import { Book } from '../services/bibleApi';
-import { ChevronDown, ChevronRight, Search, LogOut } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, LogOut, BookOpen } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
@@ -17,6 +17,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>('old');
+  const [ebookOpen, setEbookOpen] = useState<boolean>(false);
   const { logout } = useAuth();
 
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
@@ -134,6 +135,23 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         {renderBookList(oldTestament, "Antigo Testamento", 'old')}
         {renderBookList(newTestament, "Novo Testamento", 'new')}
 
+            <div className="mb-3 px-2">
+              <button
+                onClick={() => setEbookOpen(o => !o)}
+                className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
+              >
+                <span className="flex items-center gap-2"><BookOpen size={13} className="text-sleek-text-muted" /> Ebooks</span>
+                {ebookOpen ? <ChevronDown size={15} className="text-sleek-text-muted" /> : <ChevronRight size={15} className="text-sleek-text-muted" />}
+              </button>
+              {ebookOpen && (
+                <div className="px-3 py-4 mt-2 mb-2 text-center text-[12px] text-sleek-text-muted italic border border-dashed border-sleek-border/60 rounded-md">
+                  Nenhum ebook disponível ainda.
+                  <br />
+                  Em breve novos títulos serão adicionados.
+                </div>
+              )}
+            </div>
+    
         <div className="mt-8 mb-2">
           <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
             Extensões e Conexões
