@@ -232,8 +232,20 @@ function EbookCard({ ebook }: { ebook: Ebook }) {
         <div className="flex flex-wrap gap-1 mt-1.5">
           <span className="text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.categoria}</span>
         </div>
-        <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-sleek-text-main group-hover:underline underline-offset-2">
-          Ler <ExternalLink size={9} />
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-sleek-text-main group-hover:underline underline-offset-2">
+            Ler <ExternalLink size={9} />
+          </span>
+          <a
+            href={`https://translate.google.com/translate?sl=en&tl=pt&u=${encodeURIComponent(ebook.url)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors font-medium"
+            title="Ler em Português via Google Tradutor"
+          >
+            🌐 PT
+          </a>
         </div>
       </div>
     </a>
