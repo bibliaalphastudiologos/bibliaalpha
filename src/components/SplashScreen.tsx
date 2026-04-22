@@ -14,7 +14,7 @@ const FEATURES: Feature[] = [
   { symbol: '\u2742', text: 'Pesquisa avançada com dicionário, concordância e dicionário Strong' },
   { symbol: '\u25C6', text: 'Biblioteca com centenas de eBooks clássicos do Domínio Público' },
   { symbol: '\u2761', text: 'Bloco de notas pessoal sincronizado com suas leituras' },
-  { symbol: '\u25B3', text: 'Planos de leitura guiados para toda a Bíblica' },
+  { symbol: '\u25B3', text: 'Planos de leitura guiados para toda a Bíblia Alpha' },
   { symbol: '\u2736', text: 'Comentários de grandes teólogos integrados por versículo' },
   { symbol: '\u25CB', text: 'Modo escuro, tipografia ajustável e leitura imersiva' },
 ];
@@ -93,7 +93,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       {/* Badge topo */}
       <div style={{ transition: 'opacity 1.2s ease 0.8s, transform 1.2s ease 0.8s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(-8px)' : 'translateY(0)', marginBottom: '42px', marginTop: '-30px' }}>
         <span style={{ fontSize: '8.5px', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#c9a96e', border: '1px solid rgba(201,169,110,0.35)', borderRadius: '100px', padding: '5px 18px', background: 'rgba(201,169,110,0.06)', boxShadow: '0 0 18px rgba(201,169,110,0.1)' }}>
-          &#9830; &nbsp; Plataforma Bíblica Completa &nbsp; &#9830;
+          &#9830; &nbsp; Plataforma Bíblia Alpha &nbsp; &#9830;
         </span>
       </div>
 
@@ -101,7 +101,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       <div style={{ transition: 'opacity 1.2s ease, transform 1.2s ease', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(24px) scale(0.88)' : 'translateY(0) scale(1)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ position: 'absolute', width: '110px', height: '110px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.25)', animation: 'spinRing 12s linear infinite' }} />
         <div style={{ position: 'absolute', width: '132px', height: '132px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.12)', animation: 'spinRing 18s linear infinite reverse' }} />
-        <img src="/icon.svg" alt="Bíblica Alpha" style={{ width: '76px', height: '76px', objectFit: 'contain', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 0 40px rgba(201,169,110,0.65)) drop-shadow(0 0 16px rgba(201,169,110,0.4))' }} draggable={false} />
+        <img src="/icon.svg" alt="Bíblia Alpha" style={{ width: '76px', height: '76px', objectFit: 'contain', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 0 40px rgba(201,169,110,0.65)) drop-shadow(0 0 16px rgba(201,169,110,0.4))' }} draggable={false} />
       </div>
 
       {/* Divisor dourado */}
@@ -110,7 +110,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       {/* Título */}
       <div className="text-center px-6" style={{ transition: 'opacity 1.4s ease 0.6s, transform 1.4s ease 0.6s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(12px)' : 'translateY(0)' }}>
         <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(180,180,200,0.65)', marginBottom: '7px' }}>Bem-vindo à</p>
-        <h1 style={{ fontSize: '36px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.04em', lineHeight: '1', textShadow: '0 0 40px rgba(201,169,110,0.45), 0 2px 0 rgba(0,0,0,0.5)' }}>Bíblica Alpha</h1>
+        <h1 style={{ fontSize: '36px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.04em', lineHeight: '1', textShadow: '0 0 40px rgba(201,169,110,0.45), 0 2px 0 rgba(0,0,0,0.5)' }}>Bíblia Alpha</h1>
         <p style={{ fontSize: '10.5px', color: 'rgba(160,160,180,0.7)', fontWeight: 300, letterSpacing: '0.32em', textTransform: 'uppercase', marginTop: '9px' }}>Estudo &nbsp;&#183;&nbsp; Meditação &nbsp;&#183;&nbsp; Crescimento</p>
       </div>
 
