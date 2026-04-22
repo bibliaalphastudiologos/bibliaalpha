@@ -237,7 +237,7 @@ function EbookCard({ ebook }: { ebook: Ebook }) {
         <div className="text-[11px] text-sleek-text-muted mt-0.5 line-clamp-1 italic">{ebook.autor}</div>
         <div className="flex flex-wrap gap-1 mt-2">
           <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.categoria}</span>
-          <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.idioma}</span>
+          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.idioma}</span>
         </div>
         {ebook.descricao && (
           <div className="text-[11px] text-sleek-text-muted mt-2 line-clamp-2 leading-snug">{ebook.descricao}</div>
