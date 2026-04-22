@@ -7,6 +7,7 @@ import CommandPalette from './components/CommandPalette';
 import NotepadPanel from './components/NotepadPanel';
 import ReadingPlansPanel from './components/ReadingPlansPanel';
 import ResearchPanel from './components/ResearchPanel';
+import EbooksPanel from './components/EbooksPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
 import ThemeControls from './components/ThemeControls';
 import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X } from 'lucide-react';
@@ -84,6 +85,7 @@ export default function App() {
   const [isNotepadOpen, setIsNotepadOpen]     = useState(false);
   const [isPlansOpen, setIsPlansOpen]         = useState(false);
   const [isResearchOpen, setIsResearchOpen]   = useState(false);
+  const [isEbooksOpen, setIsEbooksOpen]       = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [showSplash, setShowSplash]           = useState(true);
   const [apiErrorBanner, setApiErrorBanner]   = useState<string | null>(null);
@@ -165,6 +167,7 @@ export default function App() {
           onSelectBook={setActiveBook}
           onSelectChapter={(chapter) => { setActiveChapter(chapter); if (window.innerWidth < 1024) setIsSidebarOpen(false); }}
           onSearchClick={() => setIsCommandModeOpen(true)}
+          onEbooksOpen={() => setIsEbooksOpen(true)}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
           {apiErrorBanner && (
@@ -222,6 +225,7 @@ export default function App() {
           onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
         />
         <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name || ''} />
+        <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
         <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
           onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
         />
