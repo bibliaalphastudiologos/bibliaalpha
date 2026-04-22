@@ -1,27 +1,58 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { Palette, Sun, Moon, Circle, Minus, Plus, X, Type } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sun, Moon, Layers, Minus, Plus, X, Type, ChevronDown } from 'lucide-react';
 import { useTheme, Theme, FontSize } from '../App';
 import { cn } from '../App';
 
-const THEMES: { id: Theme; label: string; icon: React.ReactNode; preview: { bg: string; text: string; border: string } }[] = [
+interface ThemeDef {
+  id: Theme;
+  label: string;
+  desc: string;
+  icon: React.ReactNode;
+  bg: string;
+  sidebar: string;
+  text: string;
+  muted: string;
+  border: string;
+  accent: string;
+}
+
+const THEMES: ThemeDef[] = [
   {
     id: 'light',
-    label: 'Claro',
-    icon: <Sun size={14} />,
-    preview: { bg: '#FFFFFF', text: '#37352F', border: '#E9E9E7' },
+    label: 'Tradicional',
+    desc: 'Fundo branco',
+    icon: <Sun size={15} />,
+    bg: '#FFFFFF',
+    sidebar: '#F7F7F5',
+    text: '#37352F',
+    muted: '#7A7A77',
+    border: '#E9E9E7',
+    accent: '#D32F2F',
   },
   {
     id: 'dark',
-    label: 'Noite',
-    icon: <Moon size={14} />,
-    preview: { bg: '#1C1C1F', text: '#E8E8E6', border: '#2E2E33' },
+    label: 'Escuro',
+    desc: 'Preto profundo',
+    icon: <Moon size={15} />,
+    bg: '#1C1C1F',
+    sidebar: '#161618',
+    text: '#E8E8E6',
+    muted: '#888886',
+    border: '#2E2E33',
+    accent: '#FF6B6B',
   },
   {
     id: 'graphite',
     label: 'Grafite',
-    icon: <Circle size={14} />,
-    preview: { bg: '#313235', text: '#C9CAC6', border: '#3D3E43' },
+    desc: 'Cinza escuro',
+    icon: <Layers size={15} />,
+    bg: '#26272B',
+    sidebar: '#1E1F22',
+    text: '#C5C6C9',
+    muted: '#72737A',
+    border: '#313338',
+    accent: '#E07B54',
   },
 ];
 
@@ -32,141 +63,172 @@ const FONT_SIZES: { id: FontSize; label: string; px: string }[] = [
   { id: 'xl', label: 'GG', px: '25px' },
 ];
 
+function ThemeCard({ t, active, onSelect }: { t: ThemeDef; active: boolean; onSelect: () => void }) {
+  return (
+    <button
+      onClick={onSelect}
+      className="group relative flex flex-col gap-2 p-2 rounded-xl border-2 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] w-full"
+      style={{
+        backgroundColor: t.bg,
+        borderColor: active ? '#c9a96e' : t.border,
+        boxShadow: active
+          ? '0 0 0 3px rgba(201,169,110,0.25), 0 4px 16px rgba(0,0,0,0.18)'
+          : '0 2px 8px rgba(0,0,0,0.1)',
+      }}
+      title={t.label}
+    >
+      {/* Miniatura de interface */}
+      <div className="w-full rounded-lg overflow-hidden" style={{ border: '1px solid ' + t.border }}>
+        {/* Topbar */}
+        <div className="h-3 flex items-center gap-1 px-1.5" style={{ backgroundColor: t.sidebar, borderBottom: '1px solid ' + t.border }}>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: t.accent + 'CC' }} />
+          <div className="flex-1 h-1 rounded-full opacity-30" style={{ backgroundColor: t.text }} />
+        </div>
+        {/* Conteúdo */}
+        <div className="p-1.5 space-y-1" style={{ backgroundColor: t.bg }}>
+          <div className="h-1.5 rounded-full w-5/6" style={{ backgroundColor: t.text + 'CC' }} />
+          <div className="h-1.5 rounded-full w-3/4" style={{ backgroundColor: t.muted + 'AA' }} />
+          <div className="h-1.5 rounded-full w-4/5" style={{ backgroundColor: t.text + '88' }} />
+          <div className="h-1.5 rounded-full w-2/3" style={{ backgroundColor: t.muted + '77' }} />
+        </div>
+      </div>
+
+      {/* Label */}
+      <div className="flex flex-col items-center gap-0.5">
+        <div className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: t.text }}>
+          {t.icon} {t.label}
+        </div>
+        <div className="text-[9px]" style={{ color: t.muted }}>{t.desc}</div>
+      </div>
+
+      {/* Indicador ativo */}
+      {active && (
+        <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: '#c9a96e', boxShadow: '0 0 8px rgba(201,169,110,0.6)' }}>
+          <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+            <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      )}
+    </button>
+  );
+}
+
 export default function ThemeControls() {
   const { theme, fontSize, setTheme, setFontSize } = useTheme();
   const [open, setOpen] = useState(false);
+  const [pulse, setPulse] = useState(false);
 
-  const currentTheme = THEMES.find(t => t.id === theme) || THEMES[0];
-  const currentFontIdx = FONT_SIZES.findIndex(f => f.id === fontSize);
+  const current = THEMES.find(t => t.id === theme) || THEMES[0];
+  const fontIdx  = FONT_SIZES.findIndex(f => f.id === fontSize);
 
-  const decreaseFont = () => {
-    if (currentFontIdx > 0) setFontSize(FONT_SIZES[currentFontIdx - 1].id);
-  };
-  const increaseFont = () => {
-    if (currentFontIdx < FONT_SIZES.length - 1) setFontSize(FONT_SIZES[currentFontIdx + 1].id);
-  };
+  // Pulsar suavemente na 1a visita
+  useEffect(() => {
+    const seen = localStorage.getItem('theme_ctrl_seen');
+    if (!seen) { setPulse(true); setTimeout(() => { setPulse(false); localStorage.setItem('theme_ctrl_seen', '1'); }, 4000); }
+  }, []);
+
+  const decreaseFont = () => { if (fontIdx > 0) setFontSize(FONT_SIZES[fontIdx - 1].id); };
+  const increaseFont = () => { if (fontIdx < FONT_SIZES.length - 1) setFontSize(FONT_SIZES[fontIdx + 1].id); };
 
   return (
     <>
-      {/* Trigger button — canto inferior direito */}
+      {/* Botão flutuante */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95 select-none"
         style={{
-          backgroundColor: currentTheme.preview.bg,
-          border: `2px solid ${currentTheme.preview.border}`,
-          color: currentTheme.preview.text,
+          backgroundColor: current.sidebar,
+          border: '1.5px solid ' + (open ? '#c9a96e' : current.border),
+          color: current.text,
+          padding: '8px 14px 8px 11px',
+          boxShadow: open
+            ? '0 0 0 3px rgba(201,169,110,0.2), 0 8px 32px rgba(0,0,0,0.35)'
+            : pulse
+              ? '0 0 0 5px rgba(201,169,110,0.25), 0 4px 20px rgba(0,0,0,0.25)'
+              : '0 4px 20px rgba(0,0,0,0.25)',
+          transition: 'all 0.2s ease, box-shadow ' + (pulse ? '0.8s ease-in-out' : '0.2s ease'),
         }}
         title="Aparência"
         aria-label="Abrir painel de aparência"
       >
-        <Palette size={18} />
+        <span style={{ color: '#c9a96e', display: 'flex', alignItems: 'center' }}>{current.icon}</span>
+        <span className="text-[12px] font-semibold tracking-wide">{current.label}</span>
+        <ChevronDown size={12} className="opacity-50" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
       </button>
 
-      {/* Panel */}
+      {/* Painel */}
       {open && (
         <>
-          {/* Backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           <div
-            className="fixed bottom-20 right-6 z-50 w-72 rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-[4.5rem] right-6 z-50 rounded-2xl shadow-2xl overflow-hidden"
             style={{
-              backgroundColor: currentTheme.preview.bg,
-              border: `1px solid ${currentTheme.preview.border}`,
-              color: currentTheme.preview.text,
+              width: '308px',
+              backgroundColor: current.bg,
+              border: '1px solid ' + current.border,
+              color: current.text,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px ' + current.border,
             }}
           >
             {/* Header */}
-            <div
-              className="flex items-center justify-between px-4 py-3 border-b"
-              style={{ borderColor: currentTheme.preview.border }}
-            >
-              <div className="flex items-center gap-2 font-semibold text-[13px]">
-                <Palette size={15} style={{ color: currentTheme.preview.text }} />
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid ' + current.border, backgroundColor: current.sidebar }}>
+              <div className="flex items-center gap-2 text-[13px] font-semibold">
+                <span style={{ color: '#c9a96e' }}>✷</span>
                 Aparência
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="p-1 rounded-md hover:opacity-70 transition-opacity"
-              >
-                <X size={15} />
+              <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:opacity-70 transition-opacity">
+                <X size={14} />
               </button>
             </div>
 
             <div className="p-4 space-y-5">
-              {/* Tema */}
+
+              {/* Seletor de Tema */}
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3 opacity-60">Tema</p>
-                <div className="flex gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5" style={{ color: '#c9a96e' }}>
+                  ◆ Tema de cor
+                </p>
+                <div className="grid grid-cols-3 gap-2">
                   {THEMES.map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => setTheme(t.id)}
-                      className="flex-1 flex flex-col items-center gap-2 py-2.5 px-1 rounded-xl border-2 transition-all"
-                      style={{
-                        backgroundColor: t.preview.bg,
-                        borderColor: theme === t.id ? '#3B82F6' : t.preview.border,
-                        color: t.preview.text,
-                        boxShadow: theme === t.id ? '0 0 0 2px rgba(59,130,246,0.3)' : 'none',
-                      }}
-                      title={t.label}
-                    >
-                      {/* Miniatura */}
-                      <div
-                        className="w-full h-10 rounded-lg flex flex-col gap-1 justify-center px-2"
-                        style={{ backgroundColor: t.preview.bg, border: `1px solid ${t.preview.border}` }}
-                      >
-                        <div className="w-3/4 h-1.5 rounded-full opacity-80" style={{ backgroundColor: t.preview.text }} />
-                        <div className="w-1/2 h-1.5 rounded-full opacity-40" style={{ backgroundColor: t.preview.text }} />
-                        <div className="w-2/3 h-1.5 rounded-full opacity-60" style={{ backgroundColor: t.preview.text }} />
-                      </div>
-                      <div className="flex items-center gap-1 text-[11px] font-medium">
-                        {t.icon} {t.label}
-                      </div>
-                      {theme === t.id && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                      )}
-                    </button>
+                    <ThemeCard key={t.id} t={t} active={theme === t.id} onSelect={() => setTheme(t.id)} />
                   ))}
                 </div>
               </div>
 
               {/* Divisor */}
-              <div className="w-full h-px" style={{ backgroundColor: currentTheme.preview.border }} />
+              <div className="h-px w-full" style={{ backgroundColor: current.border }} />
 
-              {/* Fonte */}
+              {/* Tamanho de fonte */}
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3 opacity-60 flex items-center gap-1.5">
-                  <Type size={11} /> Tamanho da fonte
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5" style={{ color: '#c9a96e' }}>
+                  <Type size={10} /> Tamanho da fonte
                 </p>
 
-                {/* Controle de zoom */}
-                <div
-                  className="flex items-center gap-3 p-3 rounded-xl border"
-                  style={{ borderColor: currentTheme.preview.border }}
-                >
+                <div className="flex items-center gap-2 p-2 rounded-xl" style={{ backgroundColor: current.sidebar, border: '1px solid ' + current.border }}>
                   <button
                     onClick={decreaseFont}
-                    disabled={currentFontIdx === 0}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all disabled:opacity-30"
-                    style={{ borderColor: currentTheme.preview.border }}
+                    disabled={fontIdx === 0}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all disabled:opacity-25 hover:opacity-80"
+                    style={{ borderColor: current.border, backgroundColor: current.bg }}
                   >
-                    <Minus size={14} />
+                    <Minus size={13} />
                   </button>
 
                   <div className="flex-1 flex justify-center gap-1.5">
-                    {FONT_SIZES.map((f, i) => (
+                    {FONT_SIZES.map(f => (
                       <button
                         key={f.id}
                         onClick={() => setFontSize(f.id)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold border-2 transition-all"
+                        className="w-9 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold border-2 transition-all"
                         style={{
-                          borderColor: fontSize === f.id ? '#3B82F6' : currentTheme.preview.border,
-                          backgroundColor: fontSize === f.id ? 'rgba(59,130,246,0.15)' : 'transparent',
-                          color: fontSize === f.id ? '#3B82F6' : currentTheme.preview.text,
+                          borderColor: fontSize === f.id ? '#c9a96e' : current.border,
+                          backgroundColor: fontSize === f.id ? 'rgba(201,169,110,0.12)' : current.bg,
+                          color: fontSize === f.id ? '#c9a96e' : current.text,
+                          boxShadow: fontSize === f.id ? '0 0 0 2px rgba(201,169,110,0.2)' : 'none',
                         }}
-                        title={`${f.px}`}
+                        title={f.px}
                       >
                         {f.label}
                       </button>
@@ -175,34 +237,35 @@ export default function ThemeControls() {
 
                   <button
                     onClick={increaseFont}
-                    disabled={currentFontIdx === FONT_SIZES.length - 1}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all disabled:opacity-30"
-                    style={{ borderColor: currentTheme.preview.border }}
+                    disabled={fontIdx === FONT_SIZES.length - 1}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all disabled:opacity-25 hover:opacity-80"
+                    style={{ borderColor: current.border, backgroundColor: current.bg }}
                   >
-                    <Plus size={14} />
+                    <Plus size={13} />
                   </button>
                 </div>
 
-                {/* Preview da fonte */}
+                {/* Preview de versículo */}
                 <div
-                  className="mt-3 p-3 rounded-xl border text-center font-serif leading-snug"
+                  className="mt-3 p-3 rounded-xl border text-center leading-relaxed"
                   style={{
-                    borderColor: currentTheme.preview.border,
-                    fontSize: FONT_SIZES[currentFontIdx]?.px || '18px',
-                    color: currentTheme.preview.text,
+                    borderColor: current.border,
+                    backgroundColor: current.sidebar,
+                    fontSize: FONT_SIZES[fontIdx]?.px || '18px',
+                    color: current.text,
+                    fontFamily: 'Georgia, serif',
                   }}
                 >
-                  "Porque Deus amou o mundo..."
+                  &ldquo;Porque Deus amou o mundo...&rdquo;
                 </div>
               </div>
 
-              {/* Divisor */}
-              <div className="w-full h-px" style={{ backgroundColor: currentTheme.preview.border }} />
-
-              {/* Info */}
-              <p className="text-[10px] text-center opacity-40">
-                As preferências são salvas automaticamente.
+              {/* Rodapé */}
+              <div className="h-px w-full" style={{ backgroundColor: current.border }} />
+              <p className="text-[9.5px] text-center" style={{ color: current.muted }}>
+                Preferências salvas automaticamente — Bíblica Alpha
               </p>
+
             </div>
           </div>
         </>
