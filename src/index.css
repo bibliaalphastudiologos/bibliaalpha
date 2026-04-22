@@ -33,21 +33,21 @@ html[data-theme="dark"] {
 }
 html[data-theme="dark"] body { background: #1C1C1F; }
 
-/* ── TEMA GRAFITE ── */
+/* ── TEMA GRAFITE ESCURO ── */
 html[data-theme="graphite"] {
-  --color-sleek-sidebar-bg:     #2A2B2E;
-  --color-sleek-border:         #3D3E43;
-  --color-sleek-text-main:      #C9CAC6;
-  --color-sleek-text-muted:     #7B7C78;
+  --color-sleek-sidebar-bg:     #1E1F22;
+  --color-sleek-border:         #313338;
+  --color-sleek-text-main:      #C5C6C9;
+  --color-sleek-text-muted:     #72737A;
   --color-sleek-accent:         #E07B54;
-  --color-sleek-hover:          #35363B;
-  --color-sleek-bg:             #313235;
-  --color-sleek-reading-text:   #BABBB6;
-  --color-sleek-comment-text:   #9A9B97;
-  --color-sleek-avatar-bg:      #3C3D42;
+  --color-sleek-hover:          #282A2E;
+  --color-sleek-bg:             #26272B;
+  --color-sleek-reading-text:   #B5B6B9;
+  --color-sleek-comment-text:   #919299;
+  --color-sleek-avatar-bg:      #32333A;
   color-scheme: dark;
 }
-html[data-theme="graphite"] body { background: #313235; }
+html[data-theme="graphite"] body { background: #26272B; }
 
 /* ── ZOOM DE FONTE ── */
 html[data-fontsize="sm"]  { --reading-font-size: 15px; --reading-line-height: 1.65; }
