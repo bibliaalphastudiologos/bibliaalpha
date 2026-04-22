@@ -17,7 +17,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
-  const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>('old');
+  const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
   const { logout } = useAuth();
 
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
