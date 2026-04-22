@@ -10,10 +10,10 @@ import { useEffect, useState } from 'react';
       useEffect(() => {
         // Fase 1: entra (fade-in do logo e texto)
         const t1 = setTimeout(() => setPhase('visible'), 100);
-        // Fase 2: começa a sair após 19.5 s (tela visível por ~20 s)
-        const t2 = setTimeout(() => setPhase('exit'), 11500);
+        // Fase 2: começa a sair após 9.5 s (tela visível por ~10 s)
+        const t2 = setTimeout(() => setPhase('exit'), 9500);
         // Fase 3: desmonta após a animação de saída
-        const t3 = setTimeout(() => onFinish(), 12300);
+        const t3 = setTimeout(() => onFinish(), 10300);
         return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
       }, [onFinish]);
 
@@ -142,14 +142,14 @@ import { useEffect, useState } from 'react';
             </div>
           </div>
 
-          {/* Barra de progresso — agora 20 s */}
+          {/* Barra de progresso — agora 10 s */}
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/5">
             <div
               className="h-full"
               style={{
                 background: 'linear-gradient(90deg, transparent, #c9a96e, transparent)',
                 width: phase === 'enter' ? '0%' : '100%',
-                transition: 'width 11.5s linear 0.2s',
+                transition: 'width 9.5s linear 0.2s',
               }}
             />
           </div>
