@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
     import { X, Search, BookOpen, ExternalLink, Info } from 'lucide-react';
     import { cn } from '../App';
     import { EBOOKS_INICIAIS, EBOOK_CATEGORIAS, Ebook } from '../data/ebooks';
-    import { fetchDynamicEbooks } from '../services/ebooksApi';
+    import { expandirEbooks } from '../services/ebooksApi';
 
     interface EbooksPanelProps {
       isOpen: boolean;
@@ -19,7 +19,7 @@ import { useState, useEffect, useMemo } from 'react';
         if (!isOpen) return;
         let alive = true;
         setCarregandoDinamicos(true);
-        fetchDynamicEbooks()
+        expandirEbooks(EBOOKS_INICIAIS)
           .then(items => { if (alive) setDinamicos(items); })
           .catch(() => {})
           .finally(() => { if (alive) setCarregandoDinamicos(false); });
@@ -72,7 +72,7 @@ import { useState, useEffect, useMemo } from 'react';
                   Biblioteca Teológica
                 </h2>
                 <p className="text-[14px] text-sleek-text-muted mt-2 italic">
-                  Clássicos da fé cristã em domínio público
+                  Clique e leia. Links diretos ao conteúdo do livro.
                 </p>
               </div>
 
@@ -177,6 +177,9 @@ import { useState, useEffect, useMemo } from 'react';
               <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sleek-hover text-sleek-text-muted">{ebook.idioma}</span>
             </div>
             <div className="text-[10px] text-sleek-text-muted mt-2 italic">Fonte: {ebook.fonte}</div>
+                {ebook.descricao && (
+                  <div className="text-[11px] text-sleek-text-muted mt-2 line-clamp-2 leading-snug">{ebook.descricao}</div>
+                )}
             <a
               href={ebook.url}
               target="_blank"
@@ -185,6 +188,16 @@ import { useState, useEffect, useMemo } from 'react';
             >
               Ler agora <ExternalLink size={11} />
             </a>
+                {ebook.urlOriginal && ebook.urlOriginal !== ebook.url && (
+                  <a
+                    href={ebook.urlOriginal}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1.5 inline-flex items-center justify-center gap-1 px-2 py-1 text-[10px] text-sleek-text-muted hover:text-sleek-text-main transition-colors"
+                  >
+                    Fonte original
+                  </a>
+                )}
           </div>
         </div>
       );
