@@ -1,7 +1,7 @@
 import { cn } from '../App';
 import * as React from 'react';
-import { Palette, Share2, MoreHorizontal, Book as BookIcon, Bookmark, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Palette, Share2, MoreHorizontal, Book as BookIcon, Bookmark, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu, Highlighter, X } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import InlineComments from './InlineComments';
 import ConnectionsDropdown from './ConnectionsDropdown';
 import { AVAILABLE_TRANSLATIONS } from '../services/apiBible';
@@ -25,22 +25,40 @@ interface ReadingAreaProps {
   onToggleSidebar?: () => void;
 }
 
+// ── Highlight color definitions ────────────────────────────────────────────────
+const HIGHLIGHT_COLORS = [
+  { key: 'yellow',    label: 'Amarelo',  cls: 'text-highlight-yellow',    dot: '#FACC15' },
+  { key: 'green',     label: 'Verde',    cls: 'text-highlight-green',     dot: '#4ADE80' },
+  { key: 'blue',      label: 'Azul',     cls: 'text-highlight-blue',      dot: '#60A5FA' },
+  { key: 'pink',      label: 'Rosa',     cls: 'text-highlight-pink',      dot: '#F472B6' },
+  { key: 'orange',    label: 'Laranja',  cls: 'text-highlight-orange',    dot: '#FB923C' },
+  { key: 'underline', label: 'Sublinha', cls: 'text-highlight-underline', dot: null },
+] as const;
+
+type HighlightKey = typeof HIGHLIGHT_COLORS[number]['key'];
+
+// ── Floating Highlight Toolbar ─────────────────────────────────────────────────
+interface ToolbarState {
+  visible: boolean;
+  x: number;
+  y: number;
+  verseNumber: number | null;
+}
+
 export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar }: ReadingAreaProps) {
   
-  // Highlight system per chapter
   const highlightKey = `hl_${bookId}_${chapter}`;
-  const [highlights, setHighlights] = useState<Record<number, string>>({});
+  const [highlights, setHighlights] = useState<Record<number, HighlightKey>>({});
   const [isTranslationMenuOpen, setIsTranslationMenuOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
+  const [toolbar, setToolbar] = useState<ToolbarState>({ visible: false, x: 0, y: 0, verseNumber: null });
+  const readingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setHighlights(JSON.parse(localStorage.getItem(highlightKey) || '{}'));
-    // Reset expanded comments when chapter changes
     setExpandedVerses(new Set());
-    
-    // Fetch map of verses that have comments
     let isMounted = true;
     if (bookId && chapter) {
       getChapterCommentMap(bookId, chapter).then((map) => {
@@ -50,18 +68,74 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     return () => { isMounted = false; };
   }, [highlightKey, bookId, chapter]);
 
-  const toggleHighlight = (verseNumber: number, e: React.MouseEvent) => {
-    e.stopPropagation();
+  // ── Text selection → toolbar ──────────────────────────────────────────────
+  const getVerseNumberFromNode = (node: Node | null): number | null => {
+    if (!node) return null;
+    let el: HTMLElement | null = node.nodeType === Node.ELEMENT_NODE
+      ? (node as HTMLElement)
+      : node.parentElement;
+    while (el && el !== readingRef.current) {
+      const v = el.dataset?.verse;
+      if (v) return parseInt(v, 10);
+      el = el.parentElement;
+    }
+    return null;
+  };
+
+  const handleSelectionChange = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+      setToolbar(t => ({ ...t, visible: false }));
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    if (!readingRef.current?.contains(range.commonAncestorContainer)) {
+      setToolbar(t => ({ ...t, visible: false }));
+      return;
+    }
+    const rect = range.getBoundingClientRect();
+    const verseNumber = getVerseNumberFromNode(range.commonAncestorContainer);
+    setToolbar({
+      visible: true,
+      x: rect.left + rect.width / 2,
+      y: rect.top - 8,
+      verseNumber,
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleMouseUp = () => setTimeout(handleSelectionChange, 10);
+    const handleTouchEnd = () => setTimeout(handleSelectionChange, 50);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleSelectionChange]);
+
+  const applyHighlight = (colorKey: HighlightKey) => {
+    const verseNumber = toolbar.verseNumber;
+    if (!verseNumber) return;
     const newHl = { ...highlights };
-    if (newHl[verseNumber]) {
+    if (newHl[verseNumber] === colorKey) {
       delete newHl[verseNumber];
     } else {
-      newHl[verseNumber] = 'bg-yellow-100/80';
+      newHl[verseNumber] = colorKey;
     }
     setHighlights(newHl);
     localStorage.setItem(highlightKey, JSON.stringify(newHl));
+    window.getSelection()?.removeAllRanges();
+    setToolbar(t => ({ ...t, visible: false }));
   };
-  
+
+  const removeHighlight = (verseNumber: number) => {
+    const newHl = { ...highlights };
+    delete newHl[verseNumber];
+    setHighlights(newHl);
+    localStorage.setItem(highlightKey, JSON.stringify(newHl));
+  };
+
   const toggleComments = (verseNumber: number, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const newSet = new Set(expandedVerses);
@@ -80,16 +154,37 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
     if (item.type === 'verse') {
       const isExpanded = expandedVerses.has(item.number);
-      const isHighlighted = highlights[item.number];
+      const hlKey = highlights[item.number] as HighlightKey | undefined;
+      const hlColor = HIGHLIGHT_COLORS.find(c => c.key === hlKey);
+      const isUnderline = hlKey === 'underline';
       const hasComments = versesWithComments.has(item.number);
 
       return (
-        <div key={`v-${item.number}`} style={{ display: 'block', marginBottom: '4px' }}>
+        <div key={`v-${item.number}`} data-verse={item.number} style={{ display: 'block', marginBottom: '4px' }}>
           <span style={{ display: 'inline' }}>
-            <sup style={{ fontSize: '11px', color: '#999', marginRight: '4px', userSelect: 'none' }}>
+            <sup style={{ fontSize: '11px', color: 'var(--color-sleek-text-muted)', marginRight: '4px', userSelect: 'none', position: 'relative' }}>
               {item.number}
+              {hlKey && !isExpanded && (
+                <button
+                  onClick={() => removeHighlight(item.number)}
+                  style={{
+                    position: 'absolute', top: '-4px', right: '-10px',
+                    width: '10px', height: '10px', borderRadius: '50%',
+                    background: hlColor?.dot || 'var(--color-sleek-accent)',
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    opacity: 0.8,
+                  }}
+                  title="Remover marcação"
+                />
+              )}
             </sup>
-            <span style={{ backgroundColor: isHighlighted && !isExpanded ? 'rgba(253,224,71,0.4)' : undefined }}>
+            <span
+              data-verse={item.number}
+              className={cn(
+                hlKey && !isExpanded ? hlColor?.cls ?? '' : '',
+                isUnderline && !isExpanded ? 'text-highlight-underline' : ''
+              )}
+            >
               {item.content.map((segment: any, sIdx: number) => {
                 if (typeof segment === 'string') return <span key={sIdx}>{segment}</span>;
                 if (segment?.type === 'jesus_words' || segment?.jesusWords) {
@@ -106,8 +201,8 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                   display: 'inline-flex', alignItems: 'center', gap: '3px',
                   fontSize: '11px', fontFamily: 'sans-serif', fontWeight: 500,
                   padding: '1px 6px', borderRadius: '9999px',
-                  backgroundColor: isExpanded ? '#1a1a1a' : '#f0f0f0',
-                  color: isExpanded ? '#fff' : '#333',
+                  backgroundColor: isExpanded ? 'var(--color-sleek-text-main)' : 'var(--color-sleek-hover)',
+                  color: isExpanded ? 'var(--color-sleek-bg)' : 'var(--color-sleek-text-muted)',
                   cursor: 'pointer', border: 'none', verticalAlign: 'middle',
                   marginLeft: '4px', opacity: isExpanded ? 1 : 0.6
                 }}
@@ -147,9 +242,64 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     return null;
   };
 
-
   return (
     <div className="w-full flex-1 flex flex-col min-min-h-full relative font-serif">
+
+      {/* ── Floating Highlight Toolbar ───────────────────────────────────────── */}
+      {toolbar.visible && (
+        <div
+          className="highlight-toolbar"
+          style={{ left: toolbar.x, top: toolbar.y - 48, pointerEvents: 'all' }}
+          onMouseDown={e => e.preventDefault()}
+        >
+          <Highlighter size={13} style={{ color: 'var(--color-sleek-text-muted)', marginRight: 2, flexShrink: 0 }} />
+          <div className="highlight-divider" />
+          {HIGHLIGHT_COLORS.map(color => (
+            color.key === 'underline' ? (
+              <button
+                key={color.key}
+                className={cn('highlight-color-btn', highlights[toolbar.verseNumber!] === color.key ? 'active' : '')}
+                style={{
+                  background: 'transparent',
+                  borderRadius: '4px',
+                  width: '26px',
+                  borderBottom: '3px solid var(--color-sleek-accent)',
+                  borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: 'var(--color-sleek-accent)',
+                  fontFamily: 'serif',
+                }}
+                title="Sublinhar"
+                onClick={() => applyHighlight(color.key)}
+              >
+                S
+              </button>
+            ) : (
+              <button
+                key={color.key}
+                className={cn('highlight-color-btn', highlights[toolbar.verseNumber!] === color.key ? 'active' : '')}
+                style={{ background: color.dot! }}
+                title={color.label}
+                onClick={() => applyHighlight(color.key)}
+              />
+            )
+          ))}
+          <div className="highlight-divider" />
+          <button
+            className="highlight-erase-btn"
+            title="Remover marcação"
+            onClick={() => {
+              if (toolbar.verseNumber) removeHighlight(toolbar.verseNumber);
+              window.getSelection()?.removeAllRanges();
+              setToolbar(t => ({ ...t, visible: false }));
+            }}
+          >
+            <X size={11} />
+          </button>
+        </div>
+      )}
+
       <header className="hidden lg:flex px-10 py-5 justify-between items-center bg-sleek-bg sticky top-0 z-20 border-b border-transparent">
         <div className="text-[14px] text-sleek-text-muted flex items-center gap-4">
           <button 
@@ -170,7 +320,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           </button>
           <button 
             onClick={onNotepadOpen}
-            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors font-medium border border-transparent hover:border-sleek-border bg-white shadow-sm"
+            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors font-medium border border-transparent hover:border-sleek-border bg-sleek-input-bg shadow-sm"
           >
             <MessageSquareText size={13} /> Bloco de Notas
           </button>
@@ -203,6 +353,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       </header>
 
       <div
+        ref={readingRef}
         className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-left reading-text text-sleek-reading-text relative animate-fade-in"
       >
         <div className="pb-8 border-b border-sleek-border mb-8">
@@ -222,10 +373,10 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                   key={chapNum}
                   onClick={() => onSelectChapter?.(chapNum)}
                   className={cn(
-                    "flex-shrink-0 w-9 h-9 rounded-full font-sans text-[13px] flex items-center justify-center transition-colors cursor-pointer border",
+                    "flex-shrink-0 w-9 h-9 rounded-full font-sans text-[13px] flex items-center justify-center transition-colors cursor-pointer border font-medium",
                     chapNum === chapter 
-                      ? "bg-sleek-text-main border-sleek-text-main text-white font-bold" 
-                      : "bg-white border-sleek-border hover:bg-sleek-hover text-sleek-text-main"
+                      ? "bg-sleek-text-main border-sleek-text-main text-sleek-bg font-bold" 
+                      : "bg-sleek-input-bg border-sleek-border hover:bg-sleek-hover text-sleek-chapter-num hover:text-sleek-text-main"
                   )}
                 >
                   {chapNum}
@@ -273,7 +424,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                {isTranslationMenuOpen && (
                  <>
                    <div className="fixed inset-0 z-30" onClick={() => setIsTranslationMenuOpen(false)} />
-                   <div className="absolute top-8 left-28 z-40 bg-white border border-sleek-border rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.08)] py-1 min-w-[200px] font-sans">
+                   <div className="absolute top-8 left-28 z-40 bg-sleek-bg border border-sleek-border rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.15)] py-1 min-w-[200px] font-sans">
                      {AVAILABLE_TRANSLATIONS.map(t => (
                        <button
                          key={t.id}
