@@ -72,10 +72,10 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                             key={chapterNum}
                             onClick={() => { onSelectBook(book); onSelectChapter(chapterNum); }}
                             className={cn(
-                              "aspect-square flex items-center justify-center text-[13px] rounded-md transition-colors",
+                              "aspect-square flex items-center justify-center text-[13px] rounded-md transition-colors font-medium",
                               isChapterActive
-                                ? "font-semibold bg-sleek-hover text-sleek-text-main"
-                                : "hover:bg-sleek-hover text-sleek-text-muted"
+                                ? "font-semibold bg-sleek-accent/20 text-sleek-accent ring-1 ring-sleek-accent/40"
+                                : "hover:bg-sleek-hover text-sleek-chapter-num hover:text-sleek-text-main"
                             )}
                           >
                             {chapterNum}
@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         </div>
         <button
           onClick={onSearchClick}
-          className="mx-3 mb-4 px-2.5 py-1.5 w-[calc(100%-24px)] bg-white border border-sleek-border hover:bg-sleek-hover rounded-md text-[12px] text-sleek-text-muted flex items-center justify-between transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer"
+          className="mx-3 mb-4 px-2.5 py-1.5 w-[calc(100%-24px)] bg-sleek-input-bg border border-sleek-border hover:bg-sleek-hover rounded-md text-[12px] text-sleek-text-muted flex items-center justify-between transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer"
         >
           <span className="flex items-center gap-1.5"><Search size={14} className="opacity-70" /> Buscar livro...</span>
           <span className="font-mono text-[9px] bg-sleek-avatar-bg px-1 rounded text-sleek-text-muted">⌘K</span>
