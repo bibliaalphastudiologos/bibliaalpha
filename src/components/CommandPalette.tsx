@@ -4,10 +4,10 @@ import { Book } from '../services/bibleApi';
 import { cn } from '../App';
 
 const DEVOTIONAL_SHORTCUTS = [
-  { id: 'ministerio', label: 'Ministério', icon: '⛪', keywords: ['ministerio', 'ministério', 'igreja'] },
-  { id: 'homens',     label: 'Homens',         icon: '🛡️', keywords: ['homens', 'homem'] },
-  { id: 'mulheres',   label: 'Mulheres',       icon: '🌸', keywords: ['mulheres', 'mulher'] },
-  { id: 'jovens',     label: 'Jovens',         icon: '🔥', keywords: ['jovens', 'jovem'] },
+  { id: 'ministerio', label: 'Ministério', color: 'text-indigo-600', keywords: ['ministerio', 'ministério', 'igreja'] },
+  { id: 'homens',     label: 'Homens',         color: 'text-blue-700',   keywords: ['homens', 'homem'] },
+  { id: 'mulheres',   label: 'Mulheres',       color: 'text-rose-600',   keywords: ['mulheres', 'mulher'] },
+  { id: 'jovens',     label: 'Jovens',         color: 'text-orange-500', keywords: ['jovens', 'jovem'] },
 ];
 
 interface CommandPaletteProps {
@@ -99,10 +99,9 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
                   <button
                     key={d.id}
                     onClick={() => { onDevotionalOpen(d.id); onClose(); }}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium text-sleek-text-main hover:bg-sleek-hover transition-colors text-left"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium hover:bg-sleek-hover transition-colors text-left"
                   >
-                    <span className="text-base leading-none">{d.icon}</span>
-                    <span>{d.label}</span>
+                    <span className={cn('font-semibold', d.color)}>{d.label}</span>
                   </button>
                 ))}
               </div>
