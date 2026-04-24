@@ -8,19 +8,20 @@ import NotepadPanel from './components/NotepadPanel';
 import ReadingPlansPanel from './components/ReadingPlansPanel';
 import ResearchPanel from './components/ResearchPanel';
 import EbooksPanel from './components/EbooksPanel';
+import DevotionalPanel from './components/DevotionalPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
 import ThemeControls from './components/ThemeControls';
 import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { DevotionalAudience } from './data/devotionals';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ── Theme Context ─────────────────────────────────────────────────────────────
-
+// Theme Context
 export type Theme    = 'light' | 'dark' | 'graphite';
 export type FontSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -38,8 +39,7 @@ export const ThemeContext = createContext<ThemeContextValue>({
 
 export function useTheme() { return useContext(ThemeContext); }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
+// Constants
 const LAST_BOOK_KEY        = 'bibliaalpha_last_book_id';
 const LAST_CHAPTER_KEY     = 'bibliaalpha_last_chapter';
 const LAST_TRANSLATION_KEY = 'bibliaalpha_last_translation';
@@ -47,8 +47,7 @@ const THEME_KEY            = 'bibliaalpha_theme';
 const FONTSIZE_KEY         = 'bibliaalpha_fontsize';
 const DEFAULT_TRANSLATION  = 'arc';
 
-// ── App ───────────────────────────────────────────────────────────────────────
-
+// App
 export default function App() {
   // Theme state
   const [theme, setThemeState]       = useState<Theme>(() => (localStorage.getItem(THEME_KEY) as Theme) || 'light');
@@ -65,7 +64,6 @@ export default function App() {
     document.documentElement.setAttribute('data-fontsize', f);
   };
 
-  // Apply saved theme/fontsize on mount
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme === 'light' ? '' : theme);
     document.documentElement.setAttribute('data-fontsize', fontSize);
@@ -89,6 +87,15 @@ export default function App() {
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [showSplash, setShowSplash]           = useState(true);
   const [apiErrorBanner, setApiErrorBanner]   = useState<string | null>(null);
+
+  // Devotional state
+  const [isDevotionalOpen, setIsDevotionalOpen]                 = useState(false);
+  const [activeDevotionalAudience, setActiveDevotionalAudience] = useState<DevotionalAudience | null>(null);
+
+  const openDevotional = (audience: DevotionalAudience) => {
+    setActiveDevotionalAudience(audience);
+    setIsDevotionalOpen(true);
+  };
 
   // Load books
   useEffect(() => {
@@ -168,6 +175,7 @@ export default function App() {
           onSelectChapter={(chapter) => { setActiveChapter(chapter); if (window.innerWidth < 1024) setIsSidebarOpen(false); }}
           onSearchClick={() => setIsCommandModeOpen(true)}
           onEbooksOpen={() => setIsEbooksOpen(true)}
+          onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
           {apiErrorBanner && (
@@ -178,7 +186,6 @@ export default function App() {
               </button>
             </div>
           )}
-          {/* Header mobile */}
           <header className="h-14 flex items-center justify-between px-6 sm:px-10 border-b border-sleek-border bg-sleek-bg shrink-0 z-10 lg:hidden">
             <div className="flex items-center gap-3">
               <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors">
@@ -226,10 +233,15 @@ export default function App() {
         />
         <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name || ''} />
         <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
+        <DevotionalPanel
+          isOpen={isDevotionalOpen}
+          onClose={() => setIsDevotionalOpen(false)}
+          audience={activeDevotionalAudience}
+          onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
+        />
         <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
           onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
         />
-        {/* Floating theme controls */}
         <ThemeControls />
       </div>
     </ThemeContext.Provider>
