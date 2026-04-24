@@ -17,11 +17,11 @@ interface SidebarProps {
   onDevotionalOpen?: (audience: DevotionalAudience) => void;
 }
 
-const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; icon: string; color: string }[] = [
-  { id: 'ministerio', label: 'Ministério',     icon: '⛪', color: 'text-indigo-600' },
-  { id: 'homens',     label: 'Homens',          icon: '🛡️', color: 'text-blue-700'  },
-  { id: 'mulheres',   label: 'Mulheres',        icon: '🌸', color: 'text-rose-600'  },
-  { id: 'jovens',     label: 'Jovens',          icon: '🔥', color: 'text-orange-500'},
+const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; color: string }[] = [
+  { id: 'ministerio', label: 'Ministério', color: 'text-indigo-600' },
+  { id: 'homens',     label: 'Homens',         color: 'text-blue-700'  },
+  { id: 'mulheres',   label: 'Mulheres',       color: 'text-rose-600'  },
+  { id: 'jovens',     label: 'Jovens',         color: 'text-orange-500'},
 ];
 
 export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onDevotionalOpen }: SidebarProps) {
@@ -106,13 +106,13 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
     if (type === 'notion') {
       window.open('https://www.notion.so/', '_blank', 'noopener,noreferrer');
     } else if (type === 'gmail') {
-      const subject = encodeURIComponent("Meus Estudos da Bíblia Alpha");
+      const subject = encodeURIComponent("Meus Estudos da Bília Alpha");
       window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}`, '_blank', 'popup=yes,width=800,height=600');
     } else if (type === 'drive') {
       window.open('https://drive.google.com/', '_blank', 'noopener,noreferrer');
     } else if (type === 'calendar') {
-      const title = encodeURIComponent("Tempo de Estudo: Bíblia Alpha");
-      const details = encodeURIComponent("Momento diário de meditação e estudo na Bíblia Alpha.");
+      const title = encodeURIComponent("Tempo de Estudo: Bília Alpha");
+      const details = encodeURIComponent("Momento diário de meditação e estudo na Bília Alpha.");
       window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`, '_blank', 'popup=yes,width=800,height=600');
     }
   };
@@ -125,15 +125,18 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
       )}
     >
       <div className={cn("flex-1 overflow-y-auto py-4 custom-scrollbar w-[85vw] sm:w-[240px]", !isOpen && "hidden")}>
+        {/* Logo */}
         <div className="flex items-center justify-center px-1 pt-3 pb-4">
           <img
             src="/icon.svg"
-            alt="Bíblia de Estudo Alpha"
+            alt="Bília de Estudo Alpha"
             className="w-full h-auto object-contain"
             style={{ maxHeight: '72px' }}
             draggable={false}
           />
         </div>
+
+        {/* Search */}
         <button
           onClick={onSearchClick}
           className="mx-3 mb-4 px-2.5 py-1.5 w-[calc(100%-24px)] bg-sleek-input-bg border border-sleek-border hover:bg-sleek-hover rounded-md text-[12px] text-sleek-text-muted flex items-center justify-between transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer"
@@ -141,9 +144,12 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           <span className="flex items-center gap-1.5"><Search size={14} className="opacity-70" /> Buscar livro...</span>
           <span className="font-mono text-[9px] bg-sleek-avatar-bg px-1 rounded text-sleek-text-muted">⌘K</span>
         </button>
+
+        {/* Testament lists */}
         {renderBookList(oldTestament, "Antigo Testamento", 'old')}
         {renderBookList(newTestament, "Novo Testamento", 'new')}
 
+        {/* Ebooks */}
         <div className="mb-3 px-2">
           <button
             onClick={() => onEbooksOpen && onEbooksOpen()}
@@ -155,11 +161,12 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           </button>
         </div>
 
+        {/* Blog button */}
         <div className="mb-3 px-2">
           <button
             onClick={() => window.open('https://blog.bibliaalpha.org', '_blank', 'noopener,noreferrer')}
             className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
-            title="Abrir o Blog Bíblia Alpha"
+            title="Abrir o Blog Bília Alpha"
           >
             <span className="flex items-center gap-2">
               <Globe size={13} className="text-sleek-text-muted" />
@@ -169,6 +176,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           </button>
         </div>
 
+        {/* Devocionais section */}
         <div className="mt-6 mb-2">
           <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
             Devocionais
@@ -180,18 +188,16 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                 onClick={() => onDevotionalOpen && onDevotionalOpen(item.id)}
                 className="w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-base leading-none">{item.icon}</span>
-                  <span className={cn('font-medium', item.color)}>
-                    {item.label}
-                  </span>
-                </div>
+                <span className={cn('font-medium', item.color)}>
+                  {item.label}
+                </span>
                 <ChevronRight size={14} className="text-sleek-text-muted" />
               </button>
             ))}
           </div>
         </div>
 
+        {/* Extensões */}
         <div className="mt-8 mb-2">
           <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
             Extensões e Conexões
@@ -224,6 +230,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           </div>
         </div>
 
+        {/* Logout */}
         <div className="px-3 pt-4 pb-6 border-t border-sleek-border mt-4">
           <button
             onClick={() => logout()}
