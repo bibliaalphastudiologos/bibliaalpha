@@ -1,8 +1,9 @@
 import { Book } from '../services/bibleApi';
-import { ChevronDown, ChevronRight, Search, LogOut, BookOpen } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, LogOut, BookOpen, Globe } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
+import { DevotionalAudience } from '../data/devotionals';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,9 +14,17 @@ interface SidebarProps {
   onSelectChapter: (chapter: number) => void;
   onSearchClick?: () => void;
   onEbooksOpen?: () => void;
+  onDevotionalOpen?: (audience: DevotionalAudience) => void;
 }
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen }: SidebarProps) {
+const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; icon: string; color: string }[] = [
+  { id: 'ministerio', label: 'Ministério',     icon: '⛪', color: 'text-indigo-600' },
+  { id: 'homens',     label: 'Homens',          icon: '🛡️', color: 'text-blue-700'  },
+  { id: 'mulheres',   label: 'Mulheres',        icon: '🌸', color: 'text-rose-600'  },
+  { id: 'jovens',     label: 'Jovens',          icon: '🔥', color: 'text-orange-500'},
+];
+
+export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onDevotionalOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
   const { logout } = useAuth();
@@ -135,17 +144,54 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         {renderBookList(oldTestament, "Antigo Testamento", 'old')}
         {renderBookList(newTestament, "Novo Testamento", 'new')}
 
-            <div className="mb-3 px-2">
+        <div className="mb-3 px-2">
+          <button
+            onClick={() => onEbooksOpen && onEbooksOpen()}
+            className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
+            title="Abrir biblioteca teológica"
+          >
+            <span className="flex items-center gap-2"><BookOpen size={13} className="text-sleek-text-muted" /> Ebooks</span>
+            <ChevronRight size={15} className="text-sleek-text-muted" />
+          </button>
+        </div>
+
+        <div className="mb-3 px-2">
+          <button
+            onClick={() => window.open('https://blog.bibliaalpha.org', '_blank', 'noopener,noreferrer')}
+            className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
+            title="Abrir o Blog Bíblia Alpha"
+          >
+            <span className="flex items-center gap-2">
+              <Globe size={13} className="text-sleek-text-muted" />
+              Blog
+            </span>
+            <ChevronRight size={15} className="text-sleek-text-muted" />
+          </button>
+        </div>
+
+        <div className="mt-6 mb-2">
+          <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
+            Devocionais
+          </div>
+          <div className="px-2 space-y-1">
+            {DEVOTIONAL_ITEMS.map(item => (
               <button
-                onClick={() => onEbooksOpen && onEbooksOpen()}
-                className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
-                title="Abrir biblioteca teológica"
+                key={item.id}
+                onClick={() => onDevotionalOpen && onDevotionalOpen(item.id)}
+                className="w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover"
               >
-                <span className="flex items-center gap-2"><BookOpen size={13} className="text-sleek-text-muted" /> Ebooks</span>
-                <ChevronRight size={15} className="text-sleek-text-muted" />
+                <div className="flex items-center gap-2">
+                  <span className="text-base leading-none">{item.icon}</span>
+                  <span className={cn('font-medium', item.color)}>
+                    {item.label}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="text-sleek-text-muted" />
               </button>
-            </div>
-    
+            ))}
+          </div>
+        </div>
+
         <div className="mt-8 mb-2">
           <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
             Extensões e Conexões
