@@ -416,8 +416,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
           <button
             onClick={() => {
-              const text = bookName + ' ' + chapter + ' — Bíbia Alpha
-https://bibliaalpha.org';
+              const text = bookName + ' ' + chapter + ' — Bília Alpha | https://bibliaalpha.org';
               navigator.clipboard.writeText(text).then(() => {
                 setShareCopied(true);
                 setTimeout(() => setShareCopied(false), 2000);
