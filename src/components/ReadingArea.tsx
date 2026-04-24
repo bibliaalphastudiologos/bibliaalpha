@@ -416,13 +416,15 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
           <button
             onClick={() => {
-              const text = bookName + ' ' + chapter + ' — Bíbia Alpha\nhttps://bibliaalpha.org';
+              const text = bookName + ' ' + chapter + ' — Bíbia Alpha
+https://bibliaalpha.org';
               navigator.clipboard.writeText(text).then(() => {
                 setShareCopied(true);
                 setTimeout(() => setShareCopied(false), 2000);
               });
             }}
-            className="text-[13px] px-3 py-1 flex items-center gap-1.5 rounded-md transition-colors " + (shareCopied ? "text-green-600 bg-green-50" : "text-sleek-text-muted hover:bg-sleek-hover")}
+            className={cn('text-[13px] px-3 py-1 flex items-center gap-1.5 rounded-md transition-colors', shareCopied ? 'text-green-600 bg-green-50' : 'text-sleek-text-muted hover:bg-sleek-hover')}
+            title="Copiar referência para a área de transferência"
           >
             <Share2 size={13} /> {shareCopied ? 'Copiado!' : 'Compartilhar'}
           </button>
