@@ -24,7 +24,7 @@ export const DEVOTIONAL_CATEGORIES: DevotionalCategory[] = [
   {
     id: 'ministerio',
     label: 'Devocional do Ministério',
-    icon: '⛪',
+    icon: '',
     color: 'text-indigo-600',
     description: 'Reflexões para líderes, pastores e servos que carregam o peso do chamado.',
     devotionals: [
@@ -103,7 +103,7 @@ export const DEVOTIONAL_CATEGORIES: DevotionalCategory[] = [
   {
     id: 'homens',
     label: 'Devocional para Homens',
-    icon: '🛡️',
+    icon: '',
     color: 'text-blue-700',
     description: 'Reflexões sobre força, integridade, família e a masculinidade moldada pela fé.',
     devotionals: [
@@ -162,7 +162,7 @@ export const DEVOTIONAL_CATEGORIES: DevotionalCategory[] = [
   {
     id: 'mulheres',
     label: 'Devocional para Mulheres',
-    icon: '🌸',
+    icon: '',
     color: 'text-rose-600',
     description: 'Palavras de encorajamento, identidade e fé para mulheres em cada estação da vida.',
     devotionals: [
@@ -221,7 +221,7 @@ export const DEVOTIONAL_CATEGORIES: DevotionalCategory[] = [
   {
     id: 'jovens',
     label: 'Devocional para Jovens',
-    icon: '🔥',
+    icon: '',
     color: 'text-orange-500',
     description: 'Reflexões diretas para jovens que querem levar a fé a sério numa geração que corre.',
     devotionals: [
