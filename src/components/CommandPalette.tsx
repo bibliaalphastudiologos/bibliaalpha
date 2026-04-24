@@ -3,14 +3,22 @@ import { Search, Book as BookIcon } from 'lucide-react';
 import { Book } from '../services/bibleApi';
 import { cn } from '../App';
 
+const DEVOTIONAL_SHORTCUTS = [
+  { id: 'ministerio', label: 'Ministério', icon: '⛪', keywords: ['ministerio', 'ministério', 'igreja'] },
+  { id: 'homens',     label: 'Homens',         icon: '🛡️', keywords: ['homens', 'homem'] },
+  { id: 'mulheres',   label: 'Mulheres',       icon: '🌸', keywords: ['mulheres', 'mulher'] },
+  { id: 'jovens',     label: 'Jovens',         icon: '🔥', keywords: ['jovens', 'jovem'] },
+];
+
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   books: Book[];
   onSelectChapter: (book: Book, chapter: number) => void;
+  onDevotionalOpen?: (audience: string) => void;
 }
 
-export default function CommandPalette({ isOpen, onClose, books, onSelectChapter }: CommandPaletteProps) {
+export default function CommandPalette({ isOpen, onClose, books, onSelectChapter, onDevotionalOpen }: CommandPaletteProps) {
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,14 +47,21 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
 
   if (!isOpen) return null;
 
+  const q = search.toLowerCase();
+
   const filteredBooks = books.filter(b =>
-    b.name.toLowerCase().includes(search.toLowerCase()) ||
-    b.commonName.toLowerCase().includes(search.toLowerCase())
+    b.name.toLowerCase().includes(q) ||
+    b.commonName.toLowerCase().includes(q)
   );
+
+  const filteredDevotionals = DEVOTIONAL_SHORTCUTS.filter(d =>
+    !q || q.includes('devoc') || d.keywords.some(k => k.includes(q) || q.includes(k)) || d.label.toLowerCase().includes(q)
+  );
+
+  const showDevotionals = !q || filteredDevotionals.length > 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
-      {/* Backdrop */}
       <div
         className={cn(
           "fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity duration-200",
@@ -54,8 +69,6 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
         )}
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div
         className={cn(
           "relative w-full max-w-xl bg-white rounded-xl shadow-2xl border border-sleek-border overflow-hidden flex flex-col font-sans transition-all duration-200",
@@ -68,7 +81,7 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
             ref={inputRef}
             type="text"
             className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-sleek-text-muted text-sleek-text-main"
-            placeholder="Qual livro você quer ler hoje?"
+            placeholder="Buscar livro ou devocional..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -76,14 +89,34 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
         </div>
 
         <div className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
-          {filteredBooks.length === 0 ? (
-            <div className="py-14 text-center text-[13px] text-sleek-text-muted">
-              Nenhum livro encontrado.
+          {showDevotionals && onDevotionalOpen && (
+            <div className="mb-2">
+              <div className="px-3 py-2 text-[11px] font-semibold text-sleek-text-muted uppercase tracking-wider">
+                Devocionais
+              </div>
+              <div className="grid grid-cols-2 gap-1 px-1">
+                {filteredDevotionals.map(d => (
+                  <button
+                    key={d.id}
+                    onClick={() => { onDevotionalOpen(d.id); onClose(); }}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium text-sleek-text-main hover:bg-sleek-hover transition-colors text-left"
+                  >
+                    <span className="text-base leading-none">{d.icon}</span>
+                    <span>{d.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
+          )}
+
+          {filteredBooks.length === 0 && !showDevotionals ? (
+            <div className="py-14 text-center text-[13px] text-sleek-text-muted">
+              Nenhum resultado encontrado.
+            </div>
+          ) : filteredBooks.length > 0 ? (
             <div className="space-y-1">
               <div className="px-3 py-2 text-[11px] font-semibold text-sleek-text-muted uppercase tracking-wider">
-                Resultados
+                Livros
               </div>
               {filteredBooks.map(book => (
                 <div key={book.id} className="group">
@@ -108,7 +141,7 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
