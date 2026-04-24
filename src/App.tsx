@@ -11,7 +11,7 @@ import EbooksPanel from './components/EbooksPanel';
 import DevotionalPanel from './components/DevotionalPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
 import ThemeControls from './components/ThemeControls';
-import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X } from 'lucide-react';
+import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X, AlertTriangle } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -180,7 +180,7 @@ export default function App() {
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
           {apiErrorBanner && (
             <div className="flex items-center justify-between gap-2 px-4 py-2 bg-red-50 border-b border-red-200 text-red-700 text-sm z-20">
-              <span>⚠️ {apiErrorBanner}</span>
+              <span className="flex items-center gap-1.5"><AlertTriangle size={14} />{apiErrorBanner}</span>
               <button onClick={() => setApiErrorBanner(null)} className="p-1 hover:bg-red-100 rounded" aria-label="Fechar">
                 <X size={14} />
               </button>
