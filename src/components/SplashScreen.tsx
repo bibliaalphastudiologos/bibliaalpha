@@ -17,6 +17,7 @@ const FEATURES: Feature[] = [
   { symbol: '\u25B3', text: 'Planos de leitura guiados para toda a Bíblia Alpha' },
   { symbol: '\u2736', text: 'Comentários de grandes teólogos integrados por versículo' },
   { symbol: '\u25CB', text: 'Modo escuro, tipografia ajustável e leitura imersiva' },
+  { symbol: '\u2665', text: 'Devocionais para Ministério, Homens, Mulheres e Jovens com reflexões e orações' },
 ];
 
 function FeatureIcon({ symbol }: { symbol: string }) {
