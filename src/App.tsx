@@ -241,6 +241,7 @@ export default function App() {
         />
         <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
           onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
+          onDevotionalOpen={openDevotional}
         />
         <ThemeControls />
       </div>
