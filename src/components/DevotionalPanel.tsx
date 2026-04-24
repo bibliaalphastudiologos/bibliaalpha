@@ -47,7 +47,6 @@ export default function DevotionalPanel({
           <div className="flex items-center gap-2 font-semibold text-[13px] text-sleek-text-main">
             {category ? (
               <>
-                <span className="text-lg leading-none">{category.icon}</span>
                 <span>{category.label}</span>
               </>
             ) : (
