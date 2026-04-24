@@ -177,21 +177,19 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         </div>
 
         {/* Devocionais section */}
-        <div className="mt-6 mb-2">
-          <div className="text-[11px] uppercase tracking-[0.05em] text-sleek-text-muted px-5 mb-2 font-semibold">
+        <div className="mb-3 px-2">
+          <div className="text-[10px] uppercase tracking-[0.05em] text-sleek-text-muted px-1 mb-1.5 font-semibold">
             Devocionais
           </div>
-          <div className="px-2 space-y-1">
+          <div className="space-y-1.5">
             {DEVOTIONAL_ITEMS.map(item => (
               <button
                 key={item.id}
                 onClick={() => onDevotionalOpen && onDevotionalOpen(item.id)}
-                className="w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-md transition-colors text-sleek-text-main hover:bg-sleek-hover"
+                className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
               >
-                <span className={cn('font-medium', item.color)}>
-                  {item.label}
-                </span>
-                <ChevronRight size={14} className="text-sleek-text-muted" />
+                <span>{item.label}</span>
+                <ChevronRight size={15} className="text-sleek-text-muted" />
               </button>
             ))}
           </div>
