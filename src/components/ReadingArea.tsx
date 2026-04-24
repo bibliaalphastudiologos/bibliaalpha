@@ -130,6 +130,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const [highlights, setHighlights] = useState<VerseHighlight[]>([]);
   const [isTranslationMenuOpen, setIsTranslationMenuOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
   const [toolbar, setToolbar] = useState<ToolbarState>({
@@ -413,8 +414,17 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             <Globe size={13} /> Pesquisa
           </button>
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
-          <button className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:bg-sleek-hover rounded-md transition-colors">
-            <Share2 size={13} /> Compartilhar
+          <button
+            onClick={() => {
+              const text = bookName + ' ' + chapter + ' — Bíbia Alpha\nhttps://bibliaalpha.org';
+              navigator.clipboard.writeText(text).then(() => {
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
+              });
+            }}
+            className="text-[13px] px-3 py-1 flex items-center gap-1.5 rounded-md transition-colors " + (shareCopied ? "text-green-600 bg-green-50" : "text-sleek-text-muted hover:bg-sleek-hover")}
+          >
+            <Share2 size={13} /> {shareCopied ? 'Copiado!' : 'Compartilhar'}
           </button>
           <div className="relative">
             <button
