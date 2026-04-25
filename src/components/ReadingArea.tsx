@@ -435,22 +435,24 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         <div className="flex items-center gap-3">
           <button
             onClick={onPlansOpen}
-            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-blue-600 bg-blue-50/50 hover:bg-blue-100/50 rounded-md transition-colors font-medium border border-blue-100 hover:border-blue-200"
+            title="Planos de Leitura"
+            className="p-2 flex items-center justify-center text-blue-600 bg-blue-50/50 hover:bg-blue-100/50 rounded-md transition-colors border border-blue-100 hover:border-blue-200"
           >
-            <BookIcon size={13} /> Planos
+            <BookIcon size={16} />
           </button>
           <button
             onClick={onNotepadOpen}
-            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors font-medium border border-transparent hover:border-sleek-border bg-sleek-input-bg shadow-sm"
+            title="Bloco de Notas"
+            className="p-2 flex items-center justify-center text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors border border-transparent hover:border-sleek-border bg-sleek-input-bg shadow-sm"
           >
-            <MessageSquareText size={13} /> Bloco de Notas
+            <MessageSquareText size={16} />
           </button>
           <button
             onClick={onResearchOpen}
-            className="text-[13px] px-3 py-1 flex items-center gap-1.5 text-purple-600 bg-purple-50/50 hover:bg-purple-100/50 rounded-md transition-colors font-medium border border-purple-100 hover:border-purple-200"
-            title="Pesquisa Bíblica — Wikipedia e Google Books"
+            title="Pesquisa Bíblica"
+            className="p-2 flex items-center justify-center text-purple-600 bg-purple-50/50 hover:bg-purple-100/50 rounded-md transition-colors border border-purple-100 hover:border-purple-200"
           >
-            <Globe size={13} /> Pesquisa
+            <Globe size={16} />
           </button>
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
           <button
