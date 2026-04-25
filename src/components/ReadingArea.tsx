@@ -52,6 +52,7 @@ interface ToolbarState {
   verseNumber: number | null;
   startOffset: number;
   endOffset: number;
+  highlightId?: string;
 }
 
 // ── Utility: character offset within a container ───────────────────────────────
@@ -115,6 +116,7 @@ function renderVerseContent(
               g.isJesus ? 'text-sleek-accent' : '',
               g.hl ? (hlColor?.cls ?? '') : ''
             )}
+            data-highlight-id={g.hl?.id}
           >
             {g.text}
           </span>
@@ -134,7 +136,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
   const [toolbar, setToolbar] = useState<ToolbarState>({
-    visible: false, x: 0, y: 0, verseNumber: null, startOffset: 0, endOffset: 0,
+    visible: false, x: 0, y: 0, verseNumber: null, startOffset: 0, endOffset: 0, highlightId: undefined,
   });
   const readingRef = useRef<HTMLDivElement>(null);
 
@@ -153,6 +155,28 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   }, [highlightKey, bookId, chapter]);
 
   // ── Selection → toolbar ──────────────────────────────────────────────────
+  const handleHighlightClick = useCallback((e: MouseEvent) => {
+    const target = e.target as Element;
+    const highlightId = target.getAttribute('data-highlight-id');
+    if (!highlightId) return;
+    const verseContentEl = target.closest('[data-verse-content]');
+    if (!verseContentEl) return;
+    const verseNumber = parseInt(verseContentEl.getAttribute('data-verse-content') || '0', 10);
+    const rect = target.getBoundingClientRect();
+    setToolbar({
+      visible: true,
+      x: rect.left + rect.width / 2,
+      y: rect.top - 8,
+      verseNumber,
+      startOffset: -1,
+      endOffset: -1,
+      highlightId,
+    });
+    e.preventDefault();
+    e.stopPropagation();
+    window.getSelection()?.removeAllRanges();
+  }, []);
+
   const handleSelectionChange = useCallback(() => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.toString().trim()) {
@@ -199,7 +223,14 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   }, []);
 
   useEffect(() => {
-    const onMouseUp  = () => setTimeout(handleSelectionChange, 10);
+    const onMouseUp = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (target.getAttribute('data-highlight-id')) {
+        handleHighlightClick(e);
+        return;
+      }
+      setTimeout(handleSelectionChange, 10);
+    };
     const onTouchEnd = () => setTimeout(handleSelectionChange, 50);
     document.addEventListener('mouseup',   onMouseUp);
     document.addEventListener('touchend',  onTouchEnd);
@@ -207,7 +238,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       document.removeEventListener('mouseup',   onMouseUp);
       document.removeEventListener('touchend',  onTouchEnd);
     };
-  }, [handleSelectionChange]);
+  }, [handleSelectionChange, handleHighlightClick]);
 
   const saveHighlights = (list: VerseHighlight[]) => {
     setHighlights(list);
@@ -236,16 +267,23 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   };
 
   const removeSelectedHighlight = () => {
-    const { verseNumber, startOffset, endOffset } = toolbar;
+    const { verseNumber, startOffset, endOffset, highlightId } = toolbar;
     if (!verseNumber) return;
-    const filtered = highlights.filter(h =>
-      h.verseNumber !== verseNumber ||
-      h.end <= startOffset ||
-      h.start >= endOffset
-    );
+    let filtered: VerseHighlight[];
+    if (highlightId) {
+      // Remove by specific highlight ID (clicked on highlight)
+      filtered = highlights.filter(h => h.id !== highlightId);
+    } else {
+      // Remove by range overlap (text selection)
+      filtered = highlights.filter(h =>
+        h.verseNumber !== verseNumber ||
+        h.end <= startOffset ||
+        h.start >= endOffset
+      );
+    }
     saveHighlights(filtered);
     window.getSelection()?.removeAllRanges();
-    setToolbar(t => ({ ...t, visible: false }));
+    setToolbar(t => ({ ...t, visible: false, highlightId: undefined }));
   };
 
   const toggleComments = (verseNumber: number, e?: React.MouseEvent) => {
@@ -374,10 +412,11 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="highlight-divider" />
           <button
             className="highlight-erase-btn"
-            title="Remover marcação"
+            title="Remover marcação (ou clique na palavra marcada)"
             onClick={removeSelectedHighlight}
+            style={{ width: 'auto', padding: '0 8px', gap: '4px', display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 600 }}
           >
-            <X size={11} />
+            <X size={11} /> Apagar
           </button>
         </div>
       )}

@@ -78,57 +78,101 @@ function getAutocompleteSuggestions(word: string): string[] {
   ).slice(0, 6);
 }
 
-// ── Dicionário de Português ──────────────────────────────────────────────────
+// ── Dicionário de Português (Wiktionary PT primary + fallback estruturado) ──
 
 async function lookupPortugueseWord(word: string): Promise<DictEntry | null> {
-  const clean = word.trim().toLowerCase();
+  const clean = word.trim().toLowerCase().replace(/[^a-záàâãéèêíìîóòôõúùûçñ\-]/gi, '');
   if (!clean) return null;
+
+  // 1. Wiktionary PT REST API — retorna conteúdo estruturado
   try {
-    // 1. dictionaryapi.dev suporta pt
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/pt/${encodeURIComponent(clean)}`);
+    const enc = encodeURIComponent(clean);
+    const res = await fetch(
+      `https://pt.wiktionary.org/api/rest_v1/page/summary/${enc}`,
+      { headers: { 'Accept': 'application/json' } }
+    );
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const entry = data[0];
-        return {
-          word: entry.word,
-          phonetic: entry.phonetic || entry.phonetics?.[0]?.text,
-          meanings: (entry.meanings || []).slice(0, 3).map((m: any) => ({
-            partOfSpeech: m.partOfSpeech,
-            definitions: (m.definitions || []).slice(0, 3).map((d: any) => ({
-              definition: d.definition,
-              example: d.example,
-              synonyms: d.synonyms?.slice(0, 5),
-            })),
-          })),
-        };
+      const d = await res.json();
+      if (d.extract && d.extract.length > 20 && !d.type?.includes('disambiguation')) {
+        // Parse extract: linhas sem cabeçalho são as definições
+        const lines = d.extract
+          .split('\n')
+          .map((l: string) => l.trim())
+          .filter((l: string) => l.length > 15 && !l.match(/^(==|\*\*|Língua|Pronúncia|Forma)/));
+        if (lines.length > 0) {
+          return {
+            word: d.titles?.normalized || clean,
+            phonetic: undefined,
+            meanings: [{
+              partOfSpeech: 'definição',
+              definitions: lines.slice(0, 5).map((l: string) => ({ definition: l })),
+            }],
+          };
+        }
       }
     }
   } catch {}
 
-  // 2. Fallback: Wiktionary PT via action=query
+  // 2. Wiktionary PT action=parse — extrai seções detalhadas
   try {
     const params = new URLSearchParams({
-      action: 'query', titles: clean, prop: 'extracts',
-      exintro: '1', explaintext: '1', format: 'json', origin: '*',
+      action: 'parse', page: clean, prop: 'sections|wikitext',
+      format: 'json', origin: '*',
     });
     const res2 = await fetch(`https://pt.wiktionary.org/w/api.php?${params}`);
     if (res2.ok) {
       const d2 = await res2.json();
-      const pages = Object.values(d2.query?.pages || {}) as any[];
-      const page = pages[0];
-      if (page && page.extract && !page.missing) {
-        const lines = page.extract.split('\n').filter((l: string) => l.trim().length > 20).slice(0, 6);
-        return {
-          word: clean,
-          meanings: lines.length > 0 ? [{
-            partOfSpeech: 'substantivo',
-            definitions: lines.map((l: string) => ({ definition: l.trim() })),
-          }] : [],
-        };
+      const wikitext: string = d2.parse?.wikitext?.['*'] || '';
+      if (wikitext.length > 50) {
+        // Extrai definições após "# " (estilo wikitext)
+        const defs = wikitext
+          .split('\n')
+          .filter((l: string) => l.startsWith('# ') && !l.startsWith('## '))
+          .map((l: string) => l.replace(/^# /, '').replace(/\[\[([^|\]]+)[^\]]*\]\]/g, '$1').replace(/\{\{[^}]+\}\}/g, '').trim())
+          .filter((l: string) => l.length > 10)
+          .slice(0, 6);
+
+        // Tenta detectar classe gramatical
+        const posMatch = wikitext.match(/==+\s*(Substantivo|Verbo|Adjetivo|Advérbio|Pronome|Preposição|Conjunção|Interjeição)\s*==+/i);
+        const pos = posMatch ? posMatch[1].toLowerCase() : 'palavra';
+
+        if (defs.length > 0) {
+          return {
+            word: clean,
+            meanings: [{ partOfSpeech: pos, definitions: defs.map(d => ({ definition: d })) }],
+          };
+        }
       }
     }
   } catch {}
+
+  // 3. Wiktionary PT opensearch — sugestões de palavras similares
+  try {
+    const params3 = new URLSearchParams({
+      action: 'query', titles: clean, prop: 'extracts',
+      exintro: '1', explaintext: '1', format: 'json', origin: '*',
+    });
+    const res3 = await fetch(`https://pt.wiktionary.org/w/api.php?${params3}`);
+    if (res3.ok) {
+      const d3 = await res3.json();
+      const pages = Object.values(d3.query?.pages || {}) as any[];
+      const page = pages[0];
+      if (page && page.extract && !page.missing) {
+        const lines = page.extract
+          .split('\n')
+          .map((l: string) => l.trim())
+          .filter((l: string) => l.length > 20)
+          .slice(0, 5);
+        if (lines.length > 0) {
+          return {
+            word: page.title || clean,
+            meanings: [{ partOfSpeech: 'verbete', definitions: lines.map((l: string) => ({ definition: l })) }],
+          };
+        }
+      }
+    }
+  } catch {}
+
   return null;
 }
 

@@ -41,15 +41,15 @@ export default function ReadingPlansPanel({
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
-        <header className="h-14 shrink-0 border-b border-sleek-border flex items-center justify-between px-4 bg-sleek-bg">
+        <header className="h-14 shrink-0 border-b border-sleek-border flex items-center justify-between px-4 bg-sleek-bg" style={{backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
           <div className="flex items-center gap-2 font-semibold text-[13px] text-sleek-text-main">
             <BookOpen size={16} /> Planos de Leitura
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"
+            className="panel-close-btn"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </header>
 
@@ -63,7 +63,7 @@ export default function ReadingPlansPanel({
                   <div
                     key={plan.id}
                     onClick={() => setActivePlanId(plan.id)}
-                    className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:siØdow-sm transition-all group bg-white"
+                    className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:siï¿½dow-sm transition-all group bg-white"
                   >
                     <div className="flex justify-between items-start mb-1">
                       <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors uppercase tracking-wide">
@@ -108,14 +108,12 @@ export default function ReadingPlansPanel({
                         <div
                           key={milestone.id}
                           className={cn(
-                            'flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer group',
-                            isDone
-                              ? 'bg-green-50/50 border-green-200'
-                              : 'bg-white border-sleek-border hover:bg-sleek-hover',
+                            'milestone-card',
+                            isDone ? 'done' : '',
                           )}
                           onClick={() => {
                             onSelectChapter(milestone.bookId, milestone.chapters[0]);
-                            if (window.innerWidth < 1024) onClose();
+                            onClose();
                           }}
                         >
                           <div className="flex items-center gap-3">
