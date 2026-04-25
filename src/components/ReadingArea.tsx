@@ -23,6 +23,7 @@ interface ReadingAreaProps {
   onNextChapter?: () => void;
   onSelectChapter?: (c: number) => void;
   onToggleSidebar?: () => void;
+  bookIndex?: number;
 }
 
 // ── Highlight color definitions ────────────────────────────────────────────────
@@ -126,7 +127,7 @@ function renderVerseContent(
   );
 }
 
-export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar }: ReadingAreaProps) {
+export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1 }: ReadingAreaProps) {
 
   const highlightKey = `hl2_${bookId}_${chapter}`;
   const [highlights, setHighlights] = useState<VerseHighlight[]>([]);
@@ -153,6 +154,18 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     }
     return () => { isMounted = false; };
   }, [highlightKey, bookId, chapter]);
+
+  // Keyboard navigation: ArrowLeft/ArrowRight for prev/next chapter
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); onPrevChapter?.(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); onNextChapter?.(); }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onPrevChapter, onNextChapter]);
 
   // ── Selection → toolbar ──────────────────────────────────────────────────
   const handleHighlightClick = useCallback((e: MouseEvent) => {
@@ -430,7 +443,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           >
             <Menu size={18} />
           </button>
-          <span>{chapter > 39 ? "Novo Testamento" : "Antigo Testamento"} / {bookName} / Capítulo {chapter}</span>
+          <span>{bookIndex >= 39 ? "Novo Testamento" : "Antigo Testamento"} / {bookName} / Capítulo {chapter}</span>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -457,7 +470,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
           <button
             onClick={() => {
-              const text = bookName + ' ' + chapter + ' — Bília Alpha | https://bibliaalpha.org';
+              const text = bookName + ' ' + chapter + ' — Bíblia Alpha | https://bibliaalpha.org';
               navigator.clipboard.writeText(text).then(() => {
                 setShareCopied(true);
                 setTimeout(() => setShareCopied(false), 2000);

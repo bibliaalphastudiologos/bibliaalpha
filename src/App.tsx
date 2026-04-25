@@ -211,6 +211,7 @@ export default function App() {
             ) : (
               <ReadingArea
                 bookId={activeBook?.id || ''} bookName={activeBook?.name || ''}
+                bookIndex={books.indexOf(activeBook!)}
                 chapter={activeChapter} totalChapters={activeBook?.numberOfChapters || 1}
                 content={chapterContent} activeTranslation={activeTranslation}
                 onTranslationChange={setActiveTranslation}
@@ -226,12 +227,12 @@ export default function App() {
             )}
           </div>
         </div>
-        {isSidebarOpen && <div className="fixed inset-0 bg-black/20 z-10 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
+        {/* overlay handled above */}
         <NotepadPanel isOpen={isNotepadOpen} onClose={() => setIsNotepadOpen(false)} chapterContext={activeBook?.name + ' ' + activeChapter} />
         <ReadingPlansPanel isOpen={isPlansOpen} onClose={() => setIsPlansOpen(false)}
           onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
         />
-        <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name || ''} />
+        <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={''} />
         <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
         <DevotionalPanel
           isOpen={isDevotionalOpen}

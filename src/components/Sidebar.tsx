@@ -1,6 +1,6 @@
 import { Book } from '../services/bibleApi';
 import { ChevronDown, ChevronRight, Search, LogOut, BookOpen, Globe } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
 import { DevotionalAudience } from '../data/devotionals';
@@ -31,6 +31,15 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
 
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
   const newTestament = useMemo(() => books.slice(39), [books]);
+
+  // Auto-expand the active book and its testament when sidebar opens or book changes
+  useEffect(() => {
+    if (isOpen && activeBook && books.length > 0) {
+      const idx = books.findIndex(b => b.id === activeBook.id);
+      setExpandedTestament(idx >= 39 ? 'new' : 'old');
+      setExpandedBookId(activeBook.id);
+    }
+  }, [isOpen, activeBook, books]);
 
   const toggleBook = (book: Book) => {
     if (expandedBookId === book.id) {
@@ -106,13 +115,13 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
     if (type === 'notion') {
       window.open('https://www.notion.so/', '_blank', 'noopener,noreferrer');
     } else if (type === 'gmail') {
-      const subject = encodeURIComponent("Meus Estudos da Bília Alpha");
+      const subject = encodeURIComponent("Meus Estudos da Bíblia Alpha");
       window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}`, '_blank', 'popup=yes,width=800,height=600');
     } else if (type === 'drive') {
       window.open('https://drive.google.com/', '_blank', 'noopener,noreferrer');
     } else if (type === 'calendar') {
-      const title = encodeURIComponent("Tempo de Estudo: Bília Alpha");
-      const details = encodeURIComponent("Momento diário de meditação e estudo na Bília Alpha.");
+      const title = encodeURIComponent("Tempo de Estudo: Bíblia Alpha");
+      const details = encodeURIComponent("Momento diário de meditação e estudo na Bíblia Alpha.");
       window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`, '_blank', 'popup=yes,width=800,height=600');
     }
   };
@@ -129,7 +138,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         <div className="flex items-center justify-center px-1 pt-3 pb-4">
           <img
             src="/icon.svg"
-            alt="Bília de Estudo Alpha"
+            alt="Bíblia de Estudo Alpha"
             className="w-full h-auto object-contain"
             style={{ maxHeight: '72px' }}
             draggable={false}
@@ -166,7 +175,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
           <button
             onClick={() => window.open('https://blog.bibliaalpha.org', '_blank', 'noopener,noreferrer')}
             className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.05em] text-sleek-text-main px-3 py-2.5 rounded-lg bg-sleek-hover/50 hover:bg-sleek-hover border border-sleek-border/50 shadow-sm transition-all"
-            title="Abrir o Blog Bília Alpha"
+            title="Abrir o Blog Bíblia Alpha"
           >
             <span className="flex items-center gap-2">
               <Globe size={13} className="text-sleek-text-muted" />

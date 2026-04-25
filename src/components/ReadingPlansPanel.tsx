@@ -15,13 +15,26 @@ export default function ReadingPlansPanel({
   onClose,
   onSelectChapter,
 }: ReadingPlansPanelProps) {
-  const [activePlanId, setActivePlanId] = useState<string | null>(null);
-  const [completedMilestones, setCompletedMilestones] = useState<Record<string, boolean>>({});
+  const [activePlanId, setActivePlanId] = useState<string | null>(() => localStorage.getItem('bibliaalpha_active_plan') || null);
+  const [completedMilestones, setCompletedMilestones] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem('bibliaalpha_milestones') || '{}'); } catch { return {}; }
+  });
 
-  const toggleMilestone = (milestoneId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCompletedMilestones(prev => ({ ...prev, [milestoneId]: !prev[milestoneId] }));
+  const persistedSetActivePlanId = (id: string | null) => {
+    setActivePlanId(id);
+    if (id) localStorage.setItem('bibliaalpha_active_plan', id);
+    else localStorage.removeItem('bibliaalpha_active_plan');
   };
+  const persistedToggleMilestone = (milestoneId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCompletedMilestones(prev => {
+      const next = { ...prev, [milestoneId]: !prev[milestoneId] };
+      localStorage.setItem('bibliaalpha_milestones', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  
 
   const getPlanProgress = (planId: string) => {
     const plan = PLANS.find(p => p.id === planId);
@@ -37,7 +50,7 @@ export default function ReadingPlansPanel({
       )}
       <div
         className={cn(
-          'fixed inset-y-0 right-0 w-[90vw] sm:w-[450px] bg-white shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col font-sans',
+          'fixed inset-y-0 right-0 w-[90vw] sm:w-[450px] bg-sleek-bg shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col font-sans',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
@@ -53,7 +66,7 @@ export default function ReadingPlansPanel({
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col bg-[#FDFDFD]">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col bg-sleek-bg">
           {!activePlanId ? (
             <div className="space-y-4">
               <h3 className="text-[14px] font-bold text-sleek-text-main mb-2">Escolha uma Jornada</h3>
@@ -62,8 +75,8 @@ export default function ReadingPlansPanel({
                 return (
                   <div
                     key={plan.id}
-                    onClick={() => setActivePlanId(plan.id)}
-                    className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:si�dow-sm transition-all group bg-white"
+                    onClick={() => persistedSetActivePlanId(plan.id)}
+                    className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-sleek-bg"
                   >
                     <div className="flex justify-between items-start mb-1">
                       <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors uppercase tracking-wide">
@@ -88,7 +101,7 @@ export default function ReadingPlansPanel({
           ) : (
             <div className="animate-in fade-in duration-300">
               <button
-                onClick={() => setActivePlanId(null)}
+                onClick={() => persistedSetActivePlanId(null)}
                 className="text-[12px] text-blue-600 hover:underline mb-4 flex items-center gap-1 font-medium"
               >
                 Voltar para Planos
@@ -118,7 +131,7 @@ export default function ReadingPlansPanel({
                         >
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={e => toggleMilestone(milestone.id, e)}
+                              onClick={e => persistedToggleMilestone(milestone.id, e)}
                               className={cn(
                                 'shrink-0 transition-colors',
                                 isDone

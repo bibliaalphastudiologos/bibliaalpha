@@ -89,7 +89,7 @@ export default function ResearchPanel({ isOpen, onClose, initialQuery = '' }: Re
     <>
       {isOpen && <div className="fixed inset-0 bg-black/10 z-40 lg:hidden" onClick={onClose} />}
       <div className={cn(
-        "fixed inset-y-0 right-0 w-[90vw] sm:w-[500px] bg-white shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col",
+        "fixed inset-y-0 right-0 w-[90vw] sm:w-[500px] bg-sleek-bg shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col",
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         {/* Header */}
@@ -103,7 +103,7 @@ export default function ResearchPanel({ isOpen, onClose, initialQuery = '' }: Re
         </header>
 
         {/* Search */}
-        <form onSubmit={handleSubmit} className="shrink-0 p-3 border-b border-sleek-border bg-white">
+        <form onSubmit={handleSubmit} className="shrink-0 p-3 border-b border-sleek-border bg-sleek-bg">
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-sleek-text-muted" />
             <input

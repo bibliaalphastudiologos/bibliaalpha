@@ -406,14 +406,14 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
 
   const tabClass = (t: Tab) => cn(
     'flex-1 py-2 text-[11px] font-semibold flex flex-col items-center gap-0.5 transition-colors rounded-md',
-    activeTab === t ? 'bg-white text-blue-600 shadow-sm' : 'text-sleek-text-muted hover:text-sleek-text-main'
+    activeTab === t ? 'bg-sleek-bg text-blue-600 shadow-sm' : 'text-sleek-text-muted hover:text-sleek-text-main'
   );
 
   return (
     <>
       {isOpen && <div className="fixed inset-0 bg-black/10 z-40 lg:hidden" onClick={onClose} />}
       <div className={cn(
-        'fixed inset-y-0 right-0 w-[90vw] sm:w-[480px] bg-white shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col',
+        'fixed inset-y-0 right-0 w-[90vw] sm:w-[480px] bg-sleek-bg shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col',
         isOpen ? 'translate-x-0' : 'translate-x-full',
       )}>
         {/* Header */}
@@ -446,7 +446,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         )}
 
         {/* Tabs */}
-        <div className="shrink-0 flex gap-1 px-3 py-2 bg-[#F4F5F7] border-b border-sleek-border">
+        <div className="shrink-0 flex gap-1 px-3 py-2 bg-sleek-hover border-b border-sleek-border">
           <button className={tabClass('notas')} onClick={() => setActiveTab('notas')}>
             <PenLine size={14} /> Notas
           </button>
@@ -465,7 +465,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         {activeTab === 'notas' && (
           <>
             {/* Toolbar de formatação */}
-            <div className="shrink-0 flex flex-wrap items-center gap-0.5 px-3 py-1.5 border-b border-sleek-border bg-[#F9F9F9]">
+            <div className="shrink-0 flex flex-wrap items-center gap-0.5 px-3 py-1.5 border-b border-sleek-border bg-sleek-hover">
               <button title="Negrito" onClick={() => insertFormat('**', '**')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Bold size={13} /></button>
               <button title="Itálico" onClick={() => insertFormat('*', '*')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Italic size={13} /></button>
               <button title="Sublinhado" onClick={() => insertFormat('__', '__')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Underline size={13} /></button>
@@ -486,7 +486,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
             </div>
 
             {/* Textarea + autocomplete */}
-            <div className="flex-1 overflow-hidden relative flex flex-col bg-[#FDFDFD]">
+            <div className="flex-1 overflow-hidden relative flex flex-col bg-sleek-bg">
               <textarea
                 ref={textareaRef}
                 value={noteContent}
@@ -498,7 +498,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
               />
               {/* Suggestions dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-5 bg-white border border-sleek-border shadow-lg rounded-md z-10 w-72 overflow-hidden"
+                <div className="absolute left-5 bg-sleek-bg border border-sleek-border shadow-lg rounded-md z-10 w-72 overflow-hidden"
                   style={{ bottom: 8 }}>
                   <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 border-b border-sleek-border">
                     <Sparkles size={11} className="text-blue-500" />
@@ -540,13 +540,13 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         {/* ── ABA TAREFAS ── */}
         {activeTab === 'tarefas' && (
           <>
-            <div className="shrink-0 p-3 border-b border-sleek-border bg-[#F9F9F9] space-y-2">
+            <div className="shrink-0 p-3 border-b border-sleek-border bg-sleek-hover space-y-2">
               <div className="flex gap-2">
                 <input
                   value={newTask} onChange={e => setNewTask(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addTask()}
                   placeholder="Nova tarefa… (Enter para adicionar)"
-                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-sleek-input-bg"
                 />
                 <button onClick={addTask} className="bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors">
                   <Plus size={15} />
@@ -566,7 +566,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
                   {(['todas','pendentes','concluidas'] as const).map(f => (
                     <button key={f} onClick={() => setTaskFilter(f)}
                       className={cn('text-[10px] px-2 py-0.5 rounded capitalize transition-colors',
-                        taskFilter === f ? 'bg-blue-600 text-white' : 'bg-white border border-sleek-border text-sleek-text-muted hover:text-sleek-text-main')}>
+                        taskFilter === f ? 'bg-blue-600 text-white' : 'bg-sleek-bg border border-sleek-border text-sleek-text-muted hover:text-sleek-text-main')}>
                       {f}
                     </button>
                   ))}
@@ -583,7 +583,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
               )}
               {filteredTasks.map(task => (
                 <div key={task.id} className={cn('flex items-start gap-2 p-2.5 rounded-lg border transition-colors',
-                  task.done ? 'bg-[#F7F9F7] border-green-100' : 'bg-white border-sleek-border hover:border-blue-200')}>
+                  task.done ? 'bg-sleek-hover border-green-100' : 'bg-sleek-bg border-sleek-border hover:border-blue-200')}>
                   <button onClick={() => toggleTask(task.id)} className="mt-0.5 shrink-0">
                     {task.done
                       ? <CheckSquare size={16} className="text-green-500" />
@@ -624,13 +624,13 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         {/* ── ABA DICIONÁRIO ── */}
         {activeTab === 'dicionario' && (
           <>
-            <div className="shrink-0 p-3 border-b border-sleek-border bg-[#F9F9F9]">
+            <div className="shrink-0 p-3 border-b border-sleek-border bg-sleek-hover">
               <div className="flex gap-2">
                 <input
                   value={dictQuery} onChange={e => setDictQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleDictSearch()}
                   placeholder="Digite uma palavra em português…"
-                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-sleek-input-bg"
                 />
                 <button onClick={handleDictSearch} disabled={dictLoading}
                   className="bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50">
@@ -638,7 +638,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
                 </button>
               </div>
               <p className="text-[10px] text-sleek-text-muted mt-1.5">
-                Dicionário de Português · fonte: dictionaryapi.dev + Wikcionário PT
+                Dicionário de Português · fonte: Wikcionário PT
               </p>
             </div>
 
@@ -704,13 +704,13 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         {/* ── ABA ENCICLOPÉDIA ── */}
         {activeTab === 'enciclopedia' && (
           <>
-            <div className="shrink-0 p-3 border-b border-sleek-border bg-[#F9F9F9]">
+            <div className="shrink-0 p-3 border-b border-sleek-border bg-sleek-hover">
               <div className="flex gap-2">
                 <input
                   value={encQuery} onChange={e => setEncQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleEncSearch()}
                   placeholder="Buscar na Wikipedia PT… ex: Calvário"
-                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                  className="flex-1 border border-sleek-border rounded-md px-3 py-1.5 text-[13px] outline-none focus:ring-1 focus:ring-blue-400 bg-sleek-input-bg"
                 />
                 <button onClick={handleEncSearch} disabled={encLoading}
                   className="bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50">

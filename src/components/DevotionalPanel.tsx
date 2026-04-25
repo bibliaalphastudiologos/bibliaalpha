@@ -39,7 +39,7 @@ export default function DevotionalPanel({
       )}
       <div
         className={cn(
-          'fixed inset-y-0 right-0 w-[90vw] sm:w-[450px] bg-white shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col font-sans',
+          'fixed inset-y-0 right-0 w-[90vw] sm:w-[450px] bg-sleek-bg shadow-2xl border-l border-sleek-border z-50 transition-transform duration-300 ease-in-out flex flex-col font-sans',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
@@ -64,7 +64,7 @@ export default function DevotionalPanel({
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col bg-[#FDFDFD]">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col bg-sleek-bg">
           {!activeDevotional ? (
             <div className="space-y-4">
               {category && (
@@ -76,7 +76,7 @@ export default function DevotionalPanel({
                 <div
                   key={devotional.id}
                   onClick={() => setActiveDevotionalId(devotional.id)}
-                  className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-white"
+                  className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-sleek-bg"
                 >
                   <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors mb-1">
                     {devotional.title}

@@ -28,7 +28,7 @@ export default function ConnectionsDropdown({ onClose, className = "" }: Connect
   return (
     <>
       <div className="fixed inset-0 z-30" onClick={onClose} />
-      <div className={`absolute w-60 bg-white border border-sleek-border rounded-lg shadow-xl py-2 z-40 font-sans ${className}`}>
+      <div className={`absolute w-60 bg-sleek-bg border border-sleek-border rounded-lg shadow-xl py-2 z-40 font-sans ${className}`}>
         <div className="px-4 py-2 text-[10px] font-bold text-sleek-text-muted uppercase tracking-wider border-b border-sleek-border mb-1">
           Nuvem e Conexões
         </div>
@@ -36,7 +36,7 @@ export default function ConnectionsDropdown({ onClose, className = "" }: Connect
           onClick={() => handleAction('notion')}
           className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-sleek-hover flex items-center gap-3 transition-colors text-sleek-text-main"
         >
-          <div className="w-5 h-5 rounded flex items-center justify-center bg-[#F1F1F1] text-black text-[10px] font-bold">N</div>
+          <div className="w-5 h-5 rounded flex items-center justify-center bg-sleek-hover text-black text-[10px] font-bold">N</div>
           Abrir no Notion
         </button>
         <button 
