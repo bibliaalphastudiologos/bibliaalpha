@@ -10,7 +10,7 @@ interface Feature {
 }
 
 const FEATURES: Feature[] = [
-  { symbol: '\u2737', text: 'Bíblica completa com mais de 20 versões e paralelo de versículos' },
+  { symbol: '\u2737', text: 'Bíblia completa com mais de 20 versões e paralelo de versículos' },
   { symbol: '\u2742', text: 'Pesquisa avançada com dicionário, concordância e dicionário Strong' },
   { symbol: '\u25C6', text: 'Biblioteca com centenas de eBooks clássicos do Domínio Público' },
   { symbol: '\u2761', text: 'Bloco de notas pessoal sincronizado com suas leituras' },

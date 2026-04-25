@@ -106,8 +106,8 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
         </p>
 
         {loginError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg max-w-sm w-full">
-            <p className="text-xs text-red-600 font-mono">{loginError}</p>
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg max-w-sm w-full">
+            <p className="text-xs text-red-500 font-mono">{loginError}</p>
           </div>
         )}
 
@@ -155,8 +155,8 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
               </svg>
             </div>
             <span className="text-sm text-sleek-text-main font-semibold mb-2">Erro ao carregar perfil</span>
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg max-w-sm">
-              <p className="text-xs text-red-600 font-mono">{profileError}</p>
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg max-w-sm">
+              <p className="text-xs text-red-500 font-mono">{profileError}</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => window.location.reload()} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">

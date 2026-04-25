@@ -384,7 +384,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col min-min-h-full relative font-serif">
+    <div className="w-full flex-1 flex flex-col min-h-full relative font-serif">
 
       {/* ── Floating Highlight Toolbar ──────────────────────────────────────── */}
       {toolbar.visible && (

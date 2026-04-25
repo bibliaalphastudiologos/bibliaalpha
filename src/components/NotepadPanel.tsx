@@ -435,8 +435,8 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
 
         {/* Settings dropdown */}
         {showSettings && (
-          <div className="shrink-0 border-b border-sleek-border bg-blue-50 px-4 py-3 flex flex-col gap-2">
-            <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide">Configurações</p>
+          <div className="shrink-0 border-b border-sleek-border bg-sleek-hover px-4 py-3 flex flex-col gap-2">
+            <p className="text-[11px] font-semibold text-sleek-text-main uppercase tracking-wide">Configurações</p>
             <label className="flex items-center gap-2 text-[12px] text-sleek-text-main cursor-pointer">
               <input type="checkbox" checked={autocompleteOn} onChange={e => setAutocompleteOn(e.target.checked)} className="accent-blue-600" />
               <Sparkles size={13} className="text-blue-500" />
@@ -475,7 +475,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
               <button title="Citação" onClick={() => insertFormat('\n> ', '', 'versículo')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Quote size={13} /></button>
               <button title="Hashtag" onClick={() => insertFormat('#', '', 'tema')} className="p-1.5 hover:bg-sleek-hover rounded text-sleek-text-main"><Hash size={13} /></button>
               <div className="w-px h-4 bg-sleek-border mx-1" />
-              <button title="Inserir contexto do capítulo" onClick={() => insertFormat('', '', `\n📖 ${chapterContext}\n`)} className="p-1.5 hover:bg-blue-50 rounded text-blue-500 text-[10px] font-medium flex items-center gap-0.5">
+              <button title="Inserir contexto do capítulo" onClick={() => insertFormat('', '', `\n📖 ${chapterContext}\n`)} className="p-1.5 hover:bg-sleek-hover rounded text-blue-500 text-[10px] font-medium flex items-center gap-0.5">
                 <Link2 size={12} /> Cap.
               </button>
               {autocompleteOn && (
@@ -500,13 +500,13 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
               {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute left-5 bg-sleek-bg border border-sleek-border shadow-lg rounded-md z-10 w-72 overflow-hidden"
                   style={{ bottom: 8 }}>
-                  <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 border-b border-sleek-border">
+                  <div className="flex items-center gap-1 px-3 py-1.5 bg-sleek-hover border-b border-sleek-border">
                     <Sparkles size={11} className="text-blue-500" />
-                    <span className="text-[10px] text-blue-600 font-semibold">Termos Teológicos — Tab para aceitar</span>
+                    <span className="text-[10px] text-sleek-text-muted font-semibold">Termos Teológicos — Tab para aceitar</span>
                   </div>
                   {suggestions.map((s, i) => (
                     <button key={s} onMouseDown={() => applySuggestion(s)}
-                      className={cn('w-full text-left px-3 py-1.5 text-[12px] transition-colors', i === suggestionIdx ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-sleek-hover text-sleek-text-main')}>
+                      className={cn('w-full text-left px-3 py-1.5 text-[12px] transition-colors', i === suggestionIdx ? 'bg-sleek-hover text-sleek-text-main font-medium' : 'hover:bg-sleek-hover text-sleek-text-main')}>
                       {s}
                     </button>
                   ))}
@@ -518,7 +518,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
             <footer className="shrink-0 px-4 py-2.5 border-t border-sleek-border bg-sleek-bg flex items-center justify-between gap-2">
               <div className="text-[10px] text-sleek-text-muted flex items-center gap-3">
                 <span className="flex items-center gap-1"><Save size={11} />
-                  {autoSaved ? `Salvo ${autoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Auto-salvo'}
+                  {autoSaved ? `Salvo ${autoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : <span className="opacity-40">Não salvo</span>}
                 </span>
                 <span>{wordCount} palavra{wordCount !== 1 ? 's' : ''}</span>
                 <span>{noteContent.length} car.</span>
@@ -660,7 +660,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
                   </div>
                   {dictResult.meanings.map((m, mi) => (
                     <div key={mi}>
-                      <span className="inline-block bg-blue-100 text-blue-700 text-[11px] font-semibold px-2 py-0.5 rounded mb-2">
+                      <span className="inline-block bg-sleek-hover text-sleek-text-main text-[11px] font-semibold px-2 py-0.5 rounded mb-2">
                         {m.partOfSpeech}
                       </span>
                       <ol className="space-y-2">
@@ -760,7 +760,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
                 <div className="space-y-1.5">
                   {encResults.map((r, i) => (
                     <button key={i} onClick={() => handleEncArticle(r.title)}
-                      className="w-full text-left p-2.5 rounded-lg border border-sleek-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                      className="w-full text-left p-2.5 rounded-lg border border-sleek-border hover:border-sleek-text-muted hover:bg-sleek-hover transition-colors">
                       <p className="text-[13px] font-medium text-sleek-text-main">{r.title}</p>
                       {r.extract && <p className="text-[11px] text-sleek-text-muted mt-0.5 line-clamp-2">{r.extract}</p>}
                     </button>
@@ -775,7 +775,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
                   <div className="mt-3 flex flex-wrap justify-center gap-1.5">
                     {['Calvário','Apóstolo Paulo','Salomão','Êxodo','Trindade','Pentecostes'].map(s => (
                       <button key={s} onClick={() => { setEncQuery(s); }}
-                        className="text-[11px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors">
+                        className="text-[11px] bg-sleek-hover text-sleek-text-muted px-2 py-0.5 rounded-full hover:bg-sleek-bg transition-colors">
                         {s}
                       </button>
                     ))}

@@ -92,7 +92,7 @@ export default function ReadingPlansPanel({
                       />
                     </div>
                     <div className="text-[10px] font-bold text-right text-sleek-text-muted">
-                      {progress}% Concluido
+                      {progress}% Concluído
                     </div>
                   </div>
                 );

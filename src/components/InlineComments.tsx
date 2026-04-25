@@ -11,6 +11,13 @@ interface InlineCommentsProps {
   onClose?: (e: React.MouseEvent) => void;
 }
 
+// Cache em memória por sessão — evita chamar a API repetidamente para o mesmo versículo
+const commentCache = new Map<string, any[]>();
+
+function getCacheKey(bookId: string, chapter: number, verse: number) {
+  return `${bookId}:${chapter}:${verse}`;
+}
+
 // Error boundary — impede que um crash nos comentários derrube a tela inteira
 class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: any) {
@@ -22,7 +29,7 @@ class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { ha
   render() {
     if (this.state.hasError) {
       return (
-        <div className="my-3 px-4 py-3 bg-red-50 border-l-2 border-red-300 rounded-r-lg text-[13px] text-red-600 font-sans">
+        <div className="my-3 px-4 py-3 bg-red-500/10 border-l-2 border-red-500/40 rounded-r-lg text-[13px] text-red-500 font-sans">
           Não foi possível carregar o comentário. Tente novamente.
         </div>
       );
@@ -32,8 +39,11 @@ class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { ha
 }
 
 function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCommentsProps) {
-  const [comments, setComments] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = getCacheKey(bookId, chapter, verseNumber);
+  const cached   = commentCache.get(cacheKey);
+
+  const [comments, setComments] = useState<any[]>(cached ?? []);
+  const [isLoading, setIsLoading] = useState(!cached);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -42,6 +52,13 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
   }, []);
 
   useEffect(() => {
+    // Se já existe no cache, não faz nova requisição
+    if (commentCache.has(cacheKey)) {
+      setComments(commentCache.get(cacheKey)!);
+      setIsLoading(false);
+      return;
+    }
+
     let isMounted = true;
     async function loadComments() {
       setIsLoading(true);
@@ -51,7 +68,9 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
         if (!isMounted) return;
         const ptComments = await translateCommentaries(bookId, chapter, verseNumber, rawComments);
         if (!isMounted) return;
-        setComments((ptComments ?? []).slice(0, 3));
+        const result = (ptComments ?? []).slice(0, 3);
+        commentCache.set(cacheKey, result);
+        setComments(result);
       } catch (e) {
         console.error('[InlineComments] erro ao carregar:', e);
         if (isMounted) setComments([]);
@@ -61,7 +80,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
     }
     loadComments();
     return () => { isMounted = false; };
-  }, [bookId, chapter, verseNumber]);
+  }, [bookId, chapter, verseNumber, cacheKey]);
 
   return (
     <div

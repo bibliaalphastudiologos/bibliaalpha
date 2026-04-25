@@ -263,7 +263,7 @@ export default function ThemeControls() {
               {/* Rodapé */}
               <div className="h-px w-full" style={{ backgroundColor: current.border }} />
               <p className="text-[9.5px] text-center" style={{ color: current.muted }}>
-                Preferências salvas automaticamente — Bíblica Alpha
+                Preferências salvas automaticamente — Bíblia Alpha
               </p>
 
             </div>

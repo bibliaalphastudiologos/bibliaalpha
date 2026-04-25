@@ -120,14 +120,14 @@ export default function DevotionalPanel({
                 </p>
               </div>
 
-              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+              <div className="bg-sleek-hover border border-sleek-border rounded-lg p-4 mb-6">
                 <div className="flex items-center gap-1.5 mb-2">
                   <Heart size={12} className="text-blue-500" />
                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
                     Oração
                   </h4>
                 </div>
-                <p className="text-[13px] text-blue-800 italic leading-relaxed">
+                <p className="text-[13px] text-sleek-text-main italic leading-relaxed">
                   {activeDevotional.prayer}
                 </p>
               </div>
