@@ -1,4 +1,11 @@
-# Biblia Alpha — Cache Control para Hostinger/LiteSpeed (v4)
+# Biblia Alpha — Cache Control para Hostinger/LiteSpeed (v5)
+
+# ─── Redirect www → apex (sem www) ───────────────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^www\.bibliaalpha\.org$ [NC]
+  RewriteRule ^(.*)$ https://bibliaalpha.org/$1 [R=301,L]
+</IfModule>
 
 # ─── LiteSpeed Cache ──────────────────────────────────────────────────────────
 <IfModule LiteSpeed>
@@ -30,7 +37,6 @@
   </FilesMatch>
 
   # 4. sw.js — sem cache NUNCA (DEVE vir APOS a regra geral .js)
-  #    Usa unset antes de set para GARANTIR que nao ha header duplicado
   <Files "sw.js">
     Header always unset Cache-Control
     Header always set Cache-Control "no-cache, no-store, must-revalidate"
