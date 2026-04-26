@@ -1,6 +1,6 @@
 import { cn } from '../App';
 import * as React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Search, BookOpen, Globe, Star, ExternalLink, Loader2, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import {
   searchWikipedia, getWikipediaSummary, getWikipediaSections, getWikipediaRelated,
@@ -71,9 +71,19 @@ export default function ResearchPanel({ isOpen, onClose, initialQuery = '' }: Re
     setExpandedSections(new Set([0]));
   };
 
+  const lastAutoQuery = React.useRef('');
+
   useEffect(() => {
-    if (isOpen && initialQuery) { setInputValue(initialQuery); doSearch(initialQuery); }
-  }, [isOpen, initialQuery]);
+    if (!isOpen || !initialQuery) return;
+    if (lastAutoQuery.current === initialQuery) return;
+    lastAutoQuery.current = initialQuery;
+    setInputValue(initialQuery);
+    doSearch(initialQuery);
+  }, [isOpen, initialQuery, doSearch]);
+
+  useEffect(() => {
+    if (!isOpen) lastAutoQuery.current = '';
+  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); doSearch(inputValue); };
 

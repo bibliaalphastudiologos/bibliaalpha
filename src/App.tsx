@@ -250,7 +250,7 @@ export default function App() {
         <ReadingPlansPanel isOpen={isPlansOpen} onClose={() => setIsPlansOpen(false)}
           onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
         />
-        <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={''} />
+        <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name ?? ''} />
         <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
         <DevotionalPanel
           isOpen={isDevotionalOpen}
