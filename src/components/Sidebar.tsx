@@ -1,6 +1,6 @@
 import { Book } from '../services/bibleApi';
 import { ChevronDown, ChevronRight, Search, LogOut, BookOpen, Globe } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
 import { DevotionalAudience } from '../data/devotionals';
@@ -31,15 +31,6 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
 
   const oldTestament = useMemo(() => books.slice(0, 39), [books]);
   const newTestament = useMemo(() => books.slice(39), [books]);
-
-  // Auto-expand the active book and its testament when sidebar opens or book changes
-  useEffect(() => {
-    if (isOpen && activeBook && books.length > 0) {
-      const idx = books.findIndex(b => b.id === activeBook.id);
-      setExpandedTestament(idx >= 39 ? 'new' : 'old');
-      setExpandedBookId(activeBook.id);
-    }
-  }, [isOpen, activeBook, books]);
 
   const toggleBook = (book: Book) => {
     if (expandedBookId === book.id) {
