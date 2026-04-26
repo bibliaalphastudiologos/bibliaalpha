@@ -75,17 +75,19 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
           visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"
         )}
       >
-        <div className="flex items-center px-4 py-3 border-b border-sleek-border">
-          <Search size={18} className="text-sleek-text-muted mr-3" />
+        <div className="flex items-center px-4 py-3.5 border-b border-sleek-border gap-3">
+          <Search size={16} className="text-sleek-text-muted shrink-0" />
           <input
             ref={inputRef}
             type="text"
             className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-sleek-text-muted text-sleek-text-main"
-            placeholder="Buscar livro ou devocional..."
+            placeholder="Buscar livro, capítulo ou devocional…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <kbd className="hidden sm:inline-block text-[10px] bg-sleek-avatar-bg px-2 py-1 rounded text-sleek-text-muted font-mono">ESC</kbd>
+          <div className="hidden sm:flex items-center gap-1">
+            <kbd className="text-[10px] bg-sleek-hover border border-sleek-border px-1.5 py-0.5 rounded text-sleek-text-muted font-mono">ESC</kbd>
+          </div>
         </div>
 
         <div className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
@@ -99,9 +101,10 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
                   <button
                     key={d.id}
                     onClick={() => { onDevotionalOpen(d.id); onClose(); }}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium hover:bg-sleek-hover transition-colors text-left"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium hover:bg-sleek-hover transition-colors text-left group"
                   >
-                    <span className={cn('font-semibold', d.color)}>{d.label}</span>
+                    <span className={cn('w-2 h-2 rounded-full shrink-0', d.color.replace('text-','bg-'))} />
+                    <span className="text-sleek-text-main group-hover:text-sleek-accent transition-colors">{d.label}</span>
                   </button>
                 ))}
               </div>
@@ -118,12 +121,17 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
                 Livros
               </div>
               {filteredBooks.map(book => (
-                <div key={book.id} className="group">
-                  <div className="px-3 py-2 text-[14px] font-medium text-sleek-text-main flex items-center gap-2">
-                    <BookIcon size={14} className="text-sleek-text-muted" />
-                    {book.name}
+                <div key={book.id} className="group rounded-lg overflow-hidden border border-transparent hover:border-sleek-border hover:bg-sleek-surface transition-all mb-1">
+                  <div className="px-3 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-[14px] font-semibold text-sleek-text-main">
+                      <BookIcon size={14} className="text-sleek-text-muted shrink-0" />
+                      {book.name}
+                    </div>
+                    <span className="text-[10px] text-sleek-text-muted bg-sleek-hover px-2 py-0.5 rounded-full border border-sleek-border font-medium">
+                      {book.numberOfChapters} cap.
+                    </span>
                   </div>
-                  <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 px-3 pb-2">
+                  <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 px-3 pb-3">
                     {Array.from({ length: book.numberOfChapters }).map((_, i) => (
                       <button
                         key={i}
@@ -131,7 +139,7 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
                           onSelectChapter(book, i + 1);
                           onClose();
                         }}
-                        className="aspect-square flex items-center justify-center text-[12px] bg-sleek-avatar-bg hover:bg-sleek-text-main hover:text-white rounded text-sleek-text-main transition-colors"
+                        className="aspect-square flex items-center justify-center text-[11px] font-medium bg-sleek-hover hover:bg-sleek-text-main hover:text-sleek-bg rounded-md text-sleek-text-muted transition-all hover:scale-110"
                       >
                         {i + 1}
                       </button>

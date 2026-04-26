@@ -199,6 +199,13 @@ export default function App() {
               <Search size={18} />
             </button>
           </header>
+          {/* Reading progress bar — mobile */}
+          <div className="lg:hidden h-[2px] bg-sleek-border shrink-0">
+            <div
+              className="h-full bg-sleek-accent transition-all duration-500"
+              style={{ width: activeBook ? `${(activeChapter / activeBook.numberOfChapters) * 100}%` : '0%' }}
+            />
+          </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {isLoadingChapter ? (
               <div className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full animate-pulse">

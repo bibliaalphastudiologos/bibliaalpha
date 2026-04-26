@@ -464,7 +464,15 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       )}
 
-      <header className="hidden lg:flex px-8 py-3 justify-between items-center bg-sleek-bg sticky top-0 z-20 border-b border-sleek-border/50" style={{backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
+      {/* Desktop reading progress bar */}
+      <div className="hidden lg:block h-[2px] bg-sleek-border/50 sticky top-0 z-30">
+        <div
+          className="h-full bg-sleek-accent transition-all duration-500 ease-out"
+          style={{ width: totalChapters > 1 ? `${(chapter / totalChapters) * 100}%` : '100%' }}
+        />
+      </div>
+
+      <header className="hidden lg:flex px-8 py-3 justify-between items-center bg-sleek-bg sticky top-[2px] z-20 border-b border-sleek-border/50" style={{backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleSidebar}
@@ -600,7 +608,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           </div>
         </div>
 
-        <div className="pb-32">
+        <div className="pb-32 lg:pb-20">
           {content.map(renderItem)}
 
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">

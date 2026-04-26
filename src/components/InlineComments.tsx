@@ -86,17 +86,24 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
     <div
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        'my-4 block w-full bg-sleek-sidebar-bg border-l-2 border-sleek-text-muted rounded-r-xl overflow-hidden shadow-sm transition-all duration-300 ease-out',
+        'my-4 block w-full bg-sleek-surface border border-sleek-border rounded-xl overflow-hidden shadow-sm transition-all duration-300 ease-out',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
       )}
     >
       <div
-        className="font-sans text-[11px] font-bold tracking-widest text-sleek-text-muted uppercase px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between cursor-pointer hover:bg-sleek-hover transition-colors"
+        className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-sleek-border cursor-pointer hover:bg-sleek-hover transition-colors"
         onClick={onClose}
-        title="Clique para fechar o comentário"
+        title="Fechar comentários"
       >
-        <span>Comentários – Versículo {verseNumber}</span>
-        <span className="opacity-50 text-[10px]">Fechar ×</span>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-sleek-accent" />
+          <span className="font-sans text-[11px] font-bold tracking-wider text-sleek-text-muted uppercase">
+            Comentários · v. {verseNumber}
+          </span>
+        </div>
+        <span className="text-[11px] text-sleek-text-muted hover:text-sleek-text-main transition-colors font-sans">
+          Fechar ×
+        </span>
       </div>
 
       <div className="px-4 sm:px-5 pb-5">
@@ -119,13 +126,16 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
           <div className="space-y-6 pt-2">
             {comments.map((comment, idx) => (
               <div key={comment.id ?? idx} className="font-sans text-[13px] sm:text-[14px]">
-                <div className="flex items-center gap-2 mb-1.5 opacity-80">
-                  <div className="w-5 h-5 rounded-full bg-sleek-avatar-bg text-[9px] flex items-center justify-center font-bold text-sleek-text-main shrink-0 uppercase">
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className="w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-bold shrink-0 uppercase text-white"
+                    style={{ background: ['#6366F1','#3B82F6','#F43F5E','#F97316','#10B981'][idx % 5] }}
+                  >
                     {(comment.author ?? '??').substring(0, 2)}
                   </div>
-                  <span className="font-semibold text-sleek-text-main">{comment.author ?? 'Comentarista'}</span>
+                  <span className="font-semibold text-[12px] text-sleek-text-main">{comment.author ?? 'Comentarista'}</span>
                 </div>
-                <div className="text-sleek-comment-text leading-relaxed pl-7">
+                <div className="text-sleek-comment-text leading-relaxed pl-8 border-l-2 border-sleek-border">
                   {(comment.texts ?? []).map((text: string, tIdx: number) => (
                     <p key={tIdx} className={tIdx > 0 ? 'mt-2' : ''}>{text}</p>
                   ))}
