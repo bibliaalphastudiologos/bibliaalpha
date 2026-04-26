@@ -11,7 +11,7 @@ import EbooksPanel from './components/EbooksPanel';
 import DevotionalPanel from './components/DevotionalPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
 import ThemeControls from './components/ThemeControls';
-import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X, AlertTriangle } from 'lucide-react';
+import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X, AlertTriangle, Search } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -187,22 +187,17 @@ export default function App() {
               </button>
             </div>
           )}
-          <header className="h-14 flex items-center justify-between px-6 sm:px-10 border-b border-sleek-border bg-sleek-bg shrink-0 z-10 lg:hidden">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors">
-                <Menu size={20} />
-              </button>
-              <h1 className="text-[14px] font-semibold text-sleek-text-main">{activeBook?.name} {activeChapter}</h1>
+          <header className="h-12 flex items-center justify-between px-4 border-b border-sleek-border bg-sleek-bg shrink-0 z-10 lg:hidden" style={{backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Menu">
+              <Menu size={18} />
+            </button>
+            <div className="flex flex-col items-center">
+              <h1 className="text-[13px] font-semibold text-sleek-text-main leading-tight">{activeBook?.name} {activeChapter}</h1>
+              <span className="text-[10px] text-sleek-text-muted">{activeBook && activeChapter ? `${activeChapter} / ${activeBook.numberOfChapters}` : ''}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setIsPlansOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-blue-600 transition-colors"><BookOpen size={18} /></button>
-              <button onClick={() => setIsNotepadOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"><Edit3 size={18} /></button>
-              <button onClick={() => setIsResearchOpen(true)} className="p-2 hover:bg-sleek-hover rounded-md text-purple-600 transition-colors" title="Pesquisa Bíblica"><Globe size={18} /></button>
-              <div className="relative">
-                <button onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)} className="p-2 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"><MoreHorizontal size={18} /></button>
-                {isMoreMenuOpen && <ConnectionsDropdown onClose={() => setIsMoreMenuOpen(false)} className="right-0 top-12" />}
-              </div>
-            </div>
+            <button onClick={() => setIsCommandModeOpen(true)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Buscar (⌘K)">
+              <Search size={18} />
+            </button>
           </header>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {isLoadingChapter ? (
@@ -244,6 +239,43 @@ export default function App() {
               />
             )}
           </div>
+
+          {/* ── Mobile Bottom Navigation Bar ── */}
+          <nav className="lg:hidden shrink-0 border-t border-sleek-border bg-sleek-bg" style={{backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
+            <div className="flex items-stretch h-[56px]">
+              <button
+                onClick={() => setIsPlansOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 text-blue-600 hover:bg-sleek-hover transition-colors"
+              >
+                <BookOpen size={18} />
+                <span className="text-[9px] font-medium">Planos</span>
+              </button>
+              <button
+                onClick={() => setIsNotepadOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 text-sleek-text-muted hover:bg-sleek-hover hover:text-sleek-text-main transition-colors"
+              >
+                <Edit3 size={18} />
+                <span className="text-[9px] font-medium">Notas</span>
+              </button>
+              <button
+                onClick={() => setIsResearchOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 text-purple-600 hover:bg-sleek-hover transition-colors"
+              >
+                <Globe size={18} />
+                <span className="text-[9px] font-medium">Pesquisa</span>
+              </button>
+              <div className="relative flex-1">
+                <button
+                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                  className="w-full h-full flex flex-col items-center justify-center gap-0.5 text-sleek-text-muted hover:bg-sleek-hover hover:text-sleek-text-main transition-colors"
+                >
+                  <MoreHorizontal size={18} />
+                  <span className="text-[9px] font-medium">Mais</span>
+                </button>
+                {isMoreMenuOpen && <ConnectionsDropdown onClose={() => setIsMoreMenuOpen(false)} className="right-0 bottom-14" />}
+              </div>
+            </div>
+          </nav>
         </div>
         {/* overlay handled above */}
         <NotepadPanel isOpen={isNotepadOpen} onClose={() => setIsNotepadOpen(false)} chapterContext={activeBook?.name + ' ' + activeChapter} />

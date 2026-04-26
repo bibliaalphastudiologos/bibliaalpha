@@ -1,5 +1,4 @@
 import { cn } from '../App';
-import * as React from 'react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, Search, BookOpen, Globe, Star, ExternalLink, Loader2, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import {

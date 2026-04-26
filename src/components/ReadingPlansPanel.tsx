@@ -134,23 +134,38 @@ export default function ReadingPlansPanel({
                   <div
                     key={plan.id}
                     onClick={() => persistPlanId(plan.id)}
-                    className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-sleek-bg"
+                    className="border border-sleek-border rounded-xl p-4 cursor-pointer hover:border-blue-300/60 hover:shadow-md transition-all group bg-sleek-bg relative overflow-hidden"
                   >
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors uppercase tracking-wide">
-                        {plan.title}
-                      </h4>
-                      {progress === 100 && <CheckCircle2 size={16} className="text-green-500" />}
+                    {progress === 100 && (
+                      <div className="absolute inset-0 bg-green-500/5 rounded-xl pointer-events-none" />
+                    )}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors leading-snug mb-1">
+                          {plan.title}
+                        </h4>
+                        <p className="text-[12px] text-sleek-text-muted leading-relaxed">{plan.description}</p>
+                      </div>
+                      <div className="shrink-0 w-11 h-11 relative flex items-center justify-center">
+                        <svg viewBox="0 0 36 36" className="w-11 h-11 -rotate-90">
+                          <circle cx="18" cy="18" r="14" fill="none" stroke="var(--color-sleek-border)" strokeWidth="3" />
+                          <circle cx="18" cy="18" r="14" fill="none"
+                            stroke={progress === 100 ? '#22c55e' : '#3b82f6'}
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeDasharray={`${(progress / 100) * 87.96} 87.96`}
+                          />
+                        </svg>
+                        <span className="absolute text-[10px] font-bold text-sleek-text-muted">{progress}%</span>
+                      </div>
                     </div>
-                    <p className="text-[12px] text-sleek-text-muted mb-4">{plan.description}</p>
-                    <div className="w-full bg-sleek-hover rounded-full h-1.5 mb-1.5">
-                      <div
-                        className="bg-sleek-text-main h-1.5 rounded-full transition-all duration-500"
-                        style={{ width: progress + '%' }}
-                      />
-                    </div>
-                    <div className="text-[10px] font-bold text-right text-sleek-text-muted">
-                      {progress}% Concluído
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[10px] text-sleek-text-muted">
+                        {plan.milestones.filter(m => completedMilestones[m.id]).length} / {plan.milestones.length} passagens
+                      </span>
+                      <span className="text-[11px] font-semibold text-blue-600 group-hover:underline">
+                        {progress === 0 ? 'Começar →' : progress === 100 ? '✓ Concluído' : 'Continuar →'}
+                      </span>
                     </div>
                   </div>
                 );
@@ -160,18 +175,27 @@ export default function ReadingPlansPanel({
             <div className="animate-in fade-in duration-300">
               <button
                 onClick={() => persistPlanId(null)}
-                className="text-[12px] text-blue-600 hover:underline mb-4 flex items-center gap-1 font-medium"
+                className="text-[12px] text-sleek-text-muted hover:text-sleek-text-main mb-3 flex items-center gap-1 font-medium transition-colors"
               >
-                Voltar para Planos
+                ← Todos os planos
               </button>
-              {PLANS.filter(p => p.id === activePlanId).map(plan => (
+              {PLANS.filter(p => p.id === activePlanId).map(plan => {
+                const progressVal = getPlanProgress(plan.id);
+                const doneCount = plan.milestones.filter(m => completedMilestones[m.id]).length;
+                return (
                 <div key={plan.id}>
-                  <h3 className="text-[18px] font-bold text-sleek-text-main mb-1 uppercase tracking-tight">
-                    {plan.title}
-                  </h3>
-                  <p className="text-[13px] text-sleek-text-muted mb-6 pb-4 border-b border-sleek-border">
-                    {plan.description}
-                  </p>
+                  {/* Sticky progress banner */}
+                  <div className="sticky top-0 z-10 -mx-5 px-5 py-3 mb-4 bg-sleek-bg/95 backdrop-blur border-b border-sleek-border">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h3 className="text-[14px] font-bold text-sleek-text-main leading-tight">{plan.title}</h3>
+                      <span className="text-[11px] font-bold text-sleek-text-muted">{doneCount}/{plan.milestones.length}</span>
+                    </div>
+                    <div className="w-full bg-sleek-border rounded-full h-1.5">
+                      <div className="h-1.5 rounded-full transition-all duration-700"
+                        style={{ width: progressVal + '%', background: progressVal === 100 ? '#22c55e' : '#3b82f6' }} />
+                    </div>
+                  </div>
+                  <p className="text-[12px] text-sleek-text-muted mb-4 leading-relaxed">{plan.description}</p>
                   <div className="space-y-2">
                     {plan.milestones.map(milestone => {
                       const isDone = completedMilestones[milestone.id] || false;
@@ -199,26 +223,35 @@ export default function ReadingPlansPanel({
                             >
                               {isDone ? <CheckCircle2 size={18} /> : <Circle size={18} />}
                             </button>
-                            <div
-                              className={cn(
-                                'text-[13px] font-medium transition-colors',
-                                isDone
-                                  ? 'text-green-700/70 line-through'
-                                  : 'text-sleek-text-main group-hover:text-blue-600',
+                            <div className="min-w-0">
+                              <div className={cn(
+                                'text-[13px] font-medium transition-colors leading-snug',
+                                isDone ? 'text-sleek-text-muted line-through' : 'text-sleek-text-main',
+                              )}>
+                                {milestone.label}
+                              </div>
+                              {milestone.chapters && milestone.chapters.length > 1 && (
+                                <div className="text-[10px] text-sleek-text-muted mt-0.5">
+                                  Cap. {milestone.chapters[0]}–{milestone.chapters[milestone.chapters.length - 1]}
+                                </div>
                               )}
-                            >
-                              {milestone.label}
                             </div>
                           </div>
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-sleek-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                            Ler
+                          <div className={cn(
+                            "text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-all shrink-0",
+                            isDone
+                              ? "text-green-600 bg-green-50 border border-green-100"
+                              : "text-blue-600 bg-blue-50 border border-blue-100 group-hover:bg-blue-100"
+                          )}>
+                            {isDone ? "Lido" : "Ler"}
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

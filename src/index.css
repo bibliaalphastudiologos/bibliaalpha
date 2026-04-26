@@ -919,3 +919,21 @@ div[data-verse]:hover > span > sup {
   transform: translateY(-1px);
 }
 .nav-chapter-btn:active { transform: translateY(0); }
+
+/* ── Mobile Bottom Navigation ── */
+nav.lg\:hidden {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Comments panel: verse reference label ── */
+.comments-verse-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-sleek-text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

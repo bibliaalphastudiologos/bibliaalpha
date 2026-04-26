@@ -1,6 +1,6 @@
 import { cn } from '../App';
 import * as React from 'react';
-import { Palette, Share2, MoreHorizontal, Book as BookIcon, Bookmark, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu, Highlighter, X } from 'lucide-react';
+import { Palette, Share2, MoreHorizontal, Book as BookIcon, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu, Highlighter, X } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import InlineComments from './InlineComments';
 import ConnectionsDropdown from './ConnectionsDropdown';
@@ -567,59 +567,36 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             </div>
           )}
 
-          <div className="flex flex-col gap-3 font-sans w-full max-w-sm">
-            <div className="flex items-center text-[13px]">
-              <div className="w-28 text-sleek-text-muted flex items-center gap-2">
-                <BookIcon size={14} className="opacity-70" /> Livro
-              </div>
-              <div
-                className="text-sleek-text-main bg-sleek-avatar-bg px-2 py-0.5 rounded cursor-pointer hover:bg-sleek-border transition-colors"
-                onClick={onOpenBookList}
-                title="Selecionar outro livro"
-              >
-                {bookName}
-              </div>
-            </div>
-
-            <div className="flex items-center text-[13px]">
-              <div className="w-28 text-sleek-text-muted flex items-center gap-2">
-                <Bookmark size={14} className="opacity-70" /> Capítulo
-              </div>
-              <div className="text-sleek-text-main">{chapter}</div>
-            </div>
-
-            <div className="flex items-center text-[13px] relative">
-              <div className="w-28 text-sleek-text-muted flex items-center gap-2 shrink-0">
-                <Globe size={14} className="opacity-70" /> Versão
-              </div>
-              <div
-                className="text-sleek-text-main bg-sleek-avatar-bg px-2 py-0.5 rounded cursor-pointer hover:bg-sleek-border flex items-center gap-1 min-w-0"
-                onClick={() => setIsTranslationMenuOpen(!isTranslationMenuOpen)}
-              >
-                <span className="truncate">{AVAILABLE_TRANSLATIONS.find(t => t.id === activeTranslation)?.name || 'Padrão'}</span>
-                <ChevronDown size={14} className="opacity-50 shrink-0" />
-              </div>
-
-              {isTranslationMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setIsTranslationMenuOpen(false)} />
-                  <div className="absolute top-8 left-28 z-40 bg-sleek-bg border border-sleek-border rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.15)] py-1 min-w-[200px] font-sans">
-                    {AVAILABLE_TRANSLATIONS.map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => { onTranslationChange(t.id); setIsTranslationMenuOpen(false); }}
-                        className={cn(
-                          "w-full text-left px-3 py-1.5 text-[13px] hover:bg-sleek-hover transition-colors",
-                          activeTranslation === t.id ? "font-semibold text-sleek-accent" : "text-sleek-text-main"
-                        )}
-                      >
-                        {t.name}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+          {/* Translation selector — compact pill */}
+          <div className="relative inline-block font-sans">
+            <button
+              onClick={() => setIsTranslationMenuOpen(!isTranslationMenuOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border border-sleek-border bg-sleek-input-bg text-sleek-text-muted hover:border-sleek-text-muted hover:text-sleek-text-main transition-all"
+            >
+              <Globe size={12} className="opacity-60" />
+              <span>{AVAILABLE_TRANSLATIONS.find(t => t.id === activeTranslation)?.name?.split(' ')[0] || 'Tradução'}</span>
+              <ChevronDown size={12} className="opacity-50" />
+            </button>
+            {isTranslationMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setIsTranslationMenuOpen(false)} />
+                <div className="absolute top-9 left-0 z-40 bg-sleek-bg border border-sleek-border rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.14)] py-1.5 min-w-[220px] font-sans max-h-[320px] overflow-y-auto custom-scrollbar">
+                  {AVAILABLE_TRANSLATIONS.map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => { onTranslationChange(t.id); setIsTranslationMenuOpen(false); }}
+                      className={cn(
+                        "w-full text-left px-4 py-2 text-[13px] hover:bg-sleek-hover transition-colors flex items-center justify-between gap-2",
+                        activeTranslation === t.id ? "font-semibold text-sleek-accent" : "text-sleek-text-main"
+                      )}
+                    >
+                      <span>{t.name}</span>
+                      {activeTranslation === t.id && <span className="w-1.5 h-1.5 rounded-full bg-sleek-accent shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 

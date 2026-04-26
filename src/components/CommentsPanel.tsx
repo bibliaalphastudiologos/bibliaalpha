@@ -71,10 +71,13 @@ export default function CommentsPanel({ isOpen, onClose, bookId, chapter, verseN
         isOpen ? 'w-[85vw] sm:w-[320px] translate-x-0' : 'w-0 translate-x-full lg:translate-x-0 overflow-hidden border-none'
       )}
     >
-      <div className={cn('px-4 py-5 mb-4 font-semibold text-[14px] flex items-center justify-between w-[85vw] sm:w-[320px]', !isOpen && 'hidden')}>
-        <div className="text-sleek-text-main">Comentários</div>
-        <button onClick={onClose} className="p-1 px-2 font-normal text-sleek-text-muted hover:text-sleek-text-main transition-colors cursor-pointer text-[14px]">
-          ✕
+      <div className={cn('h-14 shrink-0 border-b border-sleek-border flex items-center justify-between px-4 w-[85vw] sm:w-[320px] bg-sleek-bg', !isOpen && 'hidden')}>
+        <div className="flex items-center gap-2 font-semibold text-[13px] text-sleek-text-main">
+          <Quote size={14} className="text-sleek-text-muted" />
+          Comentários{verseNumber ? <span className="text-sleek-text-muted font-normal text-[12px]">· v. {verseNumber}</span> : ''}
+        </div>
+        <button onClick={onClose} className="panel-close-btn">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
         </button>
       </div>
 
@@ -105,30 +108,34 @@ export default function CommentsPanel({ isOpen, onClose, bookId, chapter, verseN
             {comments.map((comment, idx) => (
               <div
                 key={comment.id || idx}
-                className="bg-sleek-surface p-3 rounded-lg border border-sleek-border shadow-[0_1px_3px_rgba(0,0,0,0.04)] mb-4 font-sans"
+                className="mb-3 font-sans"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-full bg-sleek-avatar-bg text-[10px] flex items-center justify-center font-bold text-sleek-text-main shrink-0 uppercase">
+                  <div
+                    className="w-7 h-7 rounded-full text-[11px] flex items-center justify-center font-bold shrink-0 uppercase text-white"
+                    style={{ background: ['#6366F1','#3B82F6','#F43F5E','#F97316','#10B981'][idx % 5] }}
+                  >
                     {comment.author.substring(0, 2)}
                   </div>
-                  <span className="text-[12px] font-bold text-sleek-text-main truncate">{comment.author}</span>
+                  <span className="text-[12px] font-semibold text-sleek-text-main truncate">{comment.author}</span>
                 </div>
-                <div className="text-[13px] text-sleek-comment-text leading-[1.4] space-y-2">
+                <div className="ml-9 text-[13px] text-sleek-comment-text leading-relaxed space-y-2 border-l-2 border-sleek-border pl-3">
                   {comment.texts.map((text: string, tIdx: number) => (
                     <p key={tIdx}>{text}</p>
                   ))}
                 </div>
               </div>
             ))}
-            <div className="mt-8 border-t border-sleek-border pt-6 pb-6">
-              <div className="text-[11px] font-bold tracking-widest text-sleek-text-muted uppercase mb-4 font-sans flex items-center gap-2">
-                Minhas Notas <span className="bg-sleek-avatar-bg px-1.5 py-0.5 rounded text-[9px]">Privado</span>
+            <div className="mt-6 pt-5 border-t border-sleek-border pb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[11px] font-bold tracking-wider text-sleek-text-muted uppercase font-sans">Minha Nota</span>
+                <span className="text-[9px] bg-sleek-hover text-sleek-text-muted px-2 py-0.5 rounded-full border border-sleek-border">Privado</span>
               </div>
               <textarea
                 value={note}
                 onChange={handleNoteChange}
-                placeholder="Escreva seus pensamentos ou insights sobre este versículo..."
-                className="w-full bg-transparent border border-sleek-border hover:border-[#D1D1D1] rounded-[6px] p-3.5 text-[13px] text-sleek-text-main focus:outline-none focus:border-sleek-text-muted focus:ring-1 focus:ring-sleek-text-muted resize-none min-h-[120px] transition-colors leading-relaxed font-sans placeholder:text-[#BDBDBA]"
+                placeholder="Escreva seus insights sobre este versículo…"
+                className="w-full bg-sleek-input-bg border border-sleek-border rounded-xl p-3 text-[13px] text-sleek-text-main focus:outline-none focus:border-sleek-accent resize-none min-h-[100px] transition-colors leading-relaxed font-sans placeholder:text-sleek-text-muted"
               />
             </div>
           </div>
