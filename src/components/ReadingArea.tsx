@@ -6,6 +6,9 @@ import InlineComments from './InlineComments';
 import ConnectionsDropdown from './ConnectionsDropdown';
 import { AVAILABLE_TRANSLATIONS } from '../services/apiBible';
 import { getChapterCommentMap } from '../services/bibleApi';
+import { useAuth } from './AuthProvider';
+import { db } from '../services/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface ReadingAreaProps {
   bookId: string;
@@ -129,6 +132,7 @@ function renderVerseContent(
 
 export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1 }: ReadingAreaProps) {
 
+  const { user } = useAuth();
   const highlightKey = `hl2_${bookId}_${chapter}`;
   const [highlights, setHighlights] = useState<VerseHighlight[]>([]);
   const [isTranslationMenuOpen, setIsTranslationMenuOpen] = useState(false);
@@ -142,18 +146,38 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const readingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    try {
-      setHighlights(JSON.parse(localStorage.getItem(highlightKey) || '[]'));
-    } catch { setHighlights([]); }
-    setExpandedVerses(new Set());
     let isMounted = true;
+    async function loadHighlights() {
+      // Tenta carregar do Firestore se usuário autenticado
+      if (user?.uid) {
+        try {
+          const ref = doc(db, 'users', user.uid, 'highlights', `${bookId}_${chapter}`);
+          const snap = await getDoc(ref);
+          if (!isMounted) return;
+          if (snap.exists()) {
+            const data = snap.data();
+            setHighlights(data.highlights || []);
+            localStorage.setItem(highlightKey, JSON.stringify(data.highlights || []));
+            return;
+          }
+        } catch (e) {
+          console.warn('[Highlights] Falha ao ler Firestore, usando cache local:', e);
+        }
+      }
+      // Fallback: localStorage
+      try {
+        setHighlights(JSON.parse(localStorage.getItem(highlightKey) || '[]'));
+      } catch { setHighlights([]); }
+    }
+    loadHighlights();
+    setExpandedVerses(new Set());
     if (bookId && chapter) {
       getChapterCommentMap(bookId, chapter).then((map) => {
         if (isMounted) setVersesWithComments(map);
       });
     }
     return () => { isMounted = false; };
-  }, [highlightKey, bookId, chapter]);
+  }, [highlightKey, bookId, chapter, user]);
 
   // Keyboard navigation: ArrowLeft/ArrowRight for prev/next chapter
   useEffect(() => {
@@ -256,6 +280,12 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const saveHighlights = (list: VerseHighlight[]) => {
     setHighlights(list);
     localStorage.setItem(highlightKey, JSON.stringify(list));
+    // Persiste no Firestore de forma assíncrona (não bloqueia UI)
+    if (user?.uid) {
+      const ref = doc(db, 'users', user.uid, 'highlights', `${bookId}_${chapter}`);
+      setDoc(ref, { highlights: list, updatedAt: new Date().toISOString() }, { merge: true })
+        .catch(e => console.warn('[Highlights] Erro ao salvar no Firestore:', e));
+    }
   };
 
   const applyHighlight = (colorKey: HighlightKey) => {

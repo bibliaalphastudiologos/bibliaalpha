@@ -54,6 +54,21 @@ service cloud.firestore {
         );
 
       allow delete: if isAdmin();
+
+      // ── Highlights sincronizados por capítulo ──
+      match /highlights/{docId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      // ── Notas do bloco de estudos ──
+      match /notes/{docId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      // ── Tarefas do bloco de estudos ──
+      match /tasks/{docId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     match /{document=**} {

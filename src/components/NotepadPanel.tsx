@@ -8,6 +8,9 @@ import {
   BookMarked, FlaskConical, Settings2, Save,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useAuth } from './AuthProvider';
+import { db } from '../services/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 // ── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -231,6 +234,7 @@ const PRIORITY_LABEL: Record<string, string> = {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function NotepadPanel({ isOpen, onClose, chapterContext }: NotepadPanelProps) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('notas');
 
   // ── Notas ──
@@ -265,36 +269,87 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
   // ── Configurações ──
   const [showSettings, setShowSettings] = useState(false);
 
-  // Load nota do localStorage
+  // Load nota — Firestore primeiro, fallback localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(noteKey);
-    if (saved !== null) setNoteContent(saved);
-    else setNoteContent('');
-  }, [chapterContext]);
+    let isMounted = true;
+    async function loadNote() {
+      if (user?.uid) {
+        try {
+          const safeKey = chapterContext.replace(/[^a-zA-Z0-9_]/g, '_');
+          const ref = doc(db, 'users', user.uid, 'notes', safeKey);
+          const snap = await getDoc(ref);
+          if (!isMounted) return;
+          if (snap.exists()) {
+            const saved = snap.data().content ?? '';
+            setNoteContent(saved);
+            localStorage.setItem(noteKey, saved);
+            return;
+          }
+        } catch (e) {
+          console.warn('[Notes] Falha ao ler Firestore:', e);
+        }
+      }
+      const saved = localStorage.getItem(noteKey);
+      if (isMounted) setNoteContent(saved !== null ? saved : '');
+    }
+    loadNote();
+    return () => { isMounted = false; };
+  }, [chapterContext, user]);
 
-  // Load tarefas do localStorage
+  // Load tarefas — Firestore primeiro, fallback localStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('notepad_tasks');
-      if (saved) setTasks(JSON.parse(saved));
-    } catch {}
-  }, []);
+    let isMounted = true;
+    async function loadTasks() {
+      if (user?.uid) {
+        try {
+          const ref = doc(db, 'users', user.uid, 'tasks', 'notepad');
+          const snap = await getDoc(ref);
+          if (!isMounted) return;
+          if (snap.exists()) {
+            const saved = snap.data().tasks ?? [];
+            setTasks(saved);
+            localStorage.setItem('notepad_tasks', JSON.stringify(saved));
+            return;
+          }
+        } catch (e) {
+          console.warn('[Tasks] Falha ao ler Firestore:', e);
+        }
+      }
+      try {
+        const saved = localStorage.getItem('notepad_tasks');
+        if (saved && isMounted) setTasks(JSON.parse(saved));
+      } catch {}
+    }
+    loadTasks();
+    return () => { isMounted = false; };
+  }, [user]);
 
-  // Auto-save notas
+  // Auto-save notas — localStorage + Firestore
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem(noteKey, noteContent);
       setAutoSaved(new Date());
       const words = noteContent.trim().split(/\s+/).filter(Boolean).length;
       setWordCount(words);
+      if (user?.uid) {
+        const safeKey = chapterContext.replace(/[^a-zA-Z0-9_]/g, '_');
+        const ref = doc(db, 'users', user.uid, 'notes', safeKey);
+        setDoc(ref, { content: noteContent, updatedAt: new Date().toISOString() }, { merge: true })
+          .catch(e => console.warn('[Notes] Erro ao salvar no Firestore:', e));
+      }
     }, 800);
     return () => clearTimeout(timer);
-  }, [noteContent, noteKey]);
+  }, [noteContent, noteKey, user, chapterContext]);
 
-  // Auto-save tarefas
+  // Auto-save tarefas — localStorage + Firestore
   useEffect(() => {
     localStorage.setItem('notepad_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (user?.uid) {
+      const ref = doc(db, 'users', user.uid, 'tasks', 'notepad');
+      setDoc(ref, { tasks, updatedAt: new Date().toISOString() }, { merge: true })
+        .catch(e => console.warn('[Tasks] Erro ao salvar no Firestore:', e));
+    }
+  }, [tasks, user]);
 
   // Autocomplete teológico
   const handleNoteChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {

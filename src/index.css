@@ -5,41 +5,49 @@
   --font-serif: 'Georgia', 'Times New Roman', serif;
 
   /* ── TEMA CLARO (padrão) ── */
-  --color-sleek-sidebar-bg:     #F7F7F5;
-  --color-sleek-border:         #E9E9E7;
-  --color-sleek-text-main:      #37352F;
-  --color-sleek-text-muted:     #7A7A77;
-  --color-sleek-accent:         #D32F2F;
-  --color-sleek-hover:          #EBEBE9;
+  --color-sleek-sidebar-bg:     #F5F5F3;
+  --color-sleek-border:         #E3E3E0;
+  --color-sleek-text-main:      #1E1E1C;
+  --color-sleek-text-muted:     #787774;
+  --color-sleek-accent:         #C0392B;
+  --color-sleek-hover:          #EBEBEA;
   --color-sleek-bg:             #FFFFFF;
+  --color-sleek-surface:        #FAFAF9;
   --color-sleek-reading-text:   #1A1A1A;
   --color-sleek-comment-text:   #4A4A4A;
-  --color-sleek-avatar-bg:      #F1F1EF;
+  --color-sleek-avatar-bg:      #EFEFED;
   --color-sleek-input-bg:       #FFFFFF;
   --color-sleek-chapter-num:    #5A5A57;
   --color-sleek-scrollbar:      #D0D0CE;
   --color-sleek-scrollbar-hover:#A0A09C;
+  --color-sleek-ring:           rgba(0,0,0,0.06);
+  --shadow-soft:                0 1px 4px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+  --shadow-panel:               0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
 }
 
 /* ── TEMA NOITE (dark) ── */
 html[data-theme="dark"] {
-  --color-sleek-sidebar-bg:     #161618;
-  --color-sleek-border:         #3A3A40;
-  --color-sleek-text-main:      #E8E8E6;
-  --color-sleek-text-muted:     #A8A8A5;
+  --color-sleek-sidebar-bg:     #111113;
+  --color-sleek-border:         #2E2E35;
+  --color-sleek-text-main:      #E8E8E4;
+  --color-sleek-text-muted:     #9A9A96;
   --color-sleek-accent:         #FF6B6B;
-  --color-sleek-hover:          #2C2C31;
-  --color-sleek-bg:             #1C1C1F;
-  --color-sleek-reading-text:   #D4D4CF;
-  --color-sleek-comment-text:   #A0A09C;
-  --color-sleek-avatar-bg:      #2A2A2E;
-  --color-sleek-input-bg:       #232327;
-  --color-sleek-chapter-num:    #C8C8C5;
-  --color-sleek-scrollbar:      #4A4A50;
-  --color-sleek-scrollbar-hover:#6A6A70;
+  --color-sleek-hover:          #252528;
+  --color-sleek-bg:             #17171A;
+  --color-sleek-surface:        #1C1C1F;
+  --color-sleek-reading-text:   #D0D0CB;
+  --color-sleek-comment-text:   #9A9A95;
+  --color-sleek-avatar-bg:      #25252A;
+  --color-sleek-input-bg:       #1F1F23;
+  --color-sleek-chapter-num:    #B8B8B4;
+  --color-sleek-scrollbar:      #3A3A42;
+  --color-sleek-scrollbar-hover:#58585F;
+  --color-sleek-ring:           rgba(255,255,255,0.06);
+  --shadow-soft:                0 1px 4px rgba(0,0,0,0.25), 0 2px 12px rgba(0,0,0,0.18);
+  --shadow-panel:               0 4px 24px rgba(0,0,0,0.38), 0 1px 4px rgba(0,0,0,0.22);
   color-scheme: dark;
 }
-html[data-theme="dark"] body { background: #1C1C1F; }
+html[data-theme="dark"] body { background: #17171A; }
 
 /* ── TEMA GRAFITE ESCURO ── */
 html[data-theme="graphite"] {
@@ -454,3 +462,188 @@ html[data-theme="graphite"] .text-highlight-orange  { background-color: rgba(249
   transition: transform 0.28s cubic-bezier(0.16,1,0.3,1),
               opacity  0.28s cubic-bezier(0.16,1,0.3,1);
 }
+
+/* ══════════════════════════════════════════════════════
+   TECH-NOTION UI EVOLUTION — Modern Interface Layer
+   ══════════════════════════════════════════════════════ */
+
+/* Smooth border-radius upgrade for panels */
+.fixed.inset-y-0 {
+  border-radius: 0;
+}
+
+/* Sidebar: faint top accent line */
+div[class*="bg-sleek-sidebar-bg"][class*="border-r"]::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-sleek-accent), transparent);
+  opacity: 0.3;
+}
+
+/* Reading area: subtle paper texture */
+.reading-text {
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+  letter-spacing: 0.01em;
+}
+
+/* Header toolbar: glass blur effect */
+header.h-14, header.h-14.bg-sleek-bg {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--color-sleek-bg) 92%, transparent) !important;
+}
+
+/* Dropdown & floating menus: refined shadow + blur */
+.shadow-2xl, .shadow-xl {
+  box-shadow: var(--shadow-panel, 0 8px 32px rgba(0,0,0,0.12));
+}
+.shadow-lg {
+  box-shadow: var(--shadow-soft, 0 4px 16px rgba(0,0,0,0.08));
+}
+
+/* Buttons: micro-interaction lift */
+button:not([disabled]):not(.no-lift):active {
+  transform: scale(0.975);
+  transition: transform 0.08s ease;
+}
+
+/* Panel slide-in animation override (smoother) */
+.translate-x-0 {
+  animation: panel-enter 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes panel-enter {
+  from { opacity: 0.4; transform: translateX(24px); }
+  to   { opacity: 1;   transform: translateX(0); }
+}
+
+/* Sidebar: improved book list chapters grid */
+.grid.grid-cols-4 button {
+  border-radius: 6px;
+  font-size: 12px;
+  transition: background 0.1s, color 0.1s, transform 0.1s;
+}
+.grid.grid-cols-4 button:hover {
+  transform: scale(1.08);
+}
+
+/* Command palette backdrop blur */
+.fixed.inset-0.z-50 > div {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Verse numbers: refined */
+.text-sleek-chapter-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Highlight toolbar: glass pill */
+.highlight-toolbar {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--color-sleek-bg) 88%, transparent);
+  border-color: var(--color-sleek-border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px var(--color-sleek-ring);
+}
+
+/* Input fields: consistent focus ring */
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-sleek-accent) 20%, transparent);
+  border-color: var(--color-sleek-accent) !important;
+}
+
+/* Rounded inputs upgrade */
+input[class*="rounded"], textarea[class*="rounded"] {
+  border-radius: 10px;
+}
+
+/* Scrollbar: thinner, more modern */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sleek-scrollbar) transparent;
+}
+
+/* Sidebar header action buttons: icon-only pill */
+.bg-sleek-hover.rounded-md {
+  border-radius: 8px;
+}
+.bg-sleek-hover.rounded-lg {
+  border-radius: 10px;
+}
+
+/* Testament group header: tech badge style */
+button[class*="bg-sleek-hover/50"][class*="border-sleek-border/50"] {
+  border-radius: 8px;
+  letter-spacing: 0.04em;
+  transition: background 0.14s, border-color 0.14s, box-shadow 0.14s;
+}
+button[class*="bg-sleek-hover/50"][class*="border-sleek-border/50"]:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+/* Notion-style page title in reading area */
+.text-sleek-text-main.font-semibold {
+  letter-spacing: -0.01em;
+}
+
+/* Card hover lift (ebooks, plans, etc.) */
+.rounded-xl.border, .rounded-lg.border {
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.rounded-xl.border:hover, .rounded-lg.border:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+/* Dark mode: sidebar subtle glow */
+html[data-theme="dark"] div[class*="bg-sleek-sidebar-bg"] {
+  box-shadow: 1px 0 0 var(--color-sleek-border), 4px 0 20px rgba(0,0,0,0.15);
+}
+
+/* Dark mode: header line accent */
+html[data-theme="dark"] header.h-14 {
+  background: color-mix(in srgb, var(--color-sleek-bg) 85%, transparent) !important;
+  border-bottom-color: var(--color-sleek-border);
+}
+
+/* Graphite mode: command palette */
+html[data-theme="graphite"] .bg-sleek-bg {
+  background: var(--color-sleek-bg);
+}
+
+/* WhatsApp group button pulse animation */
+@keyframes wap-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(37,211,102,0); }
+}
+a[href*="chat.whatsapp.com"] {
+  animation: wap-pulse 2.5s ease-in-out infinite;
+}
+a[href*="chat.whatsapp.com"]:hover {
+  animation: none;
+}
+
+/* ── Notion-evolved: block hover indicator ── */
+[data-verse-content]:hover {
+  background: color-mix(in srgb, var(--color-sleek-hover) 60%, transparent);
+  border-radius: 4px;
+  transition: background 0.12s ease;
+}
+
+/* ── Focus-visible ring for accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--color-sleek-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Smooth state transitions across all interactive elements ── */
+a, button, [role="button"] {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+  transition-duration: 0.14s;
+  transition-timing-function: ease;
+}
+
