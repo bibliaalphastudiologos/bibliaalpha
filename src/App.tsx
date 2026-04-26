@@ -85,7 +85,8 @@ export default function App() {
   const [isResearchOpen, setIsResearchOpen]   = useState(false);
   const [isEbooksOpen, setIsEbooksOpen]       = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
-  const [showSplash, setShowSplash]           = useState(true);
+  // Splash apenas na primeira visita — nunca em reloads de usuário já logado
+  const [showSplash, setShowSplash] = useState(() => !localStorage.getItem('ba_splash_v3_seen'));
   const [apiErrorBanner, setApiErrorBanner]   = useState<string | null>(null);
 
   // Devotional state
@@ -166,7 +167,7 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, fontSize, setTheme, setFontSize }}>
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen onFinish={() => { localStorage.setItem('ba_splash_v3_seen', '1'); setShowSplash(false); }} />}
       <div className="flex h-screen w-full bg-sleek-bg font-sans overflow-hidden text-sleek-text-main">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/10 z-10 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
         <Sidebar
