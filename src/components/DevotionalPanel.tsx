@@ -3,6 +3,13 @@ import { X, ArrowLeft, Heart, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { DEVOTIONAL_CATEGORIES, DevotionalAudience, DevotionalCategory, Devotional } from '../data/devotionals';
 
+const AUDIENCE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  ministerio: { bg: 'rgba(99,102,241,0.10)', text: '#6366F1', border: 'rgba(99,102,241,0.25)' },
+  homens:     { bg: 'rgba(59,130,246,0.10)', text: '#3B82F6', border: 'rgba(59,130,246,0.25)' },
+  mulheres:   { bg: 'rgba(244,63,94,0.10)',  text: '#F43F5E', border: 'rgba(244,63,94,0.25)' },
+  jovens:     { bg: 'rgba(249,115,22,0.10)', text: '#F97316', border: 'rgba(249,115,22,0.25)' },
+};
+
 interface DevotionalPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,20 +54,21 @@ export default function DevotionalPanel({
           <div className="flex items-center gap-2 font-semibold text-[13px] text-sleek-text-main">
             {category ? (
               <>
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: AUDIENCE_COLORS[category.id]?.text || '#6366F1' }}
+                />
                 <span>{category.label}</span>
               </>
             ) : (
               <>
-                <BookOpen size={16} />
+                <BookOpen size={15} className="text-sleek-text-muted" />
                 <span>Devocionais</span>
               </>
             )}
           </div>
-          <button
-            onClick={handleClose}
-            className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted transition-colors"
-          >
-            <X size={18} />
+          <button onClick={handleClose} className="panel-close-btn">
+            <X size={16} />
           </button>
         </header>
 
@@ -76,13 +84,17 @@ export default function DevotionalPanel({
                 <div
                   key={devotional.id}
                   onClick={() => setActiveDevotionalId(devotional.id)}
-                  className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-sleek-bg"
+                  className="border border-sleek-border rounded-xl p-4 cursor-pointer hover:border-sleek-text-main/20 hover:shadow-md transition-all group bg-sleek-surface"
                 >
-                  <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-blue-600 transition-colors mb-1">
-                    {devotional.title}
-                  </h4>
-                  <p className="text-[11px] text-blue-600 font-medium mb-2">{devotional.reference}</p>
-                  <p className="text-[12px] text-sleek-text-muted italic line-clamp-2 leading-relaxed">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h4 className="font-semibold text-[14px] text-sleek-text-main group-hover:text-sleek-accent transition-colors leading-snug">
+                      {devotional.title}
+                    </h4>
+                    <span className="text-[10px] font-bold text-sleek-text-muted bg-sleek-hover px-2 py-0.5 rounded-full border border-sleek-border shrink-0">
+                      {devotional.reference}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-sleek-text-muted italic line-clamp-2 leading-relaxed mt-2">
                     {devotional.verse}
                   </p>
                 </div>
@@ -105,8 +117,22 @@ export default function DevotionalPanel({
                 {activeDevotional.reference}
               </p>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <p className="text-[13px] text-amber-900 italic leading-relaxed">
+              <div
+                className="rounded-xl p-4 mb-6 border-l-4"
+                style={{
+                  background: 'var(--color-sleek-surface)',
+                  borderColor: 'var(--color-sleek-accent)',
+                  borderTopWidth: '1px',
+                  borderRightWidth: '1px',
+                  borderBottomWidth: '1px',
+                  borderLeftWidth: '4px',
+                  borderStyle: 'solid',
+                  borderTopColor: 'var(--color-sleek-border)',
+                  borderRightColor: 'var(--color-sleek-border)',
+                  borderBottomColor: 'var(--color-sleek-border)',
+                }}
+              >
+                <p className="text-[14px] text-sleek-text-main italic leading-relaxed font-serif">
                   {activeDevotional.verse}
                 </p>
               </div>
@@ -120,10 +146,12 @@ export default function DevotionalPanel({
                 </p>
               </div>
 
-              <div className="bg-sleek-hover border border-sleek-border rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Heart size={12} className="text-blue-500" />
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+              <div className="bg-sleek-hover border border-sleek-border rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <Heart size={11} className="text-blue-500" />
+                  </div>
+                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-sleek-text-muted">
                     Oração
                   </h4>
                 </div>
@@ -137,8 +165,9 @@ export default function DevotionalPanel({
                   onSelectChapter(activeDevotional.bookId, activeDevotional.chapter);
                   if (window.innerWidth < 1024) handleClose();
                 }}
-                className="w-full py-2.5 px-4 bg-sleek-text-main text-white rounded-lg text-[13px] font-semibold hover:opacity-90 transition-opacity"
+                className="w-full py-3 px-4 bg-sleek-text-main text-sleek-bg rounded-xl text-[13px] font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm"
               >
+                <BookOpen size={14} />
                 Ler {activeDevotional.reference} na Bíblia
               </button>
             </div>

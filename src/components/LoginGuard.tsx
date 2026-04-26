@@ -5,12 +5,12 @@ import AdminPanel from './AdminPanel';
 const WHATSAPP_GROUP = 'https://chat.whatsapp.com/Gt78A68duMBADzzuwnGmbb?mode=gi_t';
 
 const FEATURES_LEFT = [
-  { icon: '📖', label: 'Bíblia com +20 traduções',      detail: 'ARC, NVI, ACF, KJV e mais, em paralelo' },
-  { icon: '✍️', label: 'Bloco de estudos na nuvem',     detail: 'Notas, destaques e tarefas sincronizados' },
-  { icon: '💬', label: 'Comentários por versículo',     detail: 'Calvino, Matthew Henry, Spurgeon e outros' },
-  { icon: '📚', label: 'Biblioteca teológica',          detail: 'Centenas de eBooks clássicos gratuitos' },
-  { icon: '🙏', label: 'Devocionais diários',           detail: 'Para Ministério, Homens, Mulheres e Jovens' },
-  { icon: '🔍', label: 'Pesquisa & Strong',             detail: 'Dicionário, concordância e enciclopédia' },
+  { icon: 'B', color: '#c9a96e', label: 'Bíblia com +20 traduções',  detail: 'ARC, NVI, ACF, KJV e mais, em paralelo' },
+  { icon: '✎', color: '#60A5FA', label: 'Bloco de estudos na nuvem', detail: 'Notas, destaques e tarefas sincronizados' },
+  { icon: '❝', color: '#A78BFA', label: 'Comentários por versículo', detail: 'Calvino, Matthew Henry, Spurgeon e outros' },
+  { icon: '⊞', color: '#34D399', label: 'Biblioteca teológica',      detail: 'Centenas de eBooks clássicos gratuitos' },
+  { icon: '✦', color: '#F472B6', label: 'Devocionais diários',       detail: 'Para Ministério, Homens, Mulheres e Jovens' },
+  { icon: '⌕', color: '#FB923C', label: 'Pesquisa & Strong',         detail: 'Dicionário, concordância e enciclopédia' },
 ];
 
 const WA_ICON = (
@@ -69,9 +69,24 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-sleek-bg">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-2 border-slate-200 border-t-slate-700 animate-spin" />
-          <p className="text-xs text-sleek-text-muted tracking-wide">Carregando…</p>
+        <div className="flex flex-col items-center gap-4">
+          <div style={{
+            width: '48px', height: '48px', borderRadius: '14px',
+            background: 'linear-gradient(145deg, var(--color-sleek-hover), var(--color-sleek-surface))',
+            border: '1px solid var(--color-sleek-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+          }}>
+            <img src="/icon.svg" alt="α" style={{ width: '30px', height: '30px', opacity: 0.85 }} draggable={false} />
+          </div>
+          <div className="flex gap-1.5">
+            {[0,1,2].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-sleek-text-muted/40" style={{
+                animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+              }} />
+            ))}
+          </div>
+          <style>{`@keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.3} 40%{transform:scale(1);opacity:1} }`}</style>
         </div>
       </div>
     );
@@ -163,17 +178,24 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
                     display: 'flex', alignItems: 'flex-start', gap: '10px',
                     padding: '10px 12px',
                     borderRadius: '10px',
-                    border: '1px solid rgba(201,169,110,0.12)',
-                    background: 'rgba(201,169,110,0.04)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.03)',
                     opacity: visibleFeatures.includes(i) ? 1 : 0,
                     transform: visibleFeatures.includes(i) ? 'translateY(0)' : 'translateY(10px)',
                     transition: 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)',
                   }}
                 >
-                  <span style={{ fontSize: '18px', lineHeight: '1', flexShrink: 0, marginTop: '1px' }}>{f.icon}</span>
+                  <div style={{
+                    width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0,
+                    background: (f as any).color + '18',
+                    border: '1px solid ' + (f as any).color + '30',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', fontWeight: 700, color: (f as any).color,
+                    fontFamily: 'serif',
+                  }}>{f.icon}</div>
                   <div>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#c9a96e', lineHeight: '1.3' }}>{f.label}</p>
-                    <p style={{ fontSize: '10.5px', color: 'rgba(160,165,185,0.60)', lineHeight: '1.4', marginTop: '2px' }}>{f.detail}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#d4d0c8', lineHeight: '1.3' }}>{f.label}</p>
+                    <p style={{ fontSize: '10.5px', color: 'rgba(160,165,185,0.55)', lineHeight: '1.4', marginTop: '2px' }}>{f.detail}</p>
                   </div>
                 </div>
               ))}

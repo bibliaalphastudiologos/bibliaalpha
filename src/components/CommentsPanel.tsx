@@ -67,7 +67,7 @@ export default function CommentsPanel({ isOpen, onClose, bookId, chapter, verseN
   return (
     <div
       className={cn(
-        'bg-white border-l border-sleek-border flex flex-col shrink-0 transition-all duration-300 ease-in-out absolute lg:static right-0 inset-y-0 z-30',
+        'bg-sleek-bg border-l border-sleek-border flex flex-col shrink-0 transition-all duration-300 ease-in-out absolute lg:static right-0 inset-y-0 z-30',
         isOpen ? 'w-[85vw] sm:w-[320px] translate-x-0' : 'w-0 translate-x-full lg:translate-x-0 overflow-hidden border-none'
       )}
     >
@@ -87,7 +87,7 @@ export default function CommentsPanel({ isOpen, onClose, bookId, chapter, verseN
         ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-white p-3 rounded-lg border border-sleek-border">
+              <div key={i} className="animate-pulse bg-sleek-surface p-3 rounded-lg border border-sleek-border">
                 <div className="h-4 bg-sleek-avatar-bg rounded w-1/3 mb-3" />
                 <div className="space-y-2">
                   <div className="h-3 bg-sleek-avatar-bg rounded w-full" />
@@ -105,7 +105,7 @@ export default function CommentsPanel({ isOpen, onClose, bookId, chapter, verseN
             {comments.map((comment, idx) => (
               <div
                 key={comment.id || idx}
-                className="bg-white p-3 rounded-lg border border-sleek-border shadow-[0_1px_3px_rgba(0,0,0,0.02)] mb-4 font-sans"
+                className="bg-sleek-surface p-3 rounded-lg border border-sleek-border shadow-[0_1px_3px_rgba(0,0,0,0.04)] mb-4 font-sans"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-full bg-sleek-avatar-bg text-[10px] flex items-center justify-center font-bold text-sleek-text-main shrink-0 uppercase">

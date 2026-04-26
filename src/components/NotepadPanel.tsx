@@ -459,10 +459,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
     exportFile(`Tarefas — BíbliaAlpha\n${'='.repeat(40)}\n\n${lines}`, 'Tarefas_BíbliaAlpha.txt');
   };
 
-  const tabClass = (t: Tab) => cn(
-    'flex-1 py-2 text-[11px] font-semibold flex flex-col items-center gap-0.5 transition-colors rounded-md',
-    activeTab === t ? 'bg-sleek-bg text-blue-600 shadow-sm' : 'text-sleek-text-muted hover:text-sleek-text-main'
-  );
+  const tabClass = (t: Tab) => cn('notepad-tab', activeTab === t ? 'active' : '');
 
   return (
     <>
@@ -482,8 +479,8 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
             <button onClick={() => setShowSettings(s => !s)} className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted">
               <Settings2 size={15} />
             </button>
-            <button onClick={onClose} className="p-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted">
-              <X size={18} />
+            <button onClick={onClose} className="panel-close-btn">
+              <X size={16} />
             </button>
           </div>
         </header>
@@ -501,7 +498,8 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
         )}
 
         {/* Tabs */}
-        <div className="shrink-0 flex gap-1 px-3 py-2 bg-sleek-hover border-b border-sleek-border">
+        <div className="shrink-0 px-3 py-2 border-b border-sleek-border bg-sleek-bg">
+          <div className="notepad-tab-bar">
           <button className={tabClass('notas')} onClick={() => setActiveTab('notas')}>
             <PenLine size={14} /> Notas
           </button>
@@ -514,6 +512,7 @@ export default function NotepadPanel({ isOpen, onClose, chapterContext }: Notepa
           <button className={tabClass('enciclopedia')} onClick={() => setActiveTab('enciclopedia')}>
             <BookMarked size={14} /> Enciclopédia
           </button>
+          </div>
         </div>
 
         {/* ── ABA NOTAS ── */}

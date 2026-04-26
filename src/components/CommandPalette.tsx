@@ -71,7 +71,7 @@ export default function CommandPalette({ isOpen, onClose, books, onSelectChapter
       />
       <div
         className={cn(
-          "relative w-full max-w-xl bg-white rounded-xl shadow-2xl border border-sleek-border overflow-hidden flex flex-col font-sans transition-all duration-200",
+          "relative w-full max-w-xl bg-sleek-bg rounded-xl shadow-2xl border border-sleek-border overflow-hidden flex flex-col font-sans transition-all duration-200",
           visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"
         )}
       >
