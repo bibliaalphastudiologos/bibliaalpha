@@ -486,23 +486,23 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <button
             onClick={onPlansOpen}
             title="Planos de Leitura"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-blue-600 bg-blue-50/60 hover:bg-blue-100/60 rounded-lg transition-colors border border-blue-100/80"
+            className="p-2 text-blue-600 bg-blue-50/60 hover:bg-blue-100/60 rounded-lg transition-colors border border-blue-100/80"
           >
-            <BookIcon size={13} /> Planos
+            <BookIcon size={16} />
           </button>
           <button
             onClick={onNotepadOpen}
             title="Bloco de Notas"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-lg transition-colors border border-sleek-border/60"
+            className="p-2 text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-lg transition-colors border border-sleek-border/60"
           >
-            <MessageSquareText size={13} /> Notas
+            <MessageSquareText size={16} />
           </button>
           <button
             onClick={onResearchOpen}
             title="Pesquisa Bíblica"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-purple-600 bg-purple-50/60 hover:bg-purple-100/60 rounded-lg transition-colors border border-purple-100/80"
+            className="p-2 text-purple-600 bg-purple-50/60 hover:bg-purple-100/60 rounded-lg transition-colors border border-purple-100/80"
           >
-            <Globe size={13} /> Pesquisa
+            <Globe size={16} />
           </button>
           <div className="w-px h-4 bg-sleek-border mx-1" />
           <button
