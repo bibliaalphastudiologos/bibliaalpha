@@ -7,7 +7,7 @@ interface SplashScreenProps {
 // Frases que rotacionam — ritmo de campanha publicitária
 const HEADLINES = [
   { main: 'A Palavra.\nSem distrações.',        sub: 'Uma plataforma criada para quem leva o estudo bíblico a sério.' },
-  { main: 'Estude.\nCreça.\nTransforme.',        sub: 'Comentários clássicos, devocionais e planos de leitura num só lugar.' },
+  { main: 'Estude.\nCresça.\nTransforme.',        sub: 'Comentários clássicos, devocionais e planos de leitura num só lugar.' },
   { main: 'Profundidade\nque edifica.',          sub: 'Calvino, Spurgeon e Matthew Henry integrados versículo a versículo.' },
   { main: 'Sua Bíblia.\nEm qualquer lugar.',     sub: 'Notas, destaques e progresso sincronizados entre todos os seus dispositivos.' },
 ];
