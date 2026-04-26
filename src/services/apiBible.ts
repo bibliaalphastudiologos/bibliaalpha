@@ -24,29 +24,36 @@ export const AVAILABLE_TRANSLATIONS: ApiBibleTranslation[] = [
   // ── Padrão recomendado ───────────────────────────────────────────────────
   { id: 'arc',        name: '✓ Almeida Revista e Corrigida (ARC) — Padrão',  language: 'pt', source: 'bible-api' },
 
-
   // ── Português — api.getbible.net ────────────────────────────────────────
-  { id: 'gb_almeida', name: 'Almeida Atualizada (AA)',              language: 'pt', source: 'getbible'  },
-  { id: 'gb_livre',   name: 'Bíblia Livre (BL)',                    language: 'pt', source: 'getbible'  },
-  { id: 'gb_livretr', name: 'Bíblia Livre — Textus Receptus (BLTR)',language: 'pt', source: 'getbible'  },
+  { id: 'gb_almeida', name: 'Almeida Atualizada (AA)',               language: 'pt', source: 'getbible'  },
+  { id: 'gb_livre',   name: 'Bíblia Livre (BL)',                     language: 'pt', source: 'getbible'  },
+  { id: 'gb_livretr', name: 'Bíblia Livre — Textus Receptus (BLTR)', language: 'pt', source: 'getbible'  },
 
   // ── Português — bible.helloao.org ────────────────────────────────────────
-  { id: 'por_blj',    name: 'Bíblia Livre JFA (BLJ)',               language: 'pt', source: 'helloao'   },
-  { id: 'por_blt',    name: 'Bíblia Livre Para Todos (BLPT)',        language: 'pt', source: 'helloao'   },
-  { id: 'por_bsl',    name: 'Bíblia Portuguesa Mundial (BSL)',       language: 'pt', source: 'helloao'   },
-  { id: 'por_onbv',   name: 'Nova Bíblia Viva (NBV)',                language: 'pt', source: 'helloao'   },
-  { id: 'por_tft',    name: 'Tradução para Tradutores (TFT)',        language: 'pt', source: 'helloao'   },
+  // por_blj removida — retorna capítulos vazios na API
+  { id: 'por_blt',    name: 'Bíblia Livre Para Todos (BLPT)',         language: 'pt', source: 'helloao'   },
+  { id: 'por_bsl',    name: 'Bíblia Portuguesa Mundial (BSL)',        language: 'pt', source: 'helloao'   },
+  { id: 'por_onbv',   name: 'Nova Bíblia Viva (NBV)',                 language: 'pt', source: 'helloao'   },
+  { id: 'por_tft',    name: 'Tradução para Tradutores (TFT)',         language: 'pt', source: 'helloao'   },
 
   // ── English — api.getbible.net ───────────────────────────────────────────
-  { id: 'gb_kjv',     name: 'King James Version (KJV)',             language: 'en', source: 'getbible'  },
-  { id: 'gb_asv',     name: 'American Standard Version (ASV)',      language: 'en', source: 'getbible'  },
-  { id: 'gb_web',     name: 'World English Bible (WEB)',            language: 'en', source: 'getbible'  },
-  { id: 'gb_darby',   name: 'Darby Translation (DBY)',              language: 'en', source: 'getbible'  },
+  { id: 'gb_kjv',     name: 'King James Version (KJV)',              language: 'en', source: 'getbible'  },
+  { id: 'gb_asv',     name: 'American Standard Version (ASV)',       language: 'en', source: 'getbible'  },
+  { id: 'gb_web',     name: 'World English Bible (WEB)',             language: 'en', source: 'getbible'  },
+  { id: 'gb_darby',   name: 'Darby Translation (DBY)',               language: 'en', source: 'getbible'  },
 
   // ── English — bible.helloao.org ──────────────────────────────────────────
-  { id: 'eng_kjv',    name: 'King James Version — HelloAO (KJV)',   language: 'en', source: 'helloao'   },
-  { id: 'BSB',        name: 'Berean Standard Bible (BSB)',          language: 'en', source: 'helloao'   },
+  { id: 'eng_kjv',    name: 'King James Version — HelloAO (KJV)',    language: 'en', source: 'helloao'   },
+  { id: 'BSB',        name: 'Berean Standard Bible (BSB)',           language: 'en', source: 'helloao'   },
 ];
+
+// ── Cache em memória — evita re-fetch de capítulos já carregados na sessão ──
+// Chave: "translationId|bookId|chapter"  →  Valor: array de versículos
+const chapterCache = new Map<string, any[]>();
+
+function cacheKey(translationId: string, bookId: string, chapter: number): string {
+  return `${translationId}|${bookId}|${chapter}`;
+}
 
 // ── Mapeamento de ID canônico (HelloAO / 3 letras) → número do livro (getbible.net) ──
 const BOOK_NR: Record<string, number> = {
@@ -138,26 +145,39 @@ async function fetchHelloAO(translationId: string, bookId: string, chapter: numb
 /**
  * Busca um capítulo completo da tradução selecionada.
  * Roteamento automático por source da tradução.
+ * Resultado é mantido em cache de sessão — re-navegação não gera novo fetch.
  */
 export async function getChapterFromApiBible(
   translationId: string,
   bookId: string,
   chapter: number
 ): Promise<any[]> {
+  const key = cacheKey(translationId, bookId, chapter);
+
+  // Retorna do cache se já foi carregado nesta sessão
+  if (chapterCache.has(key)) {
+    return chapterCache.get(key)!;
+  }
+
   try {
+    let verses: any[];
+
     // bible-api.com
     if (translationId === 'arc') {
-      return await fetchBibleApiCom(bookId, chapter);
+      verses = await fetchBibleApiCom(bookId, chapter);
     }
-
     // getbible.net — prefixo gb_
-    if (translationId.startsWith('gb_')) {
+    else if (translationId.startsWith('gb_')) {
       const abbr = translationId.slice(3); // remove "gb_"
-      return await fetchGetBible(abbr, bookId, chapter);
+      verses = await fetchGetBible(abbr, bookId, chapter);
+    }
+    // HelloAO — tudo o mais
+    else {
+      verses = await fetchHelloAO(translationId, bookId, chapter);
     }
 
-    // HelloAO — tudo o mais
-    return await fetchHelloAO(translationId, bookId, chapter);
+    chapterCache.set(key, verses);
+    return verses;
 
   } catch (e) {
     console.error(`[apiBible] Falha em "${translationId}" ${bookId} ${chapter}:`, e);
@@ -167,6 +187,7 @@ export async function getChapterFromApiBible(
 
 /**
  * Busca o texto de um versículo específico numa tradução.
+ * Aproveita o cache de capítulos — sem fetch extra se o capítulo já foi carregado.
  */
 export async function getVerseTranslation(
   translationId: string,

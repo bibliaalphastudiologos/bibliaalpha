@@ -1,8 +1,11 @@
 import { cn } from '../App';
 import * as React from 'react';
 import { X, BookOpen, CheckCircle2, Circle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PLANS } from '../data/readingPlans';
+import { useAuth } from './AuthProvider';
+import { db } from '../services/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface ReadingPlansPanelProps {
   isOpen: boolean;
@@ -10,31 +13,86 @@ interface ReadingPlansPanelProps {
   onSelectChapter: (bookId: string, chapter: number) => void;
 }
 
+const LS_PLAN_KEY        = 'bibliaalpha_active_plan';
+const LS_MILESTONES_KEY  = 'bibliaalpha_milestones';
+
 export default function ReadingPlansPanel({
   isOpen,
   onClose,
   onSelectChapter,
 }: ReadingPlansPanelProps) {
-  const [activePlanId, setActivePlanId] = useState<string | null>(() => localStorage.getItem('bibliaalpha_active_plan') || null);
+  const { user } = useAuth();
+
+  const [activePlanId, setActivePlanId] = useState<string | null>(
+    () => localStorage.getItem(LS_PLAN_KEY) || null
+  );
   const [completedMilestones, setCompletedMilestones] = useState<Record<string, boolean>>(() => {
-    try { return JSON.parse(localStorage.getItem('bibliaalpha_milestones') || '{}'); } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem(LS_MILESTONES_KEY) || '{}'); } catch { return {}; }
   });
 
-  const persistedSetActivePlanId = (id: string | null) => {
+  // ── Carregar do Firestore ao montar (usuário autenticado) ──────────────────
+  const loadedFromFirestore = useRef(false);
+
+  useEffect(() => {
+    if (!user || loadedFromFirestore.current) return;
+    loadedFromFirestore.current = true;
+
+    async function loadFromFirestore() {
+      try {
+        const ref = doc(db, 'users', user!.uid, 'plans', 'progress');
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.activePlanId !== undefined) {
+            setActivePlanId(data.activePlanId);
+            if (data.activePlanId) localStorage.setItem(LS_PLAN_KEY, data.activePlanId);
+            else localStorage.removeItem(LS_PLAN_KEY);
+          }
+          if (data.milestones) {
+            setCompletedMilestones(data.milestones);
+            localStorage.setItem(LS_MILESTONES_KEY, JSON.stringify(data.milestones));
+          }
+        }
+      } catch (e) {
+        console.warn('[ReadingPlans] Firestore load error:', e);
+      }
+    }
+
+    loadFromFirestore();
+  }, [user]);
+
+  // ── Persistir no localStorage + Firestore ─────────────────────────────────
+  function persistPlanId(id: string | null) {
     setActivePlanId(id);
-    if (id) localStorage.setItem('bibliaalpha_active_plan', id);
-    else localStorage.removeItem('bibliaalpha_active_plan');
-  };
-  const persistedToggleMilestone = (milestoneId: string, e: React.MouseEvent) => {
+    if (id) localStorage.setItem(LS_PLAN_KEY, id);
+    else localStorage.removeItem(LS_PLAN_KEY);
+
+    if (user) {
+      setDoc(
+        doc(db, 'users', user.uid, 'plans', 'progress'),
+        { activePlanId: id },
+        { merge: true }
+      ).catch(e => console.warn('[ReadingPlans] Firestore save plan error:', e));
+    }
+  }
+
+  function persistToggleMilestone(milestoneId: string, e: React.MouseEvent) {
     e.stopPropagation();
     setCompletedMilestones(prev => {
       const next = { ...prev, [milestoneId]: !prev[milestoneId] };
-      localStorage.setItem('bibliaalpha_milestones', JSON.stringify(next));
+      localStorage.setItem(LS_MILESTONES_KEY, JSON.stringify(next));
+
+      if (user) {
+        setDoc(
+          doc(db, 'users', user.uid, 'plans', 'progress'),
+          { milestones: next },
+          { merge: true }
+        ).catch(e => console.warn('[ReadingPlans] Firestore save milestone error:', e));
+      }
+
       return next;
     });
-  };
-
-  
+  }
 
   const getPlanProgress = (planId: string) => {
     const plan = PLANS.find(p => p.id === planId);
@@ -75,7 +133,7 @@ export default function ReadingPlansPanel({
                 return (
                   <div
                     key={plan.id}
-                    onClick={() => persistedSetActivePlanId(plan.id)}
+                    onClick={() => persistPlanId(plan.id)}
                     className="border border-sleek-border rounded-lg p-4 cursor-pointer hover:border-sleek-text-main/30 hover:shadow-sm transition-all group bg-sleek-bg"
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -101,7 +159,7 @@ export default function ReadingPlansPanel({
           ) : (
             <div className="animate-in fade-in duration-300">
               <button
-                onClick={() => persistedSetActivePlanId(null)}
+                onClick={() => persistPlanId(null)}
                 className="text-[12px] text-blue-600 hover:underline mb-4 flex items-center gap-1 font-medium"
               >
                 Voltar para Planos
@@ -131,7 +189,7 @@ export default function ReadingPlansPanel({
                         >
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={e => persistedToggleMilestone(milestone.id, e)}
+                              onClick={e => persistToggleMilestone(milestone.id, e)}
                               className={cn(
                                 'shrink-0 transition-colors',
                                 isDone

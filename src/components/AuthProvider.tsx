@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, UserProfile, loginWithGoogle, processRedirectResult } from '../services/firebase';
+import { auth, db, UserProfile, loginWithGoogle, processRedirectResult, SUPER_ADMIN_EMAIL } from '../services/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const isSuperAdminUser = firebaseUser.email === 'analista.ericksilva@gmail.com';
+        const isSuperAdminUser = firebaseUser.email === SUPER_ADMIN_EMAIL;
 
         const superAdminFallback: UserProfile = {
           email: firebaseUser.email || '',

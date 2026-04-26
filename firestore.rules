@@ -69,6 +69,11 @@ service cloud.firestore {
       match /tasks/{docId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
+
+      // ── Progresso dos planos de leitura ──
+      match /plans/{docId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     match /{document=**} {

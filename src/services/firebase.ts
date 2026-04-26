@@ -18,6 +18,9 @@ export const db  = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
+// Email do administrador principal — centralizado aqui para evitar repetição
+export const SUPER_ADMIN_EMAIL = 'analista.ericksilva@gmail.com';
+
 // Garante que a sessão persiste no localStorage mesmo após fechar o browser
 setPersistence(auth, browserLocalPersistence).catch(e =>
   console.warn('[Auth] Não foi possível definir persistência local:', e)
