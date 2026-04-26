@@ -1,156 +1,350 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
-interface Feature {
-  symbol: string;
-  text: string;
-}
-
-const FEATURES: Feature[] = [
-  { symbol: '\u2737', text: 'Bíblia completa com mais de 20 versões e paralelo de versículos' },
-  { symbol: '\u2742', text: 'Pesquisa avançada com dicionário, concordância e dicionário Strong' },
-  { symbol: '\u25C6', text: 'Biblioteca com centenas de eBooks clássicos do Domínio Público' },
-  { symbol: '\u2761', text: 'Bloco de notas pessoal sincronizado com suas leituras' },
-  { symbol: '\u25B3', text: 'Planos de leitura guiados para toda a Bíblia Alpha' },
-  { symbol: '\u2736', text: 'Comentários de grandes teólogos integrados por versículo' },
-  { symbol: '\u25CB', text: 'Modo escuro, tipografia ajustável e leitura imersiva' },
-  { symbol: '\u2665', text: 'Devocionais para Ministério, Homens, Mulheres e Jovens com reflexões e orações' },
+const FEATURES = [
+  {
+    icon: '📖',
+    title: 'Bíblia Completa',
+    desc: 'Mais de 20 traduções — ARC, NVI, ACF, KJV e outras — com paralelo de versículos lado a lado.',
+  },
+  {
+    icon: '✍️',
+    title: 'Bloco de Estudos',
+    desc: 'Anote insights, crie tarefas e destaque versículos. Tudo sincronizado entre celular e desktop.',
+  },
+  {
+    icon: '📚',
+    title: 'Biblioteca Teológica',
+    desc: 'Centenas de eBooks clássicos do domínio público: Calvino, Spurgeon, Wesley e muito mais.',
+  },
+  {
+    icon: '🔍',
+    title: 'Pesquisa Avançada',
+    desc: 'Dicionário bíblico, concordância Strong, enciclopédia e busca por palavras-chave.',
+  },
+  {
+    icon: '💬',
+    title: 'Comentários por Versículo',
+    desc: 'Insights de grandes teólogos integrados diretamente ao texto, versículo por versículo.',
+  },
+  {
+    icon: '🗓️',
+    title: 'Planos de Leitura',
+    desc: 'Planos guiados para ler toda a Bíblia, com acompanhamento de progresso e lembretes.',
+  },
+  {
+    icon: '🙏',
+    title: 'Devocionais',
+    desc: 'Reflexões diárias para Ministério, Homens, Mulheres e Jovens — com orações e aplicações.',
+  },
+  {
+    icon: '🌙',
+    title: 'Leitura Imersiva',
+    desc: 'Modo escuro, tipografia ajustável e interface limpa inspirada no Notion para foco total.',
+  },
 ];
 
-function FeatureIcon({ symbol }: { symbol: string }) {
-  return (
-    <div style={{ width: '52px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '10px' }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(201,169,110,0.3)', animation: 'spinRing 8s linear infinite' }} />
-      <div style={{ position: 'absolute', inset: '6px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.18)', animation: 'spinRing 5s linear infinite reverse' }} />
-      <div style={{ position: 'absolute', inset: '12px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,169,110,0.22) 0%, transparent 70%)', filter: 'blur(3px)' }} />
-      <span style={{ fontSize: '22px', color: '#c9a96e', position: 'relative', zIndex: 1, textShadow: '0 0 12px rgba(201,169,110,0.7), 0 0 24px rgba(201,169,110,0.35)', lineHeight: '1', fontFamily: 'serif' }}>
-        {symbol}
-      </span>
-    </div>
-  );
-}
+const VERSES = [
+  { text: 'A tua palavra é lâmpada para os meus pés e luz para o meu caminho.', ref: 'Salmos 119:105' },
+  { text: 'Toda a Escritura é divinamente inspirada e proveitosa para ensinar, para repreender, para corrigir e para instruir em justiça.', ref: '2 Timóteo 3:16' },
+  { text: 'Bem-aventurado o homem que não anda no conselho dos ímpios... mas o seu prazer é na lei do Senhor.', ref: 'Salmos 1:1-2' },
+];
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
-  const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
-  const [featureIdx, setFeatureIdx] = useState(0);
-  const [featureFade, setFeatureFade] = useState(true);
+  const [phase, setPhase] = useState<'enter' | 'logo' | 'features' | 'exit'>('enter');
+  const [verseIdx] = useState(() => Math.floor(Math.random() * VERSES.length));
+  const [visibleFeatures, setVisibleFeatures] = useState<number[]>([]);
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('visible'), 100);
-    const t2 = setTimeout(() => setPhase('exit'), 15000);
-    const t3 = setTimeout(() => onFinish(), 15800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  const finish = useCallback(() => {
+    setPhase('exit');
+    setTimeout(onFinish, 600);
   }, [onFinish]);
 
+  // Sequência de entrada
   useEffect(() => {
-    if (phase === 'enter') return;
-    const interval = setInterval(() => {
-      setFeatureFade(false);
-      setTimeout(() => {
-        setFeatureIdx(i => (i + 1) % FEATURES.length);
-        setFeatureFade(true);
-      }, 300);
-    }, 2200);
-    return () => clearInterval(interval);
-  }, [phase]);
+    const t1 = setTimeout(() => setPhase('logo'), 120);
+    const t2 = setTimeout(() => setPhase('features'), 1800);
+    // Revelar features uma a uma
+    FEATURES.forEach((_, i) => {
+      setTimeout(() => setVisibleFeatures(prev => [...prev, i]), 1900 + i * 120);
+    });
+    // Auto-dismiss após 14 segundos
+    const t3 = setTimeout(finish, 14000);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [finish]);
 
-  const feature = FEATURES[featureIdx];
-
-  const bg = [
-    'radial-gradient(ellipse at 20% 50%, rgba(139,92,46,0.28) 0%, transparent 50%)',
-    'radial-gradient(ellipse at 80% 20%, rgba(180,130,60,0.20) 0%, transparent 45%)',
-    'radial-gradient(ellipse at 60% 80%, rgba(120,80,30,0.22) 0%, transparent 50%)',
-    'linear-gradient(150deg, #0d1117 0%, #1a1200 35%, #0d1117 65%, #0a0d14 100%)',
-  ].join(', ');
+  const verse = VERSES[verseIdx];
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: bg, transition: 'opacity 0.7s ease', opacity: phase === 'exit' ? 0 : 1 }}>
-
-      {/* Partículas determinísticas */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 55 }).map((_, i) => {
-          const sz = i % 3 === 0 ? 2.2 : 1.1;
-          const gold = i % 3 === 0;
-          const top = (i * 17 + 13) % 100;
-          const left = (i * 31 + 7) % 100;
-          const dur = (2 + (i % 4) * 0.7).toFixed(1);
-          const del = ((i % 6) * 0.5).toFixed(1);
-          return <div key={i} className="absolute rounded-full" style={{ width: sz + 'px', height: sz + 'px', top: top + '%', left: left + '%', background: gold ? 'rgba(201,169,110,0.5)' : 'rgba(255,255,255,0.18)', animation: 'twk ' + dur + 's ease-in-out ' + del + 's infinite' }} />;
-        })}
-      </div>
-
-      {/* Grade perspectiva futurista */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: 0.045 }}>
-        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', right: '-10%', height: '70%', backgroundImage: ['linear-gradient(rgba(201,169,110,0.9) 1px, transparent 1px)', 'linear-gradient(90deg, rgba(201,169,110,0.9) 1px, transparent 1px)'].join(', '), backgroundSize: '60px 60px', transform: 'perspective(400px) rotateX(65deg)', transformOrigin: 'bottom center' }} />
-      </div>
-
-      {/* Halo dourado */}
-      <div className="absolute rounded-full pointer-events-none" style={{ width: '440px', height: '440px', background: 'radial-gradient(circle, rgba(201,169,110,0.14) 0%, rgba(180,130,60,0.06) 40%, transparent 70%)', filter: 'blur(65px)', transition: 'opacity 1.6s ease', opacity: phase === 'enter' ? 0 : 1 }} />
-
-      {/* Badge topo */}
-      <div style={{ transition: 'opacity 1.2s ease 0.8s, transform 1.2s ease 0.8s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(-8px)' : 'translateY(0)', marginBottom: '42px', marginTop: '-30px' }}>
-        <span style={{ fontSize: '8.5px', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#c9a96e', border: '1px solid rgba(201,169,110,0.35)', borderRadius: '100px', padding: '5px 18px', background: 'rgba(201,169,110,0.06)', boxShadow: '0 0 18px rgba(201,169,110,0.1)' }}>
-          &#9830; &nbsp; Plataforma Bíblia Alpha &nbsp; &#9830;
-        </span>
-      </div>
-
-      {/* Logo com anéis giratórios */}
-      <div style={{ transition: 'opacity 1.2s ease, transform 1.2s ease', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(24px) scale(0.88)' : 'translateY(0) scale(1)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', width: '110px', height: '110px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.25)', animation: 'spinRing 12s linear infinite' }} />
-        <div style={{ position: 'absolute', width: '132px', height: '132px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.12)', animation: 'spinRing 18s linear infinite reverse' }} />
-        <img src="/icon.svg" alt="Bíblia Alpha" style={{ width: '76px', height: '76px', objectFit: 'contain', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 0 40px rgba(201,169,110,0.65)) drop-shadow(0 0 16px rgba(201,169,110,0.4))' }} draggable={false} />
-      </div>
-
-      {/* Divisor dourado */}
-      <div style={{ margin: '22px 0 18px', width: phase === 'enter' ? '0px' : '200px', height: '1px', background: 'linear-gradient(90deg, transparent, #c9a96e 30%, #f0d878 50%, #c9a96e 70%, transparent)', transition: 'width 1.5s ease 0.5s', boxShadow: '0 0 8px rgba(201,169,110,0.4)' }} />
-
-      {/* Título */}
-      <div className="text-center px-6" style={{ transition: 'opacity 1.4s ease 0.6s, transform 1.4s ease 0.6s', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(12px)' : 'translateY(0)' }}>
-        <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(180,180,200,0.65)', marginBottom: '7px' }}>Bem-vindo à</p>
-        <h1 style={{ fontSize: '36px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.04em', lineHeight: '1', textShadow: '0 0 40px rgba(201,169,110,0.45), 0 2px 0 rgba(0,0,0,0.5)' }}>Bíblia Alpha</h1>
-        <p style={{ fontSize: '10.5px', color: 'rgba(160,160,180,0.7)', fontWeight: 300, letterSpacing: '0.32em', textTransform: 'uppercase', marginTop: '9px' }}>Estudo &nbsp;&#183;&nbsp; Meditação &nbsp;&#183;&nbsp; Crescimento</p>
-      </div>
-
-      {/* Recurso rotativo com ícone 3D */}
-      <div style={{ marginTop: '28px', minHeight: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', transition: 'opacity 1.4s ease 1s', opacity: phase === 'enter' ? 0 : 1, maxWidth: '320px', width: '100%', padding: '0 24px' }}>
-        <div style={{ transition: 'opacity 0.3s ease', opacity: featureFade ? 1 : 0, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <FeatureIcon symbol={feature.symbol} />
-          <p style={{ fontSize: '13px', color: 'rgba(200,200,220,0.85)', lineHeight: '1.6', fontStyle: 'italic', marginTop: '2px' }}>{feature.text}</p>
-        </div>
-      </div>
-
-      {/* Separador secundário */}
-      <div style={{ marginTop: '20px', width: phase === 'enter' ? '0px' : '60px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,169,110,0.4), transparent)', transition: 'width 1.5s ease 1.2s' }} />
-
-      {/* Versículo */}
-      <div style={{ maxWidth: '300px', marginTop: '16px', padding: '0 24px', textAlign: 'center', transition: 'opacity 1.4s ease 1.2s', opacity: phase === 'enter' ? 0 : 0.78 }}>
-        <p style={{ fontSize: '12px', fontStyle: 'italic', color: 'rgba(160,160,180,0.75)', lineHeight: '1.65', fontFamily: 'Georgia, serif' }}>&ldquo;A tua palavra é lâmpada para os meus pés e luz para o meu caminho.&rdquo;</p>
-        <p style={{ fontSize: '10px', color: 'rgba(130,130,150,0.55)', marginTop: '5px', letterSpacing: '0.14em' }}>&#8212; Salmos 119:105</p>
-      </div>
-
-      {/* Assinatura */}
-      <div className="absolute bottom-10 text-center" style={{ transition: 'opacity 1.6s ease 1.4s', opacity: phase === 'enter' ? 0 : 0.78 }}>
-        <div style={{ fontSize: '15px', fontWeight: 500, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}>Erick Silva</div>
-        <div style={{ fontSize: '9.5px', color: 'rgba(150,150,170,0.6)', letterSpacing: '0.22em', textTransform: 'uppercase', marginTop: '3px' }}>Pr e The, Ldo. Fil.</div>
-      </div>
-
-      {/* Dots indicadores */}
-      <div className="absolute flex gap-1.5" style={{ bottom: '28px', transition: 'opacity 1.4s ease 1.4s', opacity: phase === 'enter' ? 0 : 0.6 }}>
-        {FEATURES.map((_, i) => (
-          <div key={i} style={{ width: i === featureIdx ? '18px' : '4px', height: '2px', borderRadius: '2px', background: i === featureIdx ? '#c9a96e' : 'rgba(201,169,110,0.25)', transition: 'all 0.35s ease', boxShadow: i === featureIdx ? '0 0 6px rgba(201,169,110,0.5)' : 'none' }} />
+    <div
+      className="fixed inset-0 z-[9999] overflow-hidden flex flex-col"
+      style={{
+        background: 'linear-gradient(150deg, #0a0d12 0%, #0f1a08 30%, #0d1117 65%, #080b14 100%)',
+        opacity: phase === 'exit' ? 0 : 1,
+        transition: 'opacity 0.6s ease',
+      }}
+    >
+      {/* ── Partículas ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 50 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width:  (i % 3 === 0 ? 2.4 : 1.2) + 'px',
+              height: (i % 3 === 0 ? 2.4 : 1.2) + 'px',
+              top:  ((i * 17 + 13) % 100) + '%',
+              left: ((i * 31 +  7) % 100) + '%',
+              background: i % 3 === 0 ? 'rgba(201,169,110,0.55)' : 'rgba(255,255,255,0.14)',
+              animation: `twk ${(2 + (i % 4) * 0.7).toFixed(1)}s ease-in-out ${((i % 6) * 0.5).toFixed(1)}s infinite`,
+            }}
+          />
         ))}
       </div>
 
-      {/* Barra de progresso */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'rgba(201,169,110,0.06)' }}>
-        <div style={{ height: '100%', background: 'linear-gradient(90deg, transparent, #c9a96e 40%, #f0d878 50%, #c9a96e 60%, transparent)', width: phase === 'enter' ? '0%' : '100%', transition: 'width 15s linear 0.2s', boxShadow: '0 0 6px rgba(201,169,110,0.5)' }} />
+      {/* ── Grade perspectiva ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: 0.035 }}>
+        <div style={{
+          position: 'absolute', bottom: '-20%', left: '-10%', right: '-10%', height: '65%',
+          backgroundImage: 'linear-gradient(rgba(201,169,110,1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,1) 1px,transparent 1px)',
+          backgroundSize: '55px 55px',
+          transform: 'perspective(400px) rotateX(62deg)',
+          transformOrigin: 'bottom center',
+        }} />
       </div>
 
-      <style>{'@keyframes twk { 0%,100%{opacity:0.12;transform:scale(1)} 50%{opacity:0.75;transform:scale(1.4)} } @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }'}</style>
+      {/* ── Halo dourado central ── */}
+      <div
+        className="absolute rounded-full pointer-events-none"
+        style={{
+          top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '560px', height: '560px',
+          background: 'radial-gradient(circle, rgba(201,169,110,0.10) 0%, rgba(180,130,60,0.04) 45%, transparent 70%)',
+          filter: 'blur(70px)',
+          transition: 'opacity 1.5s ease',
+          opacity: phase === 'enter' ? 0 : 0.9,
+        }}
+      />
+
+      {/* ── FASE: LOGO ── */}
+      <div
+        className="flex flex-col items-center justify-center flex-1"
+        style={{
+          transition: 'opacity 0.5s ease, transform 0.5s ease',
+          opacity: phase === 'features' ? 0 : (phase === 'logo' ? 1 : 0),
+          transform: phase === 'features' ? 'scale(0.92) translateY(-20px)' : 'scale(1)',
+          pointerEvents: 'none',
+          position: phase === 'features' ? 'absolute' : 'relative',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {/* Badge */}
+        <div style={{
+          marginBottom: '36px',
+          opacity: phase === 'enter' ? 0 : 1,
+          transform: phase === 'enter' ? 'translateY(-8px)' : 'translateY(0)',
+          transition: 'all 0.9s ease 0.3s',
+        }}>
+          <span style={{
+            fontSize: '8px', letterSpacing: '0.42em', textTransform: 'uppercase',
+            color: '#c9a96e', border: '1px solid rgba(201,169,110,0.32)', borderRadius: '100px',
+            padding: '5px 20px', background: 'rgba(201,169,110,0.06)',
+            boxShadow: '0 0 20px rgba(201,169,110,0.08)',
+          }}>
+            ◆ &nbsp; Plataforma de Estudo Bíblico &nbsp; ◆
+          </span>
+        </div>
+
+        {/* Logo + anéis */}
+        <div style={{
+          position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: phase === 'enter' ? 0 : 1,
+          transform: phase === 'enter' ? 'scale(0.8) translateY(20px)' : 'scale(1)',
+          transition: 'all 1s cubic-bezier(0.16,1,0.3,1) 0.1s',
+        }}>
+          <div style={{ position: 'absolute', width: '120px', height: '120px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.22)', animation: 'spinRing 14s linear infinite' }} />
+          <div style={{ position: 'absolute', width: '148px', height: '148px', borderRadius: '50%', border: '1px solid rgba(201,169,110,0.10)', animation: 'spinRing 22s linear infinite reverse' }} />
+          <div style={{ position: 'absolute', width: '178px', height: '178px', borderRadius: '50%', border: '1px dashed rgba(201,169,110,0.06)', animation: 'spinRing 35s linear infinite' }} />
+          <div style={{
+            width: '80px', height: '80px', borderRadius: '22px',
+            background: 'linear-gradient(145deg, #1a1200, #0a0d12)',
+            border: '1px solid rgba(201,169,110,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 50px rgba(201,169,110,0.30), inset 0 1px 0 rgba(201,169,110,0.12)',
+            position: 'relative', zIndex: 1,
+          }}>
+            <img src="/icon.svg" alt="α" style={{ width: '50px', height: '50px', filter: 'drop-shadow(0 0 20px rgba(201,169,110,0.8))' }} draggable={false} />
+          </div>
+        </div>
+
+        {/* Divisor */}
+        <div style={{
+          margin: '28px 0 20px',
+          width: phase === 'enter' ? '0' : '180px', height: '1px',
+          background: 'linear-gradient(90deg, transparent, #c9a96e 35%, #f0d878 50%, #c9a96e 65%, transparent)',
+          transition: 'width 1.4s ease 0.6s',
+          boxShadow: '0 0 10px rgba(201,169,110,0.35)',
+        }} />
+
+        {/* Título */}
+        <div style={{ textAlign: 'center', opacity: phase === 'enter' ? 0 : 1, transform: phase === 'enter' ? 'translateY(14px)' : 'translateY(0)', transition: 'all 1.2s ease 0.5s' }}>
+          <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.30em', textTransform: 'uppercase', color: 'rgba(180,180,200,0.55)', marginBottom: '8px' }}>Bem-vindo à</p>
+          <h1 style={{ fontSize: '42px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.03em', lineHeight: '1', textShadow: '0 0 48px rgba(201,169,110,0.50), 0 2px 0 rgba(0,0,0,0.6)' }}>Bíblia Alpha</h1>
+          <p style={{ fontSize: '11px', color: 'rgba(160,160,185,0.65)', fontWeight: 300, letterSpacing: '0.30em', textTransform: 'uppercase', marginTop: '10px' }}>Estudo &nbsp;·&nbsp; Meditação &nbsp;·&nbsp; Crescimento</p>
+        </div>
+
+        {/* Versículo */}
+        <div style={{
+          maxWidth: '340px', marginTop: '28px', padding: '0 28px', textAlign: 'center',
+          opacity: phase === 'enter' ? 0 : 0.75, transition: 'opacity 1.4s ease 0.9s',
+        }}>
+          <p style={{ fontSize: '12.5px', fontStyle: 'italic', color: 'rgba(180,175,195,0.80)', lineHeight: '1.7', fontFamily: 'Georgia, serif' }}>
+            &ldquo;{verse.text}&rdquo;
+          </p>
+          <p style={{ fontSize: '10px', color: 'rgba(130,130,155,0.55)', marginTop: '6px', letterSpacing: '0.15em' }}>— {verse.ref}</p>
+        </div>
+      </div>
+
+      {/* ── FASE: FEATURES ── */}
+      {phase === 'features' && (
+        <div className="flex flex-col h-full overflow-hidden" style={{ animation: 'fadeInUp 0.5s ease both' }}>
+
+          {/* Cabeçalho compacto */}
+          <div className="flex flex-col items-center pt-8 pb-5 px-4 shrink-0">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '6px' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '12px',
+                background: 'linear-gradient(145deg, #1a1200, #0a0d12)',
+                border: '1px solid rgba(201,169,110,0.30)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 24px rgba(201,169,110,0.20)',
+              }}>
+                <img src="/icon.svg" alt="α" style={{ width: '26px', height: '26px', filter: 'drop-shadow(0 0 8px rgba(201,169,110,0.8))' }} draggable={false} />
+              </div>
+              <div>
+                <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.02em', lineHeight: '1.1', textShadow: '0 0 24px rgba(201,169,110,0.35)' }}>Bíblia Alpha</h1>
+                <p style={{ fontSize: '9.5px', color: 'rgba(160,165,185,0.60)', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: '2px' }}>Estudo · Meditação · Crescimento</p>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: 'rgba(190,190,210,0.70)', textAlign: 'center', maxWidth: '340px', lineHeight: '1.55', marginTop: '8px' }}>
+              Uma plataforma completa de estudo bíblico — tudo que você precisa para crescer na Palavra.
+            </p>
+          </div>
+
+          {/* Grid de recursos */}
+          <div className="flex-1 overflow-y-auto px-4 pb-4" style={{ scrollbarWidth: 'none' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
+              gap: '10px',
+              maxWidth: '680px',
+              margin: '0 auto',
+            }}>
+              {FEATURES.map((f, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '12px',
+                    padding: '13px 15px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(201,169,110,0.14)',
+                    background: 'rgba(201,169,110,0.04)',
+                    backdropFilter: 'blur(8px)',
+                    opacity: visibleFeatures.includes(i) ? 1 : 0,
+                    transform: visibleFeatures.includes(i) ? 'translateY(0)' : 'translateY(14px)',
+                    transition: 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                >
+                  <span style={{ fontSize: '22px', lineHeight: '1', flexShrink: 0, marginTop: '1px' }}>{f.icon}</span>
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#d4b06a', marginBottom: '3px', letterSpacing: '0.01em' }}>{f.title}</p>
+                    <p style={{ fontSize: '11.5px', color: 'rgba(175,175,195,0.72)', lineHeight: '1.55' }}>{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Assinatura + versículo */}
+            <div style={{ textAlign: 'center', marginTop: '20px', opacity: visibleFeatures.length === FEATURES.length ? 1 : 0, transition: 'opacity 0.6s ease 0.3s' }}>
+              <div style={{ width: '40px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,169,110,0.5), transparent)', margin: '0 auto 12px' }} />
+              <p style={{ fontSize: '12px', fontStyle: 'italic', color: 'rgba(180,175,195,0.65)', fontFamily: 'Georgia, serif', lineHeight: '1.6', maxWidth: '300px', margin: '0 auto' }}>
+                &ldquo;{verse.text}&rdquo;
+              </p>
+              <p style={{ fontSize: '10px', color: 'rgba(130,130,150,0.50)', marginTop: '5px', letterSpacing: '0.14em' }}>— {verse.ref}</p>
+              <div style={{ marginTop: '14px' }}>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#c9a96e', fontFamily: 'Georgia, serif' }}>Erick Silva</p>
+                <p style={{ fontSize: '9px', color: 'rgba(150,150,170,0.50)', letterSpacing: '0.20em', textTransform: 'uppercase', marginTop: '2px' }}>Pr e The, Ldo. Fil.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botão Entrar + barra de progresso */}
+          <div className="shrink-0 px-4 pb-6 pt-3 flex flex-col items-center gap-3">
+            <button
+              onClick={finish}
+              style={{
+                padding: '12px 48px',
+                borderRadius: '100px',
+                background: 'linear-gradient(135deg, #c9a96e, #e8c97a)',
+                color: '#0a0d12',
+                fontSize: '14px',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 24px rgba(201,169,110,0.40), 0 1px 0 rgba(255,255,255,0.15) inset',
+                transition: 'all 0.18s ease',
+                opacity: visibleFeatures.length >= 4 ? 1 : 0,
+                transform: visibleFeatures.length >= 4 ? 'translateY(0)' : 'translateY(8px)',
+              }}
+              onMouseOver={e => { (e.target as HTMLElement).style.transform = 'scale(1.04)'; }}
+              onMouseOut={e => { (e.target as HTMLElement).style.transform = 'scale(1)'; }}
+            >
+              Começar a estudar →
+            </button>
+
+            {/* Barra de progresso auto-dismiss */}
+            <div style={{ width: '120px', height: '2px', borderRadius: '2px', background: 'rgba(201,169,110,0.12)', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%',
+                background: 'linear-gradient(90deg, #c9a96e, #f0d878)',
+                width: '100%',
+                transformOrigin: 'left',
+                animation: 'progressBar 12.2s linear forwards',
+                boxShadow: '0 0 6px rgba(201,169,110,0.5)',
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Barra de progresso fase logo ── */}
+      {phase !== 'features' && (
+        <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'rgba(201,169,110,0.05)' }}>
+          <div style={{
+            height: '100%',
+            background: 'linear-gradient(90deg, transparent, #c9a96e 40%, #f0d878 50%, #c9a96e 60%, transparent)',
+            width: phase === 'enter' ? '0%' : '100%',
+            transition: 'width 1.8s linear 0.1s',
+            boxShadow: '0 0 6px rgba(201,169,110,0.5)',
+          }} />
+        </div>
+      )}
+
+      <style>{`
+        @keyframes twk { 0%,100%{opacity:0.10;transform:scale(1)} 50%{opacity:0.70;transform:scale(1.5)} }
+        @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes progressBar { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+      `}</style>
     </div>
   );
 }
