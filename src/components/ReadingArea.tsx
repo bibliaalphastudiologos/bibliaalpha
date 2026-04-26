@@ -464,40 +464,47 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       )}
 
-      <header className="hidden lg:flex px-10 py-5 justify-between items-center bg-sleek-bg sticky top-0 z-20 border-b border-transparent">
-        <div className="text-[14px] text-sleek-text-muted flex items-center gap-4">
+      <header className="hidden lg:flex px-8 py-3 justify-between items-center bg-sleek-bg sticky top-0 z-20 border-b border-sleek-border/50" style={{backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)'}}>
+        <div className="flex items-center gap-3">
           <button
             onClick={onToggleSidebar}
-            className="p-1 px-1.5 hover:bg-sleek-hover rounded-md text-sleek-text-muted hover:text-sleek-text-main transition-colors"
+            className="p-1.5 hover:bg-sleek-hover rounded-lg text-sleek-text-muted hover:text-sleek-text-main transition-colors"
             title="Alternar Menu Lateral"
           >
-            <Menu size={18} />
+            <Menu size={16} />
           </button>
-          <span>{bookIndex >= 39 ? "Novo Testamento" : "Antigo Testamento"} / {bookName} / Capítulo {chapter}</span>
+          <div className="reading-breadcrumb">
+            <span className="reading-breadcrumb-sep">/</span>
+            <span>{bookIndex >= 39 ? "NT" : "AT"}</span>
+            <span className="reading-breadcrumb-sep">/</span>
+            <span>{bookName}</span>
+            <span className="reading-breadcrumb-sep">/</span>
+            <span className="reading-breadcrumb-current">Cap. {chapter}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={onPlansOpen}
             title="Planos de Leitura"
-            className="p-2 flex items-center justify-center text-blue-600 bg-blue-50/50 hover:bg-blue-100/50 rounded-md transition-colors border border-blue-100 hover:border-blue-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-blue-600 bg-blue-50/60 hover:bg-blue-100/60 rounded-lg transition-colors border border-blue-100/80"
           >
-            <BookIcon size={16} />
+            <BookIcon size={13} /> Planos
           </button>
           <button
             onClick={onNotepadOpen}
             title="Bloco de Notas"
-            className="p-2 flex items-center justify-center text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-md transition-colors border border-transparent hover:border-sleek-border bg-sleek-input-bg shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-sleek-text-muted hover:text-sleek-text-main hover:bg-sleek-hover rounded-lg transition-colors border border-sleek-border/60"
           >
-            <MessageSquareText size={16} />
+            <MessageSquareText size={13} /> Notas
           </button>
           <button
             onClick={onResearchOpen}
             title="Pesquisa Bíblica"
-            className="p-2 flex items-center justify-center text-purple-600 bg-purple-50/50 hover:bg-purple-100/50 rounded-md transition-colors border border-purple-100 hover:border-purple-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-purple-600 bg-purple-50/60 hover:bg-purple-100/60 rounded-lg transition-colors border border-purple-100/80"
           >
-            <Globe size={16} />
+            <Globe size={13} /> Pesquisa
           </button>
-          <div className="w-[1px] h-4 bg-sleek-border mx-1"></div>
+          <div className="w-px h-4 bg-sleek-border mx-1" />
           <button
             onClick={() => {
               const text = bookName + ' ' + chapter + ' — Bíblia Alpha | https://bibliaalpha.org';
@@ -506,17 +513,17 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                 setTimeout(() => setShareCopied(false), 2000);
               });
             }}
-            className={cn('text-[13px] px-3 py-1 flex items-center gap-1.5 rounded-md transition-colors', shareCopied ? 'text-green-600 bg-green-50' : 'text-sleek-text-muted hover:bg-sleek-hover')}
-            title="Copiar referência para a área de transferência"
+            className={cn('flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-lg transition-colors', shareCopied ? 'text-green-600 bg-green-50' : 'text-sleek-text-muted hover:bg-sleek-hover')}
+            title="Copiar referência"
           >
             <Share2 size={13} /> {shareCopied ? 'Copiado!' : 'Compartilhar'}
           </button>
           <div className="relative">
             <button
               onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-              className="p-1 px-2 text-sleek-text-muted hover:bg-sleek-hover rounded-md transition-colors"
+              className="p-1.5 text-sleek-text-muted hover:bg-sleek-hover rounded-lg transition-colors"
             >
-              <MoreHorizontal size={16} />
+              <MoreHorizontal size={15} />
             </button>
             {isMoreMenuOpen && (
               <ConnectionsDropdown
@@ -622,21 +629,20 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">
             <div>
               {chapter > 1 && (
-                <button
-                  onClick={onPrevChapter}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-sleek-hover rounded-md text-sleek-text-main transition-colors font-medium border border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
-                >
-                  <ChevronLeft size={18} /> Anterior
+                <button onClick={onPrevChapter} className="nav-chapter-btn">
+                  <ChevronLeft size={16} />
+                  <span>Cap. {chapter - 1}</span>
                 </button>
               )}
             </div>
+            <span className="text-[12px] text-sleek-text-muted font-sans">
+              {chapter} / {totalChapters}
+            </span>
             <div>
               {chapter < totalChapters && (
-                <button
-                  onClick={onNextChapter}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-sleek-hover rounded-md text-sleek-text-main transition-colors font-medium border border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
-                >
-                  Próximo <ChevronRight size={18} />
+                <button onClick={onNextChapter} className="nav-chapter-btn">
+                  <span>Cap. {chapter + 1}</span>
+                  <ChevronRight size={16} />
                 </button>
               )}
             </div>

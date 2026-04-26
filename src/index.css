@@ -647,3 +647,275 @@ a, button, [role="button"] {
   transition-timing-function: ease;
 }
 
+
+/* ══════════════════════════════════════════════════════
+   MELHORIAS VISUAIS — Abril 2026
+   ══════════════════════════════════════════════════════ */
+
+/* ── Skeleton loader shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-sleek-hover) 25%,
+    var(--color-sleek-border) 50%,
+    var(--color-sleek-hover) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+.skeleton-text   { height: 18px; border-radius: 4px; }
+.skeleton-title  { height: 52px; border-radius: 8px; }
+.skeleton-verse  { height: 16px; border-radius: 4px; margin-bottom: 10px; }
+
+/* ── Sidebar: user profile card ── */
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 0 8px 12px;
+  border-radius: 10px;
+  background: var(--color-sleek-hover);
+  border: 1px solid var(--color-sleek-border);
+}
+.sidebar-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-sleek-border);
+  flex-shrink: 0;
+}
+.sidebar-user-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-sleek-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-sleek-text-muted);
+  padding: 0 12px;
+  margin-bottom: 6px;
+}
+
+/* ── Chapter selector: scrollbar-free pill row ── */
+.chapter-pill-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.chapter-pill-row::-webkit-scrollbar { display: none; }
+.chapter-pill {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-sleek-border);
+  background: var(--color-sleek-input-bg);
+  color: var(--color-sleek-chapter-num);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.chapter-pill:hover {
+  background: var(--color-sleek-hover);
+  border-color: var(--color-sleek-text-muted);
+  color: var(--color-sleek-text-main);
+  transform: scale(1.06);
+}
+.chapter-pill.active {
+  background: var(--color-sleek-text-main);
+  border-color: var(--color-sleek-text-main);
+  color: var(--color-sleek-bg);
+  font-weight: 700;
+  transform: scale(1.06);
+}
+
+/* ── Reading header breadcrumb ── */
+.reading-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-sleek-text-muted);
+  font-family: var(--font-sans);
+}
+.reading-breadcrumb-sep {
+  opacity: 0.35;
+  font-size: 15px;
+}
+.reading-breadcrumb-current {
+  color: var(--color-sleek-text-main);
+  font-weight: 500;
+}
+
+/* ── Translation badge pill ── */
+.translation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-sleek-border);
+  background: var(--color-sleek-input-bg);
+  color: var(--color-sleek-text-main);
+  cursor: pointer;
+  transition: all 0.13s ease;
+  white-space: nowrap;
+}
+.translation-badge:hover {
+  border-color: var(--color-sleek-text-muted);
+  background: var(--color-sleek-hover);
+}
+
+/* ── Panel empty state ── */
+.panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--color-sleek-text-muted);
+}
+.panel-empty-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--color-sleek-hover);
+  border: 1px solid var(--color-sleek-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+/* ── Research panel result cards ── */
+.research-card {
+  border: 1px solid var(--color-sleek-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.16s ease, border-color 0.16s ease;
+  background: var(--color-sleek-bg);
+}
+.research-card:hover {
+  box-shadow: var(--shadow-soft);
+  border-color: var(--color-sleek-text-muted);
+}
+.research-card-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--color-sleek-border);
+  background: var(--color-sleek-surface);
+}
+
+/* ── NotepadPanel: tab bar active indicator ── */
+.notepad-tab-bar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--color-sleek-hover);
+  border-radius: 10px;
+}
+.notepad-tab {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: var(--color-sleek-text-muted);
+  cursor: pointer;
+  transition: all 0.13s ease;
+  white-space: nowrap;
+}
+.notepad-tab.active {
+  background: var(--color-sleek-bg);
+  color: var(--color-sleek-text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.notepad-tab:not(.active):hover {
+  color: var(--color-sleek-text-main);
+}
+
+/* ── Plan progress bar at top of panel ── */
+.plan-progress-banner {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-sleek-border);
+  background: var(--color-sleek-surface);
+}
+.plan-progress-bar-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-sleek-border);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.plan-progress-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-sleek-text-main);
+  transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+html[data-theme="dark"] .plan-progress-bar-fill,
+html[data-theme="graphite"] .plan-progress-bar-fill {
+  background: #60A5FA;
+}
+
+/* ── Verse hover: cleaner indicator ── */
+div[data-verse]:hover > span > sup {
+  color: var(--color-sleek-accent);
+}
+
+/* ── Button group (nav prev/next) ── */
+.nav-chapter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: 1.5px solid var(--color-sleek-border);
+  background: var(--color-sleek-input-bg);
+  color: var(--color-sleek-text-main);
+  cursor: pointer;
+  transition: all 0.14s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.nav-chapter-btn:hover {
+  border-color: var(--color-sleek-text-muted);
+  background: var(--color-sleek-hover);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+.nav-chapter-btn:active { transform: translateY(0); }

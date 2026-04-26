@@ -206,8 +206,25 @@ export default function App() {
           </header>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {isLoadingChapter ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="w-8 h-8 rounded-full border-2 border-slate-300 border-t-slate-800 animate-spin" />
+              <div className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full animate-pulse">
+                <div className="pb-8 border-b border-sleek-border mb-8">
+                  <div className="skeleton skeleton-title w-3/4 mb-6" />
+                  <div className="flex gap-2 mb-8">
+                    {Array.from({length: 8}).map((_,i) => (
+                      <div key={i} className="skeleton w-9 h-9 rounded-full flex-shrink-0" />
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="skeleton skeleton-text w-48" />
+                    <div className="skeleton skeleton-text w-32" />
+                    <div className="skeleton skeleton-text w-40" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {Array.from({length: 14}).map((_,i) => (
+                    <div key={i} className="skeleton skeleton-verse" style={{width: `${70 + (i % 5) * 6}%`}} />
+                  ))}
+                </div>
               </div>
             ) : (
               <ReadingArea
