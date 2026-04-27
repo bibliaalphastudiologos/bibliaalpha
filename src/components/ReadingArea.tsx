@@ -823,5 +823,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         @media (hover: hover) { .whatsapp-verse-btn { opacity: 0; } }
       `}</style>
     </div>
+  </div>
   );
 }
