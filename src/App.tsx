@@ -1,18 +1,20 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, lazy, Suspense } from 'react';
 import { Book, getBooks } from './services/bibleApi';
 import { getChapterFromApiBible, AVAILABLE_TRANSLATIONS } from './services/apiBible';
 import Sidebar from './components/Sidebar';
 import ReadingArea from './components/ReadingArea';
 import CommandPalette from './components/CommandPalette';
-import NotepadPanel from './components/NotepadPanel';
-import ReadingPlansPanel from './components/ReadingPlansPanel';
-import ResearchPanel from './components/ResearchPanel';
-import EbooksPanel from './components/EbooksPanel';
-import DevotionalPanel from './components/DevotionalPanel';
 import ConnectionsDropdown from './components/ConnectionsDropdown';
-import ThemeControls from './components/ThemeControls';
 import { Menu, Edit3, MoreHorizontal, BookOpen, Globe, X, AlertTriangle, Search, Palette } from 'lucide-react';
-import SplashScreen from './components/SplashScreen';
+
+// Lazy-loaded panels — only bundled when first opened
+const NotepadPanel      = lazy(() => import('./components/NotepadPanel'));
+const ReadingPlansPanel = lazy(() => import('./components/ReadingPlansPanel'));
+const ResearchPanel     = lazy(() => import('./components/ResearchPanel'));
+const EbooksPanel       = lazy(() => import('./components/EbooksPanel'));
+const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
+const ThemeControls     = lazy(() => import('./components/ThemeControls'));
+const SplashScreen      = lazy(() => import('./components/SplashScreen'));
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DevotionalAudience } from './data/devotionals';
@@ -131,6 +133,23 @@ export default function App() {
     }
   }, [activeBook, activeChapter, activeTranslation]);
 
+  // Dynamic SEO — update title + meta on book/chapter change
+  useEffect(() => {
+    if (!activeBook) return;
+    const title = `${activeBook.name} ${activeChapter} — Bíblia Alpha`;
+    document.title = title;
+    // Update meta description
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content',
+      `Leia ${activeBook.name} capítulo ${activeChapter} com comentários clássicos, destaques e notas. Bíblia Alpha.`);
+    // Update Open Graph
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content',
+      `${activeBook.name} ${activeChapter} — leia com comentários clássicos e faça anotações. Bíblia Alpha.`);
+  }, [activeBook, activeChapter]);
+
   // Keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -168,7 +187,7 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, fontSize, setTheme, setFontSize }}>
-      {showSplash && <SplashScreen onFinish={() => { localStorage.setItem('ba_splash_v3_seen', '1'); setShowSplash(false); }} />}
+      {showSplash && <Suspense fallback={null}><SplashScreen onFinish={() => { localStorage.setItem('ba_splash_v3_seen', '1'); setShowSplash(false); }} /></Suspense>}
       <div className="flex h-screen w-full bg-sleek-bg font-sans overflow-hidden text-sleek-text-main">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/10 z-10 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
         <Sidebar
@@ -197,10 +216,10 @@ export default function App() {
               <span className="text-[10px] text-sleek-text-muted">{activeBook && activeChapter ? `${activeChapter} / ${activeBook.numberOfChapters}` : ''}</span>
             </div>
             <div className="flex items-center gap-0.5">
-              <button onClick={() => setIsThemeOpen(true)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Aparência">
+              <button onClick={() => setIsThemeOpen(true)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Aparência" aria-label="Aparência">
                 <Palette size={17} />
               </button>
-              <button onClick={() => setIsCommandModeOpen(true)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Buscar (⌘K)">
+              <button onClick={() => setIsCommandModeOpen(true)} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" title="Buscar (⌘K)" aria-label="Buscar">
                 <Search size={18} />
               </button>
             </div>
@@ -305,23 +324,25 @@ export default function App() {
           </nav>
         </div>
         {/* overlay handled above */}
-        <NotepadPanel isOpen={isNotepadOpen} onClose={() => setIsNotepadOpen(false)} chapterContext={activeBook?.name + ' ' + activeChapter} />
-        <ReadingPlansPanel isOpen={isPlansOpen} onClose={() => setIsPlansOpen(false)}
-          onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
-        />
-        <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name ?? ''} />
-        <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
-        <DevotionalPanel
-          isOpen={isDevotionalOpen}
-          onClose={() => setIsDevotionalOpen(false)}
-          audience={activeDevotionalAudience}
-          onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
-        />
-        <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
-          onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
-          onDevotionalOpen={openDevotional}
-        />
-        <ThemeControls open={isThemeOpen} onClose={() => setIsThemeOpen(false)} />
+        <Suspense fallback={null}>
+          <NotepadPanel isOpen={isNotepadOpen} onClose={() => setIsNotepadOpen(false)} chapterContext={activeBook?.name + ' ' + activeChapter} />
+          <ReadingPlansPanel isOpen={isPlansOpen} onClose={() => setIsPlansOpen(false)}
+            onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
+          />
+          <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name ?? ''} />
+          <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
+          <DevotionalPanel
+            isOpen={isDevotionalOpen}
+            onClose={() => setIsDevotionalOpen(false)}
+            audience={activeDevotionalAudience}
+            onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
+          />
+          <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
+            onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
+            onDevotionalOpen={openDevotional}
+          />
+          <ThemeControls open={isThemeOpen} onClose={() => setIsThemeOpen(false)} />
+        </Suspense>
       </div>
     </ThemeContext.Provider>
   );
