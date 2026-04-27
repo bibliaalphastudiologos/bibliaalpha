@@ -10,19 +10,28 @@ import { useAuth } from './AuthProvider';
 import { db } from '../services/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-// ── WhatsApp Icon SVG ──────────────────────────────────────────────────────────────────────────────
 const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline', flexShrink: 0 }}>
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
-// ── Extract plain text from verse content ──────────────────────────────────────────────
+const FacebookIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline', flexShrink: 0 }}>
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const InstagramIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline', flexShrink: 0 }}>
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </svg>
+);
+
 function extractVerseText(content: any[]): string {
   return content.map(seg => typeof seg === 'string' ? seg : (seg?.text || seg?.content || '')).join('');
 }
 
-// ── Build branded WhatsApp message ──────────────────────────────────────────────────────────────────────────
 function buildWhatsAppMessage(verses: { number: number; text: string }[], bookName: string, chapter: number): string {
   const sep = '─'.repeat(20);
   const footer = '\n\n🔗 *https://bibliaalpha.org*\n_Bíblia Alpha · Leia, estude e anote a Palavra_ ✨';
@@ -33,6 +42,18 @@ function buildWhatsAppMessage(verses: { number: number; text: string }[], bookNa
   const nums = verses.map(v => v.number).join(', ');
   const lines = verses.map(v => '*' + v.number + '* — ' + v.text).join('\n\n');
   return '📖 *Bíblia Alpha*\n' + sep + '\n\n*' + bookName + ' ' + chapter + ' — versículos ' + nums + '*\n\n' + lines + footer;
+}
+
+function buildPlainMessage(verses: { number: number; text: string }[], bookName: string, chapter: number): string {
+  const sep = '─'.repeat(20);
+  const footer = '\n\nhttps://bibliaalpha.org\nBíblia Alpha · Leia, estude e anote a Palavra';
+  if (verses.length === 1) {
+    const v = verses[0];
+    return 'Bíblia Alpha\n' + sep + '\n\n' + bookName + ' ' + chapter + ':' + v.number + '\n"' + v.text + '"' + footer;
+  }
+  const nums = verses.map(v => v.number).join(', ');
+  const lines = verses.map(v => v.number + ' — ' + v.text).join('\n\n');
+  return 'Bíblia Alpha\n' + sep + '\n\n' + bookName + ' ' + chapter + ' — versículos ' + nums + '\n\n' + lines + footer;
 }
 
 
@@ -55,7 +76,6 @@ interface ReadingAreaProps {
   bookIndex?: number;
 }
 
-// ── Highlight color definitions ────────────────────────────────────────────────
 const HIGHLIGHT_COLORS = [
   { key: 'yellow',    label: 'Amarelo',  cls: 'text-highlight-yellow',    dot: '#FACC15' },
   { key: 'green',     label: 'Verde',    cls: 'text-highlight-green',     dot: '#4ADE80' },
@@ -85,7 +105,6 @@ interface ToolbarState {
   highlightId?: string;
 }
 
-// ── Utility: character offset within a container ───────────────────────────────
 function getTextOffset(container: Element, targetNode: Node, offsetInNode: number): number {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
   let total = 0;
@@ -97,7 +116,6 @@ function getTextOffset(container: Element, targetNode: Node, offsetInNode: numbe
   return total;
 }
 
-// ── Render verse content with range-based highlights ──────────────────────────
 interface TextChar { char: string; isJesus: boolean; }
 
 function flattenContent(content: any[]): TextChar[] {
@@ -165,10 +183,10 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
-  // ── WhatsApp sharing state ───────────────────────────────────
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());
   const [hoveredVerse, setHoveredVerse] = useState<number | null>(null);
+  const [shareToast, setShareToast] = useState<string | null>(null);
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
   const [toolbar, setToolbar] = useState<ToolbarState>({
@@ -179,7 +197,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   useEffect(() => {
     let isMounted = true;
     async function loadHighlights() {
-      // Tenta carregar do Firestore se usuário autenticado
       if (user?.uid) {
         try {
           const ref = doc(db, 'users', user.uid, 'highlights', `${bookId}_${chapter}`);
@@ -195,7 +212,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           console.warn('[Highlights] Falha ao ler Firestore, usando cache local:', e);
         }
       }
-      // Fallback: localStorage
       try {
         setHighlights(JSON.parse(localStorage.getItem(highlightKey) || '[]'));
       } catch { setHighlights([]); }
@@ -212,7 +228,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     return () => { isMounted = false; };
   }, [highlightKey, bookId, chapter, user]);
 
-  // Keyboard navigation: ArrowLeft/ArrowRight for prev/next chapter
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -225,8 +240,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     return () => window.removeEventListener('keydown', handleKey);
   }, [onPrevChapter, onNextChapter, isSelectMode]);
 
-
-  // ── WhatsApp sharing functions ──────────────────────────────────────────────
   const shareVerseOnWhatsApp = useCallback((item: any) => {
     const text = extractVerseText(item.content);
     const message = buildWhatsAppMessage([{ number: item.number, text }], bookName, chapter);
@@ -234,20 +247,68 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   }, [bookName, chapter]);
 
   const shareSelectedOnWhatsApp = useCallback(() => {
-    const versesToShare = content
+    const verses = content
       .filter((item: any) => item.type === 'verse' && selectedVerses.has(item.number))
       .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
-    if (!versesToShare.length) return;
-    window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(versesToShare, bookName, chapter)), '_blank');
+    if (!verses.length) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(verses, bookName, chapter)), '_blank');
   }, [content, selectedVerses, bookName, chapter]);
 
   const shareChapterOnWhatsApp = useCallback(() => {
-    const allVerses = content
+    const verses = content
       .filter((item: any) => item.type === 'verse')
       .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
-    if (!allVerses.length) return;
-    window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(allVerses, bookName, chapter)), '_blank');
+    if (!verses.length) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(verses, bookName, chapter)), '_blank');
   }, [content, bookName, chapter]);
+
+  const shareOnFacebook = useCallback((verses: { number: number; text: string }[]) => {
+    const message = buildPlainMessage(verses, bookName, chapter);
+    const url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://bibliaalpha.org') + '&quote=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+  }, [bookName, chapter]);
+
+  const shareOnInstagram = useCallback(async (verses: { number: number; text: string }[]) => {
+    const text = buildPlainMessage(verses, bookName, chapter);
+    if (navigator.share) {
+      try { await navigator.share({ text }); return; } catch {}
+    }
+    try { await navigator.clipboard.writeText(text); } catch {}
+    setShareToast('Texto copiado! Cole no Instagram.');
+    setTimeout(() => setShareToast(null), 3000);
+  }, [bookName, chapter]);
+
+  const shareSelectedOnFacebook = useCallback(() => {
+    const verses = content
+      .filter((item: any) => item.type === 'verse' && selectedVerses.has(item.number))
+      .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
+    if (!verses.length) return;
+    shareOnFacebook(verses);
+  }, [content, selectedVerses, shareOnFacebook]);
+
+  const shareSelectedOnInstagram = useCallback(() => {
+    const verses = content
+      .filter((item: any) => item.type === 'verse' && selectedVerses.has(item.number))
+      .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
+    if (!verses.length) return;
+    shareOnInstagram(verses);
+  }, [content, selectedVerses, shareOnInstagram]);
+
+  const shareChapterOnFacebook = useCallback(() => {
+    const verses = content
+      .filter((item: any) => item.type === 'verse')
+      .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
+    if (!verses.length) return;
+    shareOnFacebook(verses);
+  }, [content, shareOnFacebook]);
+
+  const shareChapterOnInstagram = useCallback(() => {
+    const verses = content
+      .filter((item: any) => item.type === 'verse')
+      .map((item: any) => ({ number: item.number, text: extractVerseText(item.content) }));
+    if (!verses.length) return;
+    shareOnInstagram(verses);
+  }, [content, shareOnInstagram]);
 
   const toggleVerseSelection = useCallback((num: number) => {
     setSelectedVerses(prev => {
@@ -262,7 +323,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     setIsSelectMode(false);
   }, []);
 
-  // ── Selection → toolbar ──────────────────────────────────────────────────
   const handleHighlightClick = useCallback((e: MouseEvent) => {
     const target = e.target as Element;
     const highlightId = target.getAttribute('data-highlight-id');
@@ -305,7 +365,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
     const verseNumber = parseInt(verseContentEl.getAttribute('data-verse-content') || '0', 10);
 
-    // Clamp end container to same verse-content element
     const endNode = range.endContainer.nodeType === Node.ELEMENT_NODE
       ? range.endContainer as Element
       : range.endContainer.parentElement;
@@ -351,7 +410,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const saveHighlights = (list: VerseHighlight[]) => {
     setHighlights(list);
     localStorage.setItem(highlightKey, JSON.stringify(list));
-    // Persiste no Firestore de forma assíncrona (não bloqueia UI)
     if (user?.uid) {
       const ref = doc(db, 'users', user.uid, 'highlights', `${bookId}_${chapter}`);
       setDoc(ref, { highlights: list, updatedAt: new Date().toISOString() }, { merge: true })
@@ -369,7 +427,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       end: endOffset,
       colorKey,
     };
-    // Remove overlapping highlights in this verse/range before adding new one
     const filtered = highlights.filter(h =>
       h.verseNumber !== verseNumber ||
       h.end <= startOffset ||
@@ -385,10 +442,8 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     if (!verseNumber) return;
     let filtered: VerseHighlight[];
     if (highlightId) {
-      // Remove by specific highlight ID (clicked on highlight)
       filtered = highlights.filter(h => h.id !== highlightId);
     } else {
-      // Remove by range overlap (text selection)
       filtered = highlights.filter(h =>
         h.verseNumber !== verseNumber ||
         h.end <= startOffset ||
@@ -479,22 +534,30 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                 {!isExpanded && 'Estudo'}
               </button>
             )}
-            {!isSelectMode && (
-              <button
-                onClick={(e) => { e.stopPropagation(); shareVerseOnWhatsApp(item); }}
-                className="whatsapp-verse-btn"
-                title="Compartilhar versículo no WhatsApp"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '3px',
-                  fontSize: '10px', fontFamily: 'sans-serif', fontWeight: 600,
-                  padding: '1px 5px', borderRadius: '9999px',
-                  backgroundColor: 'rgba(37,211,102,0.12)', color: '#25D366',
-                  border: 'none', cursor: 'pointer', verticalAlign: 'middle',
-                  marginLeft: '3px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s',
-                }}
-              >
-                <WhatsAppIcon size={10} />
-              </button>
+            {!isSelectMode && isHovered && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', verticalAlign: 'middle', marginLeft: '4px' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); shareVerseOnWhatsApp(item); }}
+                  title="Compartilhar no WhatsApp"
+                  style={{ display: 'inline-flex', alignItems: 'center', padding: '1px 5px', borderRadius: '9999px', backgroundColor: 'rgba(37,211,102,0.12)', color: '#25D366', border: 'none', cursor: 'pointer', fontSize: '10px' }}
+                >
+                  <WhatsAppIcon size={10} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); shareOnFacebook([{ number: item.number, text: extractVerseText(item.content) }]); }}
+                  title="Compartilhar no Facebook"
+                  style={{ display: 'inline-flex', alignItems: 'center', padding: '1px 5px', borderRadius: '9999px', backgroundColor: 'rgba(24,119,242,0.12)', color: '#1877F2', border: 'none', cursor: 'pointer', fontSize: '10px' }}
+                >
+                  <FacebookIcon size={10} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); shareOnInstagram([{ number: item.number, text: extractVerseText(item.content) }]); }}
+                  title="Compartilhar no Instagram"
+                  style={{ display: 'inline-flex', alignItems: 'center', padding: '1px 5px', borderRadius: '9999px', backgroundColor: 'rgba(193,53,132,0.12)', color: '#C13584', border: 'none', cursor: 'pointer', fontSize: '10px' }}
+                >
+                  <InstagramIcon size={10} />
+                </button>
+              </span>
             )}
           </span>
           {isExpanded && (
@@ -529,7 +592,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   return (
     <div className="w-full flex-1 flex flex-col min-h-full relative font-serif">
 
-      {/* ── Floating Highlight Toolbar ──────────────────────────────────────── */}
       {toolbar.visible && (
         <div
           className="highlight-toolbar"
@@ -627,7 +689,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             <Globe size={16} />
           </button>
           <div className="w-px h-4 bg-sleek-border mx-1" />
-          {/* ── Share dropdown ─────────────────────────────── */}
           <div className="relative">
             <button
               onClick={() => setIsShareMenuOpen(v => !v)}
@@ -639,7 +700,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             {isShareMenuOpen && (
               <>
                 <div className="fixed inset-0 z-30" onClick={() => setIsShareMenuOpen(false)} />
-                <div className="absolute right-0 top-10 z-40 bg-sleek-bg border border-sleek-border rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.14)] py-1.5 min-w-[230px] font-sans">
+                <div className="absolute right-0 top-10 z-40 bg-sleek-bg border border-sleek-border rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.14)] py-1.5 min-w-[250px] font-sans">
                   <button onClick={() => { navigator.clipboard.writeText(bookName + ' ' + chapter + ' — Bíblia Alpha | https://bibliaalpha.org').then(() => { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000); }); setIsShareMenuOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-sleek-hover transition-colors flex items-center gap-3 text-sleek-text-main">
                     <Share2 size={14} className="text-sleek-text-muted flex-shrink-0" />
@@ -651,10 +712,21 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                     <span className="flex-shrink-0"><WhatsAppIcon size={14} /></span>
                     <div><div className="font-medium" style={{color:'#128C7E'}}>WhatsApp — capítulo inteiro</div><div className="text-[11px] text-sleek-text-muted">Compartilhar {bookName} {chapter}</div></div>
                   </button>
+                  <button onClick={() => { shareChapterOnFacebook(); setIsShareMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-sleek-hover transition-colors flex items-center gap-3 text-sleek-text-main">
+                    <span className="flex-shrink-0"><FacebookIcon size={14} /></span>
+                    <div><div className="font-medium" style={{color:'#1877F2'}}>Facebook — capítulo inteiro</div><div className="text-[11px] text-sleek-text-muted">Compartilhar {bookName} {chapter}</div></div>
+                  </button>
+                  <button onClick={() => { shareChapterOnInstagram(); setIsShareMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-sleek-hover transition-colors flex items-center gap-3 text-sleek-text-main">
+                    <span className="flex-shrink-0"><InstagramIcon size={14} /></span>
+                    <div><div className="font-medium" style={{color:'#C13584'}}>Instagram — capítulo inteiro</div><div className="text-[11px] text-sleek-text-muted">Compartilhar {bookName} {chapter}</div></div>
+                  </button>
+                  <div className="h-px bg-sleek-border my-1 mx-3" />
                   <button onClick={() => { setIsSelectMode(true); setSelectedVerses(new Set()); setIsShareMenuOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-sleek-hover transition-colors flex items-center gap-3 text-sleek-text-main">
-                    <span className="flex-shrink-0" style={{width:14,display:'inline-flex',justifyContent:'center'}}><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="#25D366" strokeWidth="1.5"/><path d="M3.5 7l2.5 2.5L10.5 5" stroke="#25D366" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-                    <div><div className="font-medium" style={{color:'#128C7E'}}>WhatsApp — selecionar versículos</div><div className="text-[11px] text-sleek-text-muted">Escolher versículos específicos</div></div>
+                    <span className="flex-shrink-0" style={{width:14,display:'inline-flex',justifyContent:'center'}}><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M3.5 7l2.5 2.5L10.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                    <div><div className="font-medium">Selecionar versículos</div><div className="text-[11px] text-sleek-text-muted">Escolher versículos específicos</div></div>
                   </button>
                 </div>
               </>
@@ -709,7 +781,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             </div>
           )}
 
-          {/* Translation + mobile WhatsApp buttons */}
+          {/* Translation + mobile share buttons */}
           <div className="flex items-center gap-2 flex-wrap font-sans">
           <div className="relative inline-block">
             <button
@@ -741,33 +813,55 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
               </>
             )}
           </div>
-        
-          {/* Mobile: WhatsApp chapter share */}
+
+          {/* Mobile: share platform buttons */}
           <button onClick={shareChapterOnWhatsApp}
             className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
             style={{borderColor:'#25D366',color:'#25D366',background:'rgba(37,211,102,0.07)'}}
-            title="Compartilhar capítulo no WhatsApp">
-            <WhatsAppIcon size={12} /><span>WhatsApp</span>
+            title="Compartilhar no WhatsApp">
+            <WhatsAppIcon size={12} />
+          </button>
+          <button onClick={shareChapterOnFacebook}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
+            style={{borderColor:'#1877F2',color:'#1877F2',background:'rgba(24,119,242,0.07)'}}
+            title="Compartilhar no Facebook">
+            <FacebookIcon size={12} />
+          </button>
+          <button onClick={shareChapterOnInstagram}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
+            style={{borderColor:'#C13584',color:'#C13584',background:'rgba(193,53,132,0.07)'}}
+            title="Compartilhar no Instagram">
+            <InstagramIcon size={12} />
           </button>
           {/* Mobile: select verses */}
           <button
             onClick={() => { setIsSelectMode(v => !v); if (isSelectMode) setSelectedVerses(new Set()); }}
             className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border border-sleek-border bg-sleek-input-bg text-sleek-text-muted hover:border-sleek-text-muted transition-all">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="0.75" y="0.75" width="10.5" height="10.5" rx="2.25" stroke="currentColor" strokeWidth="1.2"/><path d="M3 6l2 2 4-3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            <span>{isSelectMode ? 'Cancelar' : 'Selecionar versículos'}</span>
+            <span>{isSelectMode ? 'Cancelar' : 'Selecionar'}</span>
           </button>
         </div>
         {/* Selection mode banner */}
         {isSelectMode && (
-          <div style={{marginTop:'12px',padding:'10px 14px',borderRadius:'10px',background:'rgba(37,211,102,0.08)',border:'1px solid rgba(37,211,102,0.25)',display:'flex',alignItems:'center',gap:'10px',fontFamily:'sans-serif',fontSize:'13px',color:'#128C7E'}}>
-            <WhatsAppIcon size={15} />
-            <span style={{flex:1}}>{selectedVerses.size === 0 ? 'Toque nos versículos para selecioná-los' : selectedVerses.size + ' versículo' + (selectedVerses.size > 1 ? 's' : '') + ' selecionado' + (selectedVerses.size > 1 ? 's' : '')}</span>
+          <div style={{marginTop:'12px',padding:'10px 14px',borderRadius:'10px',background:'var(--color-sleek-hover)',border:'1px solid var(--color-sleek-border)',display:'flex',alignItems:'center',gap:'10px',fontFamily:'sans-serif',fontSize:'13px',color:'var(--color-sleek-text-muted)'}}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M3.5 7l2.5 2.5L10.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{flex:1,color:'var(--color-sleek-text-main)'}}>
+              {selectedVerses.size === 0 ? 'Toque nos versículos para selecioná-los' : selectedVerses.size + ' versículo' + (selectedVerses.size > 1 ? 's' : '') + ' selecionado' + (selectedVerses.size > 1 ? 's' : '')}
+            </span>
             {selectedVerses.size > 0 && (
-              <button onClick={shareSelectedOnWhatsApp} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 14px',borderRadius:'8px',background:'#25D366',color:'white',border:'none',cursor:'pointer',fontSize:'12px',fontWeight:700,boxShadow:'0 2px 8px rgba(37,211,102,0.35)'}}>
-                <WhatsAppIcon size={13} />Compartilhar
-              </button>
+              <span style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                <button onClick={shareSelectedOnWhatsApp} style={{display:'flex',alignItems:'center',gap:'4px',padding:'5px 10px',borderRadius:'8px',background:'rgba(37,211,102,0.15)',color:'#25D366',border:'1px solid rgba(37,211,102,0.3)',cursor:'pointer',fontSize:'11px',fontWeight:700}}>
+                  <WhatsAppIcon size={11} />
+                </button>
+                <button onClick={shareSelectedOnFacebook} style={{display:'flex',alignItems:'center',gap:'4px',padding:'5px 10px',borderRadius:'8px',background:'rgba(24,119,242,0.15)',color:'#1877F2',border:'1px solid rgba(24,119,242,0.3)',cursor:'pointer',fontSize:'11px',fontWeight:700}}>
+                  <FacebookIcon size={11} />
+                </button>
+                <button onClick={shareSelectedOnInstagram} style={{display:'flex',alignItems:'center',gap:'4px',padding:'5px 10px',borderRadius:'8px',background:'rgba(193,53,132,0.15)',color:'#C13584',border:'1px solid rgba(193,53,132,0.3)',cursor:'pointer',fontSize:'11px',fontWeight:700}}>
+                  <InstagramIcon size={11} />
+                </button>
+              </span>
             )}
-            <button onClick={clearSelection} style={{padding:'4px 8px',borderRadius:'6px',background:'transparent',color:'#128C7E',border:'none',cursor:'pointer',fontSize:'12px'}}>Cancelar</button>
+            <button onClick={clearSelection} style={{padding:'4px 8px',borderRadius:'6px',background:'transparent',color:'var(--color-sleek-text-muted)',border:'none',cursor:'pointer',fontSize:'12px'}}>Cancelar</button>
           </div>
         )}
 
@@ -798,20 +892,28 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       </div>
 
-      {/* ── Floating WhatsApp Selection Bar — desktop ─────────────────────────── */}
+      {/* Floating selection bar — desktop */}
       {isSelectMode && (
-        <div className="hidden lg:flex" style={{position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',zIndex:50,alignItems:'center',gap:'12px',padding:'12px 20px',borderRadius:'20px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',boxShadow:'0 8px 32px rgba(0,0,0,0.35)',minWidth:'320px',justifyContent:'space-between'}}>
+        <div className="hidden lg:flex" style={{position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',zIndex:50,alignItems:'center',gap:'12px',padding:'12px 20px',borderRadius:'20px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',boxShadow:'0 8px 32px rgba(0,0,0,0.35)',minWidth:'340px',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-            <WhatsAppIcon size={18} />
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3.5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5"/><path d="M4 8l3 3 5-5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             <span style={{color:'rgba(255,255,255,0.8)'}}>
               {selectedVerses.size === 0 ? 'Clique nos versículos para selecionar' : selectedVerses.size + ' versículo' + (selectedVerses.size > 1 ? 's' : '') + ' selecionado' + (selectedVerses.size > 1 ? 's' : '')}
             </span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
             {selectedVerses.size > 0 && (
-              <button onClick={shareSelectedOnWhatsApp} style={{display:'flex',alignItems:'center',gap:'6px',padding:'7px 16px',borderRadius:'12px',background:'#25D366',color:'white',border:'none',cursor:'pointer',fontSize:'13px',fontWeight:700,boxShadow:'0 2px 8px rgba(37,211,102,0.4)'}}>
-                <WhatsAppIcon size={14} />Compartilhar no WhatsApp
-              </button>
+              <>
+                <button onClick={shareSelectedOnWhatsApp} style={{display:'flex',alignItems:'center',gap:'6px',padding:'7px 14px',borderRadius:'12px',background:'#25D366',color:'white',border:'none',cursor:'pointer',fontSize:'12px',fontWeight:700}}>
+                  <WhatsAppIcon size={13} />WhatsApp
+                </button>
+                <button onClick={shareSelectedOnFacebook} style={{display:'flex',alignItems:'center',gap:'6px',padding:'7px 14px',borderRadius:'12px',background:'#1877F2',color:'white',border:'none',cursor:'pointer',fontSize:'12px',fontWeight:700}}>
+                  <FacebookIcon size={13} />Facebook
+                </button>
+                <button onClick={shareSelectedOnInstagram} style={{display:'flex',alignItems:'center',gap:'6px',padding:'7px 14px',borderRadius:'12px',background:'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',color:'white',border:'none',cursor:'pointer',fontSize:'12px',fontWeight:700}}>
+                  <InstagramIcon size={13} />Instagram
+                </button>
+              </>
             )}
             <button onClick={clearSelection} title="Cancelar (Esc)" style={{padding:'6px',borderRadius:'8px',background:'rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.6)',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>
               <X size={14} />
@@ -819,10 +921,13 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           </div>
         </div>
       )}
-      <style>{`
-        @media (hover: none) { .whatsapp-verse-btn { opacity: 1 !important; } }
-        @media (hover: hover) { .whatsapp-verse-btn { opacity: 0; } }
-      `}</style>
+
+      {/* Instagram copy toast */}
+      {shareToast && (
+        <div style={{position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',zIndex:60,padding:'10px 20px',borderRadius:'12px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',fontWeight:500,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',gap:'8px',pointerEvents:'none'}}>
+          <InstagramIcon size={14} />{shareToast}
+        </div>
+      )}
     </div>
   </div>
   );
