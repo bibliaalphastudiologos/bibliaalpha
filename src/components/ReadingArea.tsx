@@ -25,14 +25,14 @@ function extractVerseText(content: any[]): string {
 // ── Build branded WhatsApp message ──────────────────────────────────────────────────────────────────────────
 function buildWhatsAppMessage(verses: { number: number; text: string }[], bookName: string, chapter: number): string {
   const sep = '─'.repeat(20);
-  const footer = '\n\n🔗 *https://bibliaalpha.org*\n_Bília Alpha · Leia, estude e anote a Palavra_ ✨';
+  const footer = '\n\n🔗 *https://bibliaalpha.org*\n_Bíblia Alpha · Leia, estude e anote a Palavra_ ✨';
   if (verses.length === 1) {
     const v = verses[0];
-    return '📖 *Bília Alpha*\n' + sep + '\n\n*' + bookName + ' ' + chapter + ':' + v.number + '*\n"' + v.text + '"' + footer;
+    return '📖 *Bíblia Alpha*\n' + sep + '\n\n*' + bookName + ' ' + chapter + ':' + v.number + '*\n"' + v.text + '"' + footer;
   }
   const nums = verses.map(v => v.number).join(', ');
   const lines = verses.map(v => '*' + v.number + '* — ' + v.text).join('\n\n');
-  return '📖 *Bília Alpha*\n' + sep + '\n\n*' + bookName + ' ' + chapter + ' — versículos ' + nums + '*\n\n' + lines + footer;
+  return '📖 *Bíblia Alpha*\n' + sep + '\n\n*' + bookName + ' ' + chapter + ' — versículos ' + nums + '*\n\n' + lines + footer;
 }
 
 
@@ -740,7 +740,35 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
               </>
             )}
           </div>
+        
+          {/* Mobile: WhatsApp chapter share */}
+          <button onClick={shareChapterOnWhatsApp}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
+            style={{borderColor:'#25D366',color:'#25D366',background:'rgba(37,211,102,0.07)'}}
+            title="Compartilhar capítulo no WhatsApp">
+            <WhatsAppIcon size={12} /><span>WhatsApp</span>
+          </button>
+          {/* Mobile: select verses */}
+          <button
+            onClick={() => { setIsSelectMode(v => !v); if (isSelectMode) setSelectedVerses(new Set()); }}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border border-sleek-border bg-sleek-input-bg text-sleek-text-muted hover:border-sleek-text-muted transition-all">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="0.75" y="0.75" width="10.5" height="10.5" rx="2.25" stroke="currentColor" strokeWidth="1.2"/><path d="M3 6l2 2 4-3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span>{isSelectMode ? 'Cancelar' : 'Selecionar versículos'}</span>
+          </button>
         </div>
+        {/* Selection mode banner */}
+        {isSelectMode && (
+          <div style={{marginTop:'12px',padding:'10px 14px',borderRadius:'10px',background:'rgba(37,211,102,0.08)',border:'1px solid rgba(37,211,102,0.25)',display:'flex',alignItems:'center',gap:'10px',fontFamily:'sans-serif',fontSize:'13px',color:'#128C7E'}}>
+            <WhatsAppIcon size={15} />
+            <span style={{flex:1}}>{selectedVerses.size === 0 ? 'Toque nos versículos para selecioná-los' : selectedVerses.size + ' versículo' + (selectedVerses.size > 1 ? 's' : '') + ' selecionado' + (selectedVerses.size > 1 ? 's' : '')}</span>
+            {selectedVerses.size > 0 && (
+              <button onClick={shareSelectedOnWhatsApp} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 14px',borderRadius:'8px',background:'#25D366',color:'white',border:'none',cursor:'pointer',fontSize:'12px',fontWeight:700,boxShadow:'0 2px 8px rgba(37,211,102,0.35)'}}>
+                <WhatsAppIcon size={13} />Compartilhar
+              </button>
+            )}
+            <button onClick={clearSelection} style={{padding:'4px 8px',borderRadius:'6px',background:'transparent',color:'#128C7E',border:'none',cursor:'pointer',fontSize:'12px'}}>Cancelar</button>
+          </div>
+        )}
 
         <div className="pb-32 lg:pb-20">
           {content.map(renderItem)}
