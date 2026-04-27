@@ -194,18 +194,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     visible: false, x: 0, y: 0, verseNumber: null, startOffset: 0, endOffset: 0, highlightId: undefined,
   });
   const readingRef = useRef<HTMLDivElement>(null);
-  const copyToClipboardSync = useCallback((text: string) => {
-    // execCommand works synchronously inside click handlers (no permission prompt)
-    const el = document.createElement('textarea');
-    el.value = text;
-    el.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
-    document.body.appendChild(el);
-    el.select();
-    const ok = document.execCommand('copy');
-    document.body.removeChild(el);
-    if (!ok) { navigator.clipboard.writeText(text).catch(() => {}); }
-    return ok;
-  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -277,9 +265,11 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
   const shareOnFacebook = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
-    const copied = copyToClipboardSync(text);
-    setShareModal({ text, platform: 'facebook', copied });
-  }, [bookName, chapter, copyToClipboardSync]);
+    setShareModal({ text, platform: 'facebook', copied: false });
+    navigator.clipboard.writeText(text)
+      .then(() => setShareModal(m => m ? { ...m, copied: true } : null))
+      .catch(() => {});
+  }, [bookName, chapter]);
 
   const shareOnInstagram = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
@@ -287,9 +277,11 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       navigator.share({ text, title: 'Bíblia Alpha', url: 'https://bibliaalpha.org' }).catch(() => {});
       return;
     }
-    const copied = copyToClipboardSync(text);
-    setShareModal({ text, platform: 'instagram', copied });
-  }, [bookName, chapter, copyToClipboardSync]);
+    setShareModal({ text, platform: 'instagram', copied: false });
+    navigator.clipboard.writeText(text)
+      .then(() => setShareModal(m => m ? { ...m, copied: true } : null))
+      .catch(() => {});
+  }, [bookName, chapter]);
 
   const shareSelectedOnFacebook = useCallback(() => {
     const verses = content
@@ -988,16 +980,17 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             <textarea
               readOnly
               value={shareModal.text}
-              ref={el => { if (el) { el.select(); } }}
-              style={{width:'100%',minHeight:'120px',maxHeight:'200px',padding:'12px',borderRadius:'10px',border:'1px solid var(--color-sleek-border)',background:'var(--color-sleek-input-bg)',color:'var(--color-sleek-text-main)',fontSize:'13px',lineHeight:'1.6',resize:'none',fontFamily:'sans-serif',boxSizing:'border-box',outline:'none'}}
+              ref={el => { if (el) { el.focus(); el.select(); } }}
+              style={{width:'100%',minHeight:'130px',maxHeight:'200px',padding:'12px',borderRadius:'10px',border:'1px solid var(--color-sleek-border)',background:'var(--color-sleek-input-bg)',color:'var(--color-sleek-text-main)',fontSize:'13px',lineHeight:'1.6',resize:'none',fontFamily:'sans-serif',boxSizing:'border-box',outline:'none',cursor:'text'}}
             />
 
             {/* Action buttons */}
             <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
               <button
                 onClick={() => {
-                  const copied = copyToClipboardSync(shareModal.text);
-                  setShareModal(m => m ? { ...m, copied } : null);
+                  navigator.clipboard.writeText(shareModal.text)
+                    .then(() => setShareModal(m => m ? { ...m, copied: true } : null))
+                    .catch(() => {});
                 }}
                 style={{flex:'1 1 auto',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',padding:'11px 16px',borderRadius:'12px',background:'var(--color-sleek-hover)',color:'var(--color-sleek-text-main)',border:'1px solid var(--color-sleek-border)',cursor:'pointer',fontSize:'13px',fontWeight:600}}
               >
