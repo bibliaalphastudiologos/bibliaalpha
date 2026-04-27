@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
+import { SUPER_ADMIN_EMAIL } from '../services/firebase';
 import AdminPanel from './AdminPanel';
 
 const WHATSAPP_GROUP = 'https://chat.whatsapp.com/Gt78A68duMBADzzuwnGmbb?mode=gi_t';
 
-const FEATURES_LEFT = [
+interface Feature { icon: string; color: string; label: string; detail: string; }
+const FEATURES_LEFT: Feature[] = [
   { icon: 'B', color: '#c9a96e', label: 'Bíblia com +20 traduções',  detail: 'ARC, NVI, ACF, KJV e mais, em paralelo' },
   { icon: '✎', color: '#60A5FA', label: 'Bloco de estudos na nuvem', detail: 'Notas, destaques e tarefas sincronizados' },
   { icon: '❝', color: '#A78BFA', label: 'Comentários por versículo', detail: 'Calvino, Matthew Henry, Spurgeon e outros' },
@@ -53,13 +55,16 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
       await login();
     } catch (e: any) {
       const code = e?.code ?? '';
-      if (code === 'auth/unauthorized-domain') {
-        setLoginError('Domínio não autorizado no Firebase. Contate o administrador.');
-      } else if (code === 'auth/network-request-failed') {
-        setLoginError('Sem conexão com a internet. Tente novamente.');
-      } else {
-        setLoginError(`Erro: ${code || e?.message || 'desconhecido'}`);
-      }
+      const errorMap: Record<string, string> = {
+        'auth/unauthorized-domain':    'Domínio não autorizado. Contate o administrador.',
+        'auth/network-request-failed': 'Sem conexão com a internet. Tente novamente.',
+        'auth/popup-blocked':          'O popup foi bloqueado pelo navegador. Permita popups para este site.',
+        'auth/popup-closed-by-user':   'Login cancelado. Clique em "Continuar com Google" novamente.',
+        'auth/cancelled-popup-request':'Operação cancelada. Tente novamente.',
+        'auth/too-many-requests':      'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
+        'auth/user-disabled':          'Esta conta foi desativada. Entre em contato pelo WhatsApp.',
+      };
+      setLoginError(errorMap[code] ?? `Erro ao entrar: ${code || e?.message || 'desconhecido'}`);
     } finally {
       setLoginLoading(false);
     }
@@ -95,7 +100,7 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
   // ── Tela de Login ──
   if (!user) {
     return (
-      <div className="flex h-screen w-full overflow-hidden font-sans">
+      <div className="flex h-screen w-full overflow-hidden font-sans animate-fade-in">
 
         {/* ════ PAINEL ESQUERDO — Showcase (oculto em mobile) ════ */}
         <div
@@ -187,10 +192,10 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
                 >
                   <div style={{
                     width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0,
-                    background: (f as any).color + '18',
-                    border: '1px solid ' + (f as any).color + '30',
+                    background: f.color + '18',
+                    border: '1px solid ' + f.color + '30',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '14px', fontWeight: 700, color: (f as any).color,
+                    fontSize: '14px', fontWeight: 700, color: f.color,
                     fontFamily: 'serif',
                   }}>{f.icon}</div>
                   <div>
@@ -339,16 +344,40 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
           </>
         ) : (
           <>
-            <div className="w-8 h-8 rounded-full border-2 border-slate-300 border-t-slate-800 animate-spin mb-4" />
-            <p className="text-sm font-semibold text-sleek-text-main mb-1">Acessando perfil…</p>
-            <button onClick={() => logout()} className="text-sm text-blue-600 hover:underline mt-4">Cancelar / Sair</button>
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName ?? 'Usuário'}
+                className="w-14 h-14 rounded-full border-2 border-sleek-border mb-4 shadow-md"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full border-2 border-sleek-border mb-4 bg-sleek-hover flex items-center justify-center">
+                <svg className="w-6 h-6 text-sleek-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
+            <p className="text-sm font-semibold text-sleek-text-main mb-1">
+              Olá, {user?.displayName?.split(' ')[0] ?? 'bem-vindo'}!
+            </p>
+            <p className="text-xs text-sleek-text-muted mb-4">Verificando seu acesso…</p>
+            <div className="flex gap-1.5">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full bg-sleek-text-muted/40" style={{
+                  animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                }} />
+              ))}
+            </div>
+            <button onClick={() => logout()} className="text-xs text-sleek-text-muted hover:text-sleek-text-main mt-6 transition-colors">Cancelar / Sair</button>
+            <style>{`@keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.3} 40%{transform:scale(1);opacity:1} }`}</style>
           </>
         )}
       </div>
     );
   }
 
-  const isSuperAdmin = user.email === 'analista.ericksilva@gmail.com';
+  const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
   const status = isSuperAdmin ? 'approved' : profile.status;
   const isAdminUser = profile.isAdmin || isSuperAdmin;
 
@@ -358,12 +387,16 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
       <div className="flex h-screen w-full flex-col items-center justify-center bg-sleek-bg p-4 font-sans text-center relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-gradient-to-b from-orange-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        <div className="mb-5 w-16 h-16 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center">
-          <svg className="w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {user?.photoURL && (
+          <img src={user.photoURL} alt="" className="w-14 h-14 rounded-full border-2 border-orange-200 mb-4 shadow-sm" referrerPolicy="no-referrer" />
+        )}
+        <div className="mb-4 w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center">
+          <svg className="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-sleek-text-main mb-2">Cadastro em análise</h1>
+        <h1 className="text-xl font-bold text-sleek-text-main mb-1">Olá, {user?.displayName?.split(' ')[0]}!</h1>
+        <p className="text-sm text-sleek-text-muted mb-3">Cadastro em análise</p>
         <p className="text-sleek-text-muted mb-2 max-w-sm text-sm leading-relaxed">
           Seu acesso está sendo avaliado pelo administrador. Em breve você receberá a aprovação.
         </p>
