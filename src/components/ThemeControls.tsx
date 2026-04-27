@@ -114,9 +114,16 @@ function ThemeCard({ t, active, onSelect }: { t: ThemeDef; active: boolean; onSe
   );
 }
 
-export default function ThemeControls() {
+export default function ThemeControls({ open: propOpen, onClose: propOnClose }: { open?: boolean; onClose?: () => void } = {}) {
   const { theme, fontSize, setTheme, setFontSize } = useTheme();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const controlled = propOpen !== undefined;
+  const open = controlled ? propOpen : internalOpen;
+  const setOpen = (v: boolean | ((p: boolean) => boolean)) => {
+    const next = typeof v === 'function' ? v(open) : v;
+    if (!controlled) setInternalOpen(next);
+    if (!next) propOnClose?.();
+  };
   const [pulse, setPulse] = useState(false);
 
   const current = THEMES.find(t => t.id === theme) || THEMES[0];
@@ -133,11 +140,10 @@ export default function ThemeControls() {
 
   return (
     <>
-      {/* Botão flutuante */}
-      <button
+      {/* Botão flutuante — apenas quando não controlado externamente */}
+      {!controlled && <button
         onClick={() => setOpen(o => !o)}
         className="fixed right-6 z-50 flex items-center gap-2 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95 select-none lg:bottom-8"
-        style={{ bottom: 'max(calc(56px + 1rem), env(safe-area-inset-bottom, 0px) + 4.5rem)' }}
         style={{
           backgroundColor: current.sidebar,
           border: '1.5px solid ' + (open ? '#c9a96e' : current.border),
@@ -156,7 +162,7 @@ export default function ThemeControls() {
         <span style={{ color: '#c9a96e', display: 'flex', alignItems: 'center' }}>{current.icon}</span>
         <span className="text-[12px] font-semibold tracking-wide">{current.label}</span>
         <ChevronDown size={12} className="opacity-50" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
-      </button>
+      </button>}
 
       {/* Painel */}
       {open && (
