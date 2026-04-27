@@ -262,23 +262,37 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(verses, bookName, chapter)), '_blank');
   }, [content, bookName, chapter]);
 
-  const shareOnFacebook = useCallback(async (verses: { number: number; text: string }[]) => {
+  const shareOnFacebook = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
-    try { await navigator.clipboard.writeText(text); } catch {}
+    // window.open must be called synchronously (before any await) to avoid popup blockers
     window.open('https://www.facebook.com/', '_blank');
-    setShareToast({ msg: 'Texto copiado! Cole no post do Facebook.', platform: 'facebook' });
-    setTimeout(() => setShareToast(null), 3500);
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setShareToast({ msg: 'Texto copiado! Cole no post do Facebook.', platform: 'facebook' });
+      })
+      .catch(() => {
+        setShareToast({ msg: 'Facebook aberto. Copie o texto e cole no post.', platform: 'facebook' });
+      })
+      .finally(() => { setTimeout(() => setShareToast(null), 4000); });
   }, [bookName, chapter]);
 
-  const shareOnInstagram = useCallback(async (verses: { number: number; text: string }[]) => {
+  const shareOnInstagram = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
+    // Use native share sheet on mobile when available (synchronous trigger)
     if (navigator.share) {
-      try { await navigator.share({ text }); return; } catch {}
+      navigator.share({ text }).catch(() => {});
+      return;
     }
-    try { await navigator.clipboard.writeText(text); } catch {}
+    // Desktop: open Instagram and copy text synchronously
     window.open('https://www.instagram.com/', '_blank');
-    setShareToast({ msg: 'Texto copiado! Cole no Instagram.', platform: 'instagram' });
-    setTimeout(() => setShareToast(null), 3500);
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setShareToast({ msg: 'Texto copiado! Cole no Instagram.', platform: 'instagram' });
+      })
+      .catch(() => {
+        setShareToast({ msg: 'Instagram aberto. Copie o texto e cole no post.', platform: 'instagram' });
+      })
+      .finally(() => { setTimeout(() => setShareToast(null), 4000); });
   }, [bookName, chapter]);
 
   const shareSelectedOnFacebook = useCallback(() => {
