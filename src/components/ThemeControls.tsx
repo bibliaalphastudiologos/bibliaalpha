@@ -171,8 +171,8 @@ export default function ThemeControls({ open: propOpen, onClose: propOnClose }: 
 
           <div
             className="fixed right-6 z-50 rounded-2xl shadow-2xl overflow-hidden lg:bottom-[8.5rem]"
-            style={{ bottom: 'max(calc(56px + 5.5rem), env(safe-area-inset-bottom, 0px) + 8rem)' }}
             style={{
+              bottom: 'max(calc(56px + 5.5rem), env(safe-area-inset-bottom, 0px) + 8rem)',
               width: '308px',
               backgroundColor: current.bg,
               border: '1px solid ' + current.border,
