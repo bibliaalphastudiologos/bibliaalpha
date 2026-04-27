@@ -186,7 +186,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());
   const [hoveredVerse, setHoveredVerse] = useState<number | null>(null);
-  const [shareToast, setShareToast] = useState<string | null>(null);
+  const [shareToast, setShareToast] = useState<{ msg: string; platform: 'facebook' | 'instagram' } | null>(null);
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
   const [toolbar, setToolbar] = useState<ToolbarState>({
@@ -262,10 +262,12 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage(verses, bookName, chapter)), '_blank');
   }, [content, bookName, chapter]);
 
-  const shareOnFacebook = useCallback((verses: { number: number; text: string }[]) => {
-    const message = buildPlainMessage(verses, bookName, chapter);
-    const url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://bibliaalpha.org') + '&quote=' + encodeURIComponent(message);
-    window.open(url, '_blank');
+  const shareOnFacebook = useCallback(async (verses: { number: number; text: string }[]) => {
+    const text = buildPlainMessage(verses, bookName, chapter);
+    try { await navigator.clipboard.writeText(text); } catch {}
+    window.open('https://www.facebook.com/', '_blank');
+    setShareToast({ msg: 'Texto copiado! Cole no post do Facebook.', platform: 'facebook' });
+    setTimeout(() => setShareToast(null), 3500);
   }, [bookName, chapter]);
 
   const shareOnInstagram = useCallback(async (verses: { number: number; text: string }[]) => {
@@ -274,8 +276,9 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
       try { await navigator.share({ text }); return; } catch {}
     }
     try { await navigator.clipboard.writeText(text); } catch {}
-    setShareToast('Texto copiado! Cole no Instagram.');
-    setTimeout(() => setShareToast(null), 3000);
+    window.open('https://www.instagram.com/', '_blank');
+    setShareToast({ msg: 'Texto copiado! Cole no Instagram.', platform: 'instagram' });
+    setTimeout(() => setShareToast(null), 3500);
   }, [bookName, chapter]);
 
   const shareSelectedOnFacebook = useCallback(() => {
@@ -500,7 +503,11 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                 {isSelected && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
               </span>
             )}
-            <sup style={{ fontSize: '11px', color: 'var(--color-sleek-text-muted)', marginRight: '4px', userSelect: 'none', position: 'relative' }}>
+            <sup
+              onClick={!isSelectMode ? (e) => { e.stopPropagation(); setIsSelectMode(true); setSelectedVerses(new Set([item.number])); } : (e) => { e.stopPropagation(); toggleVerseSelection(item.number); }}
+              style={{ fontSize: '11px', color: isSelectMode ? (isSelected ? '#25D366' : 'var(--color-sleek-text-muted)') : 'var(--color-sleek-text-muted)', marginRight: '4px', userSelect: 'none', position: 'relative', cursor: 'pointer', transition: 'color 0.15s' }}
+              title={isSelectMode ? (isSelected ? 'Remover da seleção' : 'Adicionar à seleção') : 'Selecionar versículo'}
+            >
               {item.number}
               {hasHighlight && !isExpanded && (
                 <span
@@ -534,8 +541,8 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                 {!isExpanded && 'Estudo'}
               </button>
             )}
-            {!isSelectMode && isHovered && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', verticalAlign: 'middle', marginLeft: '4px' }}>
+            {!isSelectMode && (
+              <span className="verse-share-icons" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', verticalAlign: 'middle', marginLeft: '4px', opacity: 0.35, transition: 'opacity 0.15s' }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); shareVerseOnWhatsApp(item); }}
                   title="Compartilhar no WhatsApp"
@@ -922,12 +929,17 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       )}
 
-      {/* Instagram copy toast */}
+      {/* Share clipboard toast */}
       {shareToast && (
-        <div style={{position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',zIndex:60,padding:'10px 20px',borderRadius:'12px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',fontWeight:500,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',gap:'8px',pointerEvents:'none'}}>
-          <InstagramIcon size={14} />{shareToast}
+        <div style={{position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',zIndex:60,padding:'10px 20px',borderRadius:'12px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',fontWeight:500,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',gap:'8px',pointerEvents:'none',whiteSpace:'nowrap'}}>
+          {shareToast.platform === 'facebook' ? <FacebookIcon size={14} /> : <InstagramIcon size={14} />}
+          {shareToast.msg}
         </div>
       )}
+    <style>{`
+      .verse-share-icons:hover { opacity: 1 !important; }
+      @media (hover: none) { .verse-share-icons { opacity: 1 !important; } }
+    `}</style>
     </div>
   </div>
   );
