@@ -131,7 +131,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
                   </div>
                   <span className="font-semibold text-[12px] text-sleek-text-main">{comment.author ?? 'Comentarista'}</span>
                 </div>
-                <div className="text-sleek-comment-text leading-relaxed pl-8 border-l-2 border-sleek-border">
+                <div lang="en" className="text-sleek-comment-text leading-relaxed pl-8 border-l-2 border-sleek-border">
                   {(comment.texts ?? []).map((text: string, tIdx: number) => (
                     <p key={tIdx} className={tIdx > 0 ? 'mt-2' : ''}>{text}</p>
                   ))}
