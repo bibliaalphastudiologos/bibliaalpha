@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { getVerseCommentaries } from '../services/bibleApi';
 import { translateCommentaries } from '../services/aiTranslation';
 import { cn } from '../App';
@@ -20,13 +19,10 @@ function getCacheKey(bookId: string, chapter: number, verse: number) {
 
 // Error boundary — impede que um crash nos comentários derrube a tela inteira
 class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
   componentDidCatch(err: any) { console.error('[InlineComments] crash capturado:', err); }
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       return (
         <div className="my-3 px-4 py-3 bg-red-500/10 border-l-2 border-red-500/40 rounded-r-lg text-[13px] text-red-500 font-sans">
