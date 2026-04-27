@@ -211,9 +211,32 @@ function parseBooks(items: any[]): GoogleBook[] {
   });
 }
 
-// ── MyMemory: Tradução EN → PT (gratuita, sem chave) ─────────────────────────
+// ── Tradução EN → PT: Google Translate (sem chave) com fallback MyMemory ──────
 
 const translationCache = new Map<string, string>();
+
+async function translateViaGoogle(text: string): Promise<string> {
+  const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt-BR&dt=t&q=' + encodeURIComponent(text);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('google_translate_failed');
+  const data = await res.json();
+  // Response is [[["translated","original",...],...],...]
+  const translated: string = (data[0] as any[][])
+    .map((seg: any[]) => seg[0] ?? '')
+    .join('')
+    .trim();
+  if (!translated) throw new Error('empty_response');
+  return translated;
+}
+
+async function translateViaMyMemory(text: string): Promise<string> {
+  const url = `${MYMEMORY_API}?q=${encodeURIComponent(text.slice(0, 500))}&langpair=en|pt-BR`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('mymemory_failed');
+  const data = await res.json();
+  if (data.responseStatus !== 200) throw new Error('mymemory_status');
+  return (data.responseData?.translatedText ?? '').replace(/<\/?g[^>]*>/g, '').trim();
+}
 
 export async function translateToPortuguese(text: string): Promise<string> {
   if (!text || text.trim().length < 10) return text;
@@ -221,16 +244,18 @@ export async function translateToPortuguese(text: string): Promise<string> {
   if (translationCache.has(key)) return translationCache.get(key)!;
 
   try {
-    const url = `${MYMEMORY_API}?q=${encodeURIComponent(text.slice(0, 500))}&langpair=en|pt-BR`;
-    const res = await fetch(url);
-    if (!res.ok) return text;
-    const data = await res.json();
-    if (data.responseStatus !== 200) return text;
-    const translated: string = data.responseData?.translatedText?.replace(/<\/?g[^>]*>/g, '').trim() ?? text;
-    translationCache.set(key, translated);
-    return translated;
+    const result = await translateViaGoogle(text);
+    translationCache.set(key, result);
+    return result;
   } catch {
-    return text;
+    // Fallback: MyMemory
+    try {
+      const result = await translateViaMyMemory(text);
+      translationCache.set(key, result);
+      return result;
+    } catch {
+      return text;
+    }
   }
 }
 
