@@ -187,12 +187,25 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
   const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());
   const [hoveredVerse, setHoveredVerse] = useState<number | null>(null);
   const [shareToast, setShareToast] = useState<{ msg: string; platform: 'facebook' | 'instagram' } | null>(null);
+  const [shareModal, setShareModal] = useState<{ text: string; platform: 'facebook' | 'instagram'; copied: boolean } | null>(null);
   const [expandedVerses, setExpandedVerses] = useState<Set<number>>(new Set());
   const [versesWithComments, setVersesWithComments] = useState<Set<number>>(new Set());
   const [toolbar, setToolbar] = useState<ToolbarState>({
     visible: false, x: 0, y: 0, verseNumber: null, startOffset: 0, endOffset: 0, highlightId: undefined,
   });
   const readingRef = useRef<HTMLDivElement>(null);
+  const copyToClipboardSync = useCallback((text: string) => {
+    // execCommand works synchronously inside click handlers (no permission prompt)
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+    document.body.appendChild(el);
+    el.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(el);
+    if (!ok) { navigator.clipboard.writeText(text).catch(() => {}); }
+    return ok;
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -264,36 +277,19 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
   const shareOnFacebook = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
-    // window.open must be called synchronously (before any await) to avoid popup blockers
-    window.open('https://www.facebook.com/', '_blank');
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        setShareToast({ msg: 'Texto copiado! Cole no post do Facebook.', platform: 'facebook' });
-      })
-      .catch(() => {
-        setShareToast({ msg: 'Facebook aberto. Copie o texto e cole no post.', platform: 'facebook' });
-      })
-      .finally(() => { setTimeout(() => setShareToast(null), 4000); });
-  }, [bookName, chapter]);
+    const copied = copyToClipboardSync(text);
+    setShareModal({ text, platform: 'facebook', copied });
+  }, [bookName, chapter, copyToClipboardSync]);
 
   const shareOnInstagram = useCallback((verses: { number: number; text: string }[]) => {
     const text = buildPlainMessage(verses, bookName, chapter);
-    // Use native share sheet on mobile when available (synchronous trigger)
     if (navigator.share) {
-      navigator.share({ text }).catch(() => {});
+      navigator.share({ text, title: 'Bíblia Alpha', url: 'https://bibliaalpha.org' }).catch(() => {});
       return;
     }
-    // Desktop: open Instagram and copy text synchronously
-    window.open('https://www.instagram.com/', '_blank');
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        setShareToast({ msg: 'Texto copiado! Cole no Instagram.', platform: 'instagram' });
-      })
-      .catch(() => {
-        setShareToast({ msg: 'Instagram aberto. Copie o texto e cole no post.', platform: 'instagram' });
-      })
-      .finally(() => { setTimeout(() => setShareToast(null), 4000); });
-  }, [bookName, chapter]);
+    const copied = copyToClipboardSync(text);
+    setShareModal({ text, platform: 'instagram', copied });
+  }, [bookName, chapter, copyToClipboardSync]);
 
   const shareSelectedOnFacebook = useCallback(() => {
     const verses = content
@@ -943,11 +939,87 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       )}
 
-      {/* Share clipboard toast */}
+      {/* Share clipboard toast (WhatsApp copy feedback) */}
       {shareToast && (
         <div style={{position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',zIndex:60,padding:'10px 20px',borderRadius:'12px',background:'#1a1a1a',color:'white',fontFamily:'sans-serif',fontSize:'13px',fontWeight:500,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',gap:'8px',pointerEvents:'none',whiteSpace:'nowrap'}}>
           {shareToast.platform === 'facebook' ? <FacebookIcon size={14} /> : <InstagramIcon size={14} />}
           {shareToast.msg}
+        </div>
+      )}
+
+      {/* Facebook / Instagram share modal */}
+      {shareModal && (
+        <div
+          onClick={() => setShareModal(null)}
+          style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.55)',backdropFilter:'blur(4px)',WebkitBackdropFilter:'blur(4px)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',fontFamily:'sans-serif'}}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{background:'var(--color-sleek-bg)',borderRadius:'20px',boxShadow:'0 24px 64px rgba(0,0,0,0.4)',padding:'28px 28px 24px',maxWidth:'480px',width:'100%',display:'flex',flexDirection:'column',gap:'16px'}}
+          >
+            {/* Header */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+                {shareModal.platform === 'facebook'
+                  ? <span style={{display:'flex',alignItems:'center',justifyContent:'center',width:36,height:36,borderRadius:'50%',background:'#1877F2',color:'white'}}><FacebookIcon size={18} /></span>
+                  : <span style={{display:'flex',alignItems:'center',justifyContent:'center',width:36,height:36,borderRadius:'50%',background:'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',color:'white'}}><InstagramIcon size={18} /></span>
+                }
+                <div>
+                  <div style={{fontWeight:700,fontSize:'15px',color:'var(--color-sleek-text-main)'}}>
+                    Compartilhar no {shareModal.platform === 'facebook' ? 'Facebook' : 'Instagram'}
+                  </div>
+                  <div style={{fontSize:'12px',color:'var(--color-sleek-text-muted)'}}>Bíblia Alpha</div>
+                </div>
+              </div>
+              <button onClick={() => setShareModal(null)} style={{padding:'6px',borderRadius:'8px',background:'var(--color-sleek-hover)',border:'none',cursor:'pointer',color:'var(--color-sleek-text-muted)',display:'flex',alignItems:'center'}}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Copied badge */}
+            <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px 12px',borderRadius:'10px',background:shareModal.copied ? 'rgba(34,197,94,0.12)' : 'rgba(234,179,8,0.12)',border:`1px solid ${shareModal.copied ? 'rgba(34,197,94,0.3)' : 'rgba(234,179,8,0.3)'}`}}>
+              <span style={{fontSize:'16px'}}>{shareModal.copied ? '✓' : '!'}</span>
+              <span style={{fontSize:'13px',fontWeight:600,color:shareModal.copied ? '#16a34a' : '#b45309'}}>
+                {shareModal.copied ? 'Texto copiado — pronto para colar!' : 'Clique em "Copiar texto" abaixo'}
+              </span>
+            </div>
+
+            {/* Verse text preview */}
+            <textarea
+              readOnly
+              value={shareModal.text}
+              ref={el => { if (el) { el.select(); } }}
+              style={{width:'100%',minHeight:'120px',maxHeight:'200px',padding:'12px',borderRadius:'10px',border:'1px solid var(--color-sleek-border)',background:'var(--color-sleek-input-bg)',color:'var(--color-sleek-text-main)',fontSize:'13px',lineHeight:'1.6',resize:'none',fontFamily:'sans-serif',boxSizing:'border-box',outline:'none'}}
+            />
+
+            {/* Action buttons */}
+            <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
+              <button
+                onClick={() => {
+                  const copied = copyToClipboardSync(shareModal.text);
+                  setShareModal(m => m ? { ...m, copied } : null);
+                }}
+                style={{flex:'1 1 auto',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',padding:'11px 16px',borderRadius:'12px',background:'var(--color-sleek-hover)',color:'var(--color-sleek-text-main)',border:'1px solid var(--color-sleek-border)',cursor:'pointer',fontSize:'13px',fontWeight:600}}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copiar texto
+              </button>
+              <button
+                onClick={() => {
+                  window.open(shareModal.platform === 'facebook' ? 'https://www.facebook.com/' : 'https://www.instagram.com/', '_blank');
+                }}
+                style={{flex:'2 1 auto',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',padding:'11px 20px',borderRadius:'12px',background:shareModal.platform === 'facebook' ? '#1877F2' : 'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',color:'white',border:'none',cursor:'pointer',fontSize:'13px',fontWeight:700,boxShadow:shareModal.platform === 'facebook' ? '0 4px 12px rgba(24,119,242,0.4)' : '0 4px 12px rgba(193,53,132,0.4)'}}
+              >
+                {shareModal.platform === 'facebook' ? <FacebookIcon size={15} /> : <InstagramIcon size={15} />}
+                Abrir {shareModal.platform === 'facebook' ? 'Facebook' : 'Instagram'} e colar
+              </button>
+            </div>
+            <p style={{margin:0,fontSize:'11px',color:'var(--color-sleek-text-muted)',textAlign:'center'}}>
+              {shareModal.platform === 'facebook'
+                ? 'No Facebook, clique em "Criar post" e pressione Ctrl+V (ou ⌘V no Mac)'
+                : 'No Instagram, crie um Story ou post e pressione Ctrl+V (ou ⌘V no Mac)'}
+            </p>
+          </div>
         </div>
       )}
     <style>{`
