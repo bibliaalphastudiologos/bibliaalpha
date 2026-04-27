@@ -633,7 +633,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
               className={cn('flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-lg transition-colors', shareCopied ? 'text-green-600 bg-green-50' : 'text-sleek-text-muted hover:bg-sleek-hover')}
               title="Compartilhar"
             >
-              <Share2 size={13} /> {shareCopied ? 'Copiado!' : 'Compartilhar'}
+              <Share2 size={13} /> {shareCopied ? 'Copiado!' : 'Compartilhar'} <ChevronDown size={11} className='opacity-40 ml-0.5' />
             </button>
             {isShareMenuOpen && (
               <>
@@ -819,7 +819,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         </div>
       )}
       <style>{`
-        @media (hover: none) { .whatsapp-verse-btn { opacity: 0.65 !important; } }
+        @media (hover: none) { .whatsapp-verse-btn { opacity: 1 !important; } }
         @media (hover: hover) { .whatsapp-verse-btn { opacity: 0; } }
       `}</style>
     </div>
