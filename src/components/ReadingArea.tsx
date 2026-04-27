@@ -591,6 +591,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             onClick={onToggleSidebar}
             className="p-1.5 hover:bg-sleek-hover rounded-lg text-sleek-text-muted hover:text-sleek-text-main transition-colors"
             title="Alternar Menu Lateral"
+            aria-label="Alternar Menu Lateral"
           >
             <Menu size={16} />
           </button>
@@ -776,7 +777,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">
             <div>
               {chapter > 1 && (
-                <button onClick={onPrevChapter} className="nav-chapter-btn">
+                <button onClick={onPrevChapter} className="nav-chapter-btn" aria-label={`Capítulo anterior: ${chapter - 1}`}>
                   <ChevronLeft size={16} />
                   <span>Cap. {chapter - 1}</span>
                 </button>
@@ -787,7 +788,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             </span>
             <div>
               {chapter < totalChapters && (
-                <button onClick={onNextChapter} className="nav-chapter-btn">
+                <button onClick={onNextChapter} className="nav-chapter-btn" aria-label={`Próximo capítulo: ${chapter + 1}`}>
                   <span>Cap. {chapter + 1}</span>
                   <ChevronRight size={16} />
                 </button>
