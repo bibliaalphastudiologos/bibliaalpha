@@ -13,6 +13,7 @@ const ReadingPlansPanel = lazy(() => import('./components/ReadingPlansPanel'));
 const ResearchPanel     = lazy(() => import('./components/ResearchPanel'));
 const EbooksPanel       = lazy(() => import('./components/EbooksPanel'));
 const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
+const ABSimpsonPanel    = lazy(() => import('./components/ABSimpsonPanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -88,6 +89,7 @@ export default function App() {
   const [isResearchOpen, setIsResearchOpen]   = useState(false);
   const [isEbooksOpen, setIsEbooksOpen]       = useState(false);
   const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
+  const [isSimpsonOpen, setIsSimpsonOpen]       = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -199,6 +201,7 @@ export default function App() {
           onSearchClick={() => setIsCommandModeOpen(true)}
           onEbooksOpen={() => setIsEbooksOpen(true)}
           onScofieldOpen={() => setIsScofieldOpen(true)}
+          onSimpsonOpen={() => setIsSimpsonOpen(true)}
           onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
@@ -347,6 +350,21 @@ export default function App() {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
               setIsScofieldOpen(false);
+            }}
+          />
+          <ABSimpsonPanel
+            isOpen={isSimpsonOpen}
+            onClose={() => setIsSimpsonOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setIsSimpsonOpen(false);
             }}
           />
           <DevotionalPanel
