@@ -263,7 +263,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
     navigator.clipboard.writeText(text).catch(() => {});
   }, [bookName, chapter]);
 
-  }, [bookName, chapter]);
 
   const shareSelectedOnFacebook = useCallback(() => {
     const verses = content
