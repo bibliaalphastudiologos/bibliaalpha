@@ -82,7 +82,7 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
           }}>
-            <img src="/icon.svg" alt="α" style={{ width: '30px', height: '30px', opacity: 0.85 }} draggable={false} />
+            <img src="/logo.svg" alt="α" style={{ width: '30px', height: '30px', opacity: 0.85 }} draggable={false} />
           </div>
           <div className="flex gap-1.5">
             {[0,1,2].map(i => (
@@ -152,7 +152,7 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 0 20px rgba(201,169,110,0.18)',
               }}>
-                <img src="/icon.svg" alt="α" style={{ width: '26px', height: '26px', filter: 'drop-shadow(0 0 8px rgba(201,169,110,0.9))' }} draggable={false} />
+                <img src="/logo.svg" alt="α" style={{ width: '26px', height: '26px', filter: 'drop-shadow(0 0 8px rgba(201,169,110,0.9))' }} draggable={false} />
               </div>
               <div>
                 <p style={{ fontSize: '16px', fontWeight: 700, color: '#c9a96e', fontFamily: 'Georgia, serif', letterSpacing: '0.02em' }}>Bíblia Alpha</p>
@@ -241,7 +241,7 @@ export default function LoginGuard({ children }: { children: React.ReactNode }) 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
               }}>
-                <img src="/icon.svg" alt="α" style={{ width: '28px', height: '28px', filter: 'drop-shadow(0 0 10px rgba(201,169,110,0.7))' }} draggable={false} />
+                <img src="/logo.svg" alt="α" style={{ width: '28px', height: '28px', filter: 'drop-shadow(0 0 10px rgba(201,169,110,0.7))' }} draggable={false} />
               </div>
               <div>
                 <p className="text-[17px] font-bold text-sleek-text-main" style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.01em' }}>Bíblia Alpha</p>

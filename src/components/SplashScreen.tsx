@@ -182,7 +182,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
             position: 'relative', zIndex: 1,
           }}>
             <img
-              src="/icon.svg" alt="Bíblia Alpha"
+              src="/logo.svg" alt="Bíblia Alpha"
               style={{ width: '46px', height: '46px', filter: 'drop-shadow(0 0 18px rgba(201,169,110,0.85))' }}
               draggable={false}
             />

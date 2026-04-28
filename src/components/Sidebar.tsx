@@ -148,7 +148,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
         {/* ── Logo ── */}
         <div className="flex items-center justify-center px-1 pt-2 pb-3">
           <img
-            src="/icon.svg"
+            src="/logo.svg"
             alt="Bíblia de Estudo Alpha"
             className="w-full h-auto object-contain"
             style={{ maxHeight: '64px' }}

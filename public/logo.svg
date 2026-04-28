@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <!-- Cover gradient (dark maroon leather) -->
+    <linearGradient id="cover" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#5c1a1a"/>
+      <stop offset="40%"  stop-color="#3d0f0f"/>
+      <stop offset="100%" stop-color="#280808"/>
+    </linearGradient>
+    <!-- Spine gradient (darker) -->
+    <linearGradient id="spine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#1a0505"/>
+      <stop offset="100%" stop-color="#300a0a"/>
+    </linearGradient>
+    <!-- Page edges (top) -->
+    <linearGradient id="pages" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#d4c9a8"/>
+      <stop offset="50%"  stop-color="#f0e8cc"/>
+      <stop offset="100%" stop-color="#c8bc9a"/>
+    </linearGradient>
+    <!-- Gold for cross and border -->
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f5d980"/>
+      <stop offset="40%"  stop-color="#d4a020"/>
+      <stop offset="100%" stop-color="#b88010"/>
+    </linearGradient>
+    <!-- Cover highlight -->
+    <linearGradient id="highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.10)"/>
+      <stop offset="50%"  stop-color="rgba(255,255,255,0.02)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.10)"/>
+    </linearGradient>
+    <!-- Drop shadow -->
+    <filter id="shadow" x="-20%" y="-10%" width="150%" height="130%">
+      <feDropShadow dx="4" dy="8" stdDeviation="10" flood-color="rgba(0,0,0,0.60)"/>
+    </filter>
+    <filter id="innerGlow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ═══ SHADOW ═══ -->
+  <ellipse cx="100" cy="182" rx="72" ry="8"
+           fill="rgba(0,0,0,0.35)" filter="url(#shadow)"/>
+
+  <!-- ═══ SPINE (left face) ═══ -->
+  <polygon points="18,42  38,26  38,172  18,188"
+           fill="url(#spine)"/>
+  <!-- Spine highlight line -->
+  <line x1="18" y1="42" x2="18" y2="188" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+  <!-- Spine/cover edge line -->
+  <line x1="38" y1="26" x2="38" y2="172" stroke="rgba(255,200,100,0.15)" stroke-width="0.8"/>
+
+  <!-- ═══ TOP PAGE EDGES ═══ -->
+  <polygon points="18,42  38,26  166,26  146,42"
+           fill="url(#pages)"/>
+  <!-- Page lines on top -->
+  <line x1="20" y1="41" x2="148" y2="41" stroke="rgba(180,160,110,0.4)" stroke-width="0.5"/>
+  <line x1="22" y1="40" x2="150" y2="40" stroke="rgba(220,210,180,0.3)" stroke-width="0.4"/>
+
+  <!-- ═══ FRONT COVER ═══ -->
+  <rect x="38" y="26" width="128" height="146" rx="2"
+        fill="url(#cover)" filter="url(#shadow)"/>
+  <!-- Cover sheen -->
+  <rect x="38" y="26" width="128" height="146" rx="2"
+        fill="url(#highlight)"/>
+
+  <!-- ═══ GOLD BORDER (embossed frame) ═══ -->
+  <rect x="46" y="34" width="112" height="130" rx="1"
+        fill="none" stroke="url(#gold)" stroke-width="1.8" opacity="0.75"/>
+  <rect x="50" y="38" width="104" height="122" rx="1"
+        fill="none" stroke="url(#gold)" stroke-width="0.8" opacity="0.45"/>
+
+  <!-- ═══ CROSS ═══ -->
+  <!-- Vertical bar -->
+  <rect x="97" y="62" width="8" height="72" rx="2" fill="url(#gold)"/>
+  <!-- Horizontal bar -->
+  <rect x="76" y="82" width="50" height="8" rx="2" fill="url(#gold)"/>
+  <!-- Cross glow -->
+  <rect x="97" y="62" width="8" height="72" rx="2"
+        fill="rgba(255,220,80,0.25)" filter="url(#innerGlow)"/>
+  <rect x="76" y="82" width="50" height="8" rx="2"
+        fill="rgba(255,220,80,0.25)" filter="url(#innerGlow)"/>
+
+  <!-- ═══ BÍBLIA text on spine ═══ -->
+  <text x="28" y="108"
+        font-family="DejaVu Serif, Georgia, serif"
+        font-size="9" font-weight="bold"
+        fill="rgba(220,190,100,0.70)"
+        text-anchor="middle"
+        writing-mode="tb" glyph-orientation-vertical="0"
+        transform="rotate(-90,28,108)">BÍBLIA</text>
+
+  <!-- ═══ LEATHER TEXTURE (subtle) ═══ -->
+  <rect x="38" y="26" width="128" height="146" rx="2"
+        fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+
+  <!-- Bottom spine edge -->
+  <line x1="18" y1="188" x2="38" y2="172" stroke="rgba(255,200,100,0.10)" stroke-width="0.8"/>
+  <line x1="38" y1="172" x2="166" y2="172" stroke="rgba(0,0,0,0.40)" stroke-width="0.8"/>
+</svg>
