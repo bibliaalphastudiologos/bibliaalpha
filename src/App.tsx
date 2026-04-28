@@ -343,6 +343,11 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setIsScofieldOpen(false);
+            }}
           />
           <DevotionalPanel
             isOpen={isDevotionalOpen}
@@ -360,4 +365,5 @@ export default function App() {
     </ThemeContext.Provider>
   );
 }
+
 
