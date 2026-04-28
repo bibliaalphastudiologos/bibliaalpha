@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { X, BookOpen, ChevronLeft, ChevronRight, Loader2, BookMarked } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, ChevronLeft, ChevronRight, Loader2, BookMarked, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '../App';
-import { getScofieldChapter, ScofieldVerse } from '../services/scofieldApi';
+import { getScofieldNotes, ScofieldNote } from '../services/scofieldApi';
 
 interface ScofieldPanelProps {
   isOpen: boolean;
@@ -14,6 +14,61 @@ interface ScofieldPanelProps {
   onNextChapter: () => void;
 }
 
+function NoteCard({ note, index }: { note: ScofieldNote; index: number }) {
+  const [expanded, setExpanded] = useState(index === 0);
+
+  return (
+    <div className="border border-sleek-border rounded-xl overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className={cn(
+          "w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors",
+          expanded ? "bg-indigo-50 border-b border-indigo-100" : "hover:bg-sleek-hover"
+        )}
+      >
+        <div className="flex items-start gap-2.5 min-w-0">
+          <BookMarked size={13} className={cn("mt-0.5 shrink-0", expanded ? "text-indigo-500" : "text-sleek-text-muted")} />
+          <div className="min-w-0">
+            {note.keywordPt ? (
+              <span className={cn("text-[13px] font-semibold leading-snug", expanded ? "text-indigo-700" : "text-sleek-text-main")}>
+                {note.keywordPt}
+              </span>
+            ) : null}
+            {note.keyword && note.keyword !== note.keywordPt && (
+              <span className="text-[10px] text-sleek-text-muted ml-2 italic">({note.keyword})</span>
+            )}
+          </div>
+        </div>
+        {expanded
+          ? <ChevronUp size={13} className="text-indigo-400 shrink-0" />
+          : <ChevronDown size={13} className="text-sleek-text-muted shrink-0" />
+        }
+      </button>
+
+      {expanded && (
+        <div className="px-4 py-4 bg-white space-y-3">
+          {/* Portuguese translation */}
+          <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
+            {note.textPt}
+          </p>
+          {/* English original (collapsed by default, show via subtle label) */}
+          {note.text && note.text !== note.textPt && (
+            <details className="group">
+              <summary className="text-[10px] text-indigo-400 cursor-pointer select-none list-none flex items-center gap-1 hover:text-indigo-600">
+                <span className="group-open:hidden">▶ ver original em inglês</span>
+                <span className="hidden group-open:inline">▼ original em inglês</span>
+              </summary>
+              <p className="mt-2 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-indigo-100 pl-3">
+                {note.text}
+              </p>
+            </details>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ScofieldPanel({
   isOpen,
   onClose,
@@ -24,196 +79,122 @@ export default function ScofieldPanel({
   onPrevChapter,
   onNextChapter,
 }: ScofieldPanelProps) {
-  const [verses, setVerses] = useState<ScofieldVerse[]>([]);
+  const [notes, setNotes] = useState<ScofieldNote[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expandedFootnotes, setExpandedFootnotes] = useState<Set<number>>(new Set());
-  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!isOpen || !bookId) return;
-    setVerses([]);
+    setNotes([]);
     setError(null);
-    setExpandedFootnotes(new Set());
-
     let alive = true;
     setLoading(true);
 
-    getScofieldChapter(bookId, bookName, chapter)
+    getScofieldNotes(bookId, chapter)
       .then((data) => {
-        if (alive) setVerses(data.verses);
+        if (alive) setNotes(data.notes);
       })
       .catch((err) => {
-        if (alive) setError('Não foi possível carregar este capítulo. Verifique sua conexão.');
+        if (alive) setError('Não foi possível carregar as notas. Verifique sua conexão.');
         console.error('[Scofield]', err);
       })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
+      .finally(() => { if (alive) setLoading(false); });
 
-    return () => {
-      alive = false;
-    };
-  }, [isOpen, bookId, bookName, chapter]);
-
-  const toggleFootnote = (verse: number) => {
-    setExpandedFootnotes((prev) => {
-      const next = new Set(prev);
-      if (next.has(verse)) next.delete(verse);
-      else next.add(verse);
-      return next;
-    });
-  };
+    return () => { alive = false; };
+  }, [isOpen, bookId, chapter]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-sleek-bg">
+
       {/* ── Header ── */}
       <header className="h-12 flex items-center justify-between px-4 sm:px-8 border-b border-sleek-border bg-sleek-bg shrink-0">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <BookMarked size={15} className="text-indigo-500 shrink-0" />
-          <div className="flex flex-col leading-none">
-            <h1 className="text-[13px] sm:text-[14px] font-semibold text-sleek-text-main">
-              Bíblia de Estudo Scofield
+          <div className="min-w-0">
+            <h1 className="text-[13px] sm:text-[14px] font-semibold text-sleek-text-main leading-none">
+              Notas Scofield
             </h1>
-            <span className="text-[10px] text-sleek-text-muted mt-0.5">
-              King James Version · traduzido para o português
-            </span>
+            <p className="text-[10px] text-sleek-text-muted mt-0.5 leading-none truncate">
+              Bíblia de Referência Scofield, 1917 · traduzido pelo Google
+            </p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors"
-          aria-label="Fechar"
-        >
+        <button onClick={onClose} className="p-2 hover:bg-sleek-hover rounded-lg text-sleek-text-muted transition-colors" aria-label="Fechar">
           <X size={16} />
         </button>
       </header>
 
-      {/* ── Chapter nav bar ── */}
+      {/* ── Chapter nav ── */}
       <div className="flex items-center justify-between px-4 sm:px-8 py-2 border-b border-sleek-border/60 bg-sleek-sidebar-bg shrink-0">
         <button
           onClick={onPrevChapter}
           disabled={chapter <= 1}
-          className="flex items-center gap-1 text-[12px] text-sleek-text-muted hover:text-sleek-text-main disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-2 py-1 rounded-md hover:bg-sleek-hover"
+          className="flex items-center gap-1 text-[12px] text-sleek-text-muted hover:text-sleek-text-main disabled:opacity-30 disabled:cursor-not-allowed px-2 py-1 rounded-md hover:bg-sleek-hover transition-colors"
         >
-          <ChevronLeft size={14} />
-          Anterior
+          <ChevronLeft size={14} /> Anterior
         </button>
 
-        <div className="text-center">
-          <span className="text-[13px] font-semibold text-sleek-text-main">
-            {bookName} {chapter}
-          </span>
-          <span className="text-[10px] text-sleek-text-muted ml-1.5">
-            / {totalChapters}
-          </span>
-        </div>
+        <span className="text-[13px] font-semibold text-sleek-text-main">
+          {bookName} {chapter}
+          <span className="text-sleek-text-muted font-normal text-[11px] ml-1">/ {totalChapters}</span>
+        </span>
 
         <button
           onClick={onNextChapter}
           disabled={chapter >= totalChapters}
-          className="flex items-center gap-1 text-[12px] text-sleek-text-muted hover:text-sleek-text-main disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-2 py-1 rounded-md hover:bg-sleek-hover"
+          className="flex items-center gap-1 text-[12px] text-sleek-text-muted hover:text-sleek-text-main disabled:opacity-30 disabled:cursor-not-allowed px-2 py-1 rounded-md hover:bg-sleek-hover transition-colors"
         >
-          Próximo
-          <ChevronRight size={14} />
+          Próximo <ChevronRight size={14} />
         </button>
       </div>
 
-      {/* ── Content ── */}
+      {/* ── Body ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-6 sm:py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-6">
 
-          {/* Chapter heading */}
-          <div className="mb-8 pb-4 border-b border-sleek-border/60">
-            <h2 className="text-[22px] sm:text-[26px] font-bold text-sleek-text-main leading-tight">
-              {bookName} — Capítulo {chapter}
-            </h2>
-            <p className="text-[11px] text-sleek-text-muted mt-1.5 flex items-center gap-1.5">
-              <BookOpen size={11} />
-              Versão King James (KJV) · Notas marginais Scofield
-            </p>
-          </div>
-
-          {/* Loading */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <div className="flex flex-col items-center justify-center py-28 gap-3">
               <Loader2 size={22} className="text-indigo-400 animate-spin" />
-              <p className="text-[12px] text-sleek-text-muted">
-                Carregando e traduzindo capítulo…
-              </p>
+              <p className="text-[12px] text-sleek-text-muted">Carregando e traduzindo notas Scofield…</p>
             </div>
           )}
 
-          {/* Error */}
           {!loading && error && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
-              <BookOpen size={28} className="text-sleek-text-muted opacity-40" />
+            <div className="flex flex-col items-center justify-center py-28 gap-3 text-center">
+              <BookMarked size={28} className="text-sleek-text-muted opacity-30" />
               <p className="text-[13px] text-sleek-text-muted">{error}</p>
             </div>
           )}
 
-          {/* Verses */}
-          {!loading && !error && verses.length > 0 && (
-            <div className="space-y-4">
-              {verses.map((v) => (
-                <div key={v.verse} className="group">
-                  {/* Verse row */}
-                  <div className="flex gap-3">
-                    {/* Verse number */}
-                    <span className="text-[11px] font-bold text-indigo-400 w-7 shrink-0 pt-0.5 text-right select-none">
-                      {v.verse}
-                    </span>
-
-                    {/* Verse content */}
-                    <div className="flex-1 min-w-0">
-                      {/* Portuguese translation */}
-                      <p className="text-[14px] sm:text-[15px] leading-relaxed text-sleek-text-main">
-                        {v.textPt}
-                      </p>
-                      {/* KJV original (subtle) */}
-                      <p className="text-[11px] leading-relaxed text-sleek-text-muted mt-1 italic">
-                        {v.text}
-                      </p>
-
-                      {/* Footnote toggle button */}
-                      {v.footnotePt && (
-                        <button
-                          onClick={() => toggleFootnote(v.verse)}
-                          className={cn(
-                            "mt-2 flex items-center gap-1.5 text-[11px] font-medium transition-colors rounded px-1.5 py-0.5 -ml-1.5",
-                            expandedFootnotes.has(v.verse)
-                              ? "text-indigo-600 bg-indigo-50"
-                              : "text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50"
-                          )}
-                        >
-                          <BookMarked size={10} />
-                          {expandedFootnotes.has(v.verse) ? 'Ocultar nota' : 'Nota Scofield'}
-                        </button>
-                      )}
-
-                      {/* Footnote content */}
-                      {v.footnotePt && expandedFootnotes.has(v.verse) && (
-                        <div className="mt-2 pl-3 border-l-2 border-indigo-200 bg-indigo-50/40 rounded-r-md py-2 pr-3">
-                          <p className="text-[12px] text-indigo-700 leading-relaxed">
-                            {v.footnotePt}
-                          </p>
-                          {v.footnote && v.footnote !== v.footnotePt && (
-                            <p className="text-[10px] text-indigo-400 mt-1 italic">
-                              {v.footnote}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {!loading && !error && notes.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-28 gap-3 text-center">
+              <BookMarked size={28} className="text-sleek-text-muted opacity-30" />
+              <p className="text-[13px] text-sleek-text-muted">
+                Não há notas Scofield para {bookName} {chapter}.
+              </p>
+              <p className="text-[11px] text-sleek-text-muted opacity-60">
+                Tente outro capítulo ou livro.
+              </p>
             </div>
           )}
 
-          {/* Bottom spacer */}
+          {!loading && !error && notes.length > 0 && (
+            <>
+              <div className="mb-5 flex items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-sleek-text-muted">
+                  {notes.length} nota{notes.length !== 1 ? 's' : ''} · {bookName} capítulo {chapter}
+                </span>
+              </div>
+              <div className="space-y-3">
+                {notes.map((note, i) => (
+                  <NoteCard key={i} note={note} index={i} />
+                ))}
+              </div>
+            </>
+          )}
+
           <div className="h-16" />
         </div>
       </div>
