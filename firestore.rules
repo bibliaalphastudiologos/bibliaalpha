@@ -28,8 +28,8 @@ service cloud.firestore {
       return validEmail && validNome && validFoto && validStatus && validAdmin;
     }
 
+    // ── Usuários (sistema legado de aprovação manual) ──────────────
     match /users/{userId} {
-
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow list: if isAdmin();
 
@@ -55,25 +55,40 @@ service cloud.firestore {
 
       allow delete: if isAdmin();
 
-      // ── Highlights sincronizados por capítulo ──
       match /highlights/{docId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
-
-      // ── Notas do bloco de estudos ──
       match /notes/{docId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
-
-      // ── Tarefas do bloco de estudos ──
       match /tasks/{docId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
-
-      // ── Progresso dos planos de leitura ──
       match /plans/{docId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
+    }
+
+    // ── Acessos (gerados pelo backend/webhook do Mercado Pago) ──────
+    // Leitura: usuário autenticado só lê o próprio documento
+    // Escrita: SOMENTE backend via Admin SDK (allow write: if false)
+    match /access/{email} {
+      allow read: if isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email;
+      allow read: if isAdmin();
+      allow write: if false;  // Somente Admin SDK (Cloud Functions)
+    }
+
+    // ── Orders (criadas e atualizadas pelo backend) ─────────────────
+    // Leitura: usuário só vê as próprias orders
+    // Escrita: SOMENTE backend via Admin SDK
+    match /orders/{orderId} {
+      allow read: if isSignedIn()
+        && resource != null
+        && resource.data.email == request.auth.token.email;
+      allow read: if isAdmin();
+      allow write: if false;  // Somente Admin SDK (Cloud Functions)
     }
 
     match /{document=**} {

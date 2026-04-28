@@ -3,30 +3,64 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, UserProfile, loginWithGoogle, processRedirectResult, SUPER_ADMIN_EMAIL } from '../services/firebase';
 
+// ── Tipo do registro de acesso (coleção access/{email}) ───────────
+export interface AccessRecord {
+  email:           string;
+  active:          boolean;
+  status:          'active' | 'refunded' | 'chargeback' | 'cancelled';
+  product:         string;
+  plan:            string;
+  paymentProvider: string;
+  paymentId:       string;
+  externalReference: string;
+  createdAt:       any;
+  approvedAt:      any;
+  expiresAt:       any | null;
+  lifetime:        boolean;
+}
+
 interface AuthContextType {
-  user: User | null;
-  profile: UserProfile | null;
-  loading: boolean;
+  user:         User | null;
+  profile:      UserProfile | null;
+  accessRecord: AccessRecord | null;   // dados de acesso via Mercado Pago
+  hasAccess:    boolean;               // true se pode usar a plataforma
+  loading:      boolean;
   profileError: string | null;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
+  login:        () => Promise<void>;
+  logout:       () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
-  loading: true,
+  user:         null,
+  profile:      null,
+  accessRecord: null,
+  hasAccess:    false,
+  loading:      true,
   profileError: null,
-  login: async () => {},
-  logout: async () => {},
+  login:        async () => {},
+  logout:       async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
+// Verifica se o access record é válido (ativo e não expirado)
+function isAccessValid(data: any): boolean {
+  if (!data) return false;
+  if (data.active !== true) return false;
+  if (data.status !== 'active') return false;
+  if (data.product !== 'biblia_alpha') return false;
+  if (data.lifetime === true) return true;
+  if (!data.expiresAt) return false;
+  const exp = data.expiresAt?.toDate?.() ?? new Date(data.expiresAt);
+  return exp > new Date();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user,         setUser]         = useState<User | null>(null);
+  const [profile,      setProfile]      = useState<UserProfile | null>(null);
+  const [accessRecord, setAccessRecord] = useState<AccessRecord | null>(null);
+  const [hasAccess,    setHasAccess]    = useState(false);
+  const [loading,      setLoading]      = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }, 8000);
 
-    processRedirectResult(); // processa redirect do mobile
+    processRedirectResult();
+
     const unsubscribeAuth = onAuthStateChanged(
       auth,
       async (firebaseUser) => {
@@ -45,6 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!firebaseUser) {
           setProfile(null);
+          setAccessRecord(null);
+          setHasAccess(false);
           setLoading(false);
           return;
         }
@@ -52,72 +89,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const isSuperAdminUser = firebaseUser.email === SUPER_ADMIN_EMAIL;
 
         const superAdminFallback: UserProfile = {
-          email: firebaseUser.email || '',
-          nome: firebaseUser.displayName || 'Erick Silva',
-          foto: firebaseUser.photoURL || '',
-          status: 'approved',
+          email:   firebaseUser.email || '',
+          nome:    firebaseUser.displayName || 'Erick Silva',
+          foto:    firebaseUser.photoURL || '',
+          status:  'approved',
           isAdmin: true,
         };
 
+        // SuperAdmin — acesso garantido sem consulta extra
+        if (isSuperAdminUser) {
+          setProfile(superAdminFallback);
+          setHasAccess(true);
+          setLoading(false);
+          return;
+        }
+
         try {
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const normalizedEmail = (firebaseUser.email || '').toLowerCase();
 
-          const profileTimer = setTimeout(() => {
-            console.warn('Profile getDoc timeout');
-            if (isSuperAdminUser) {
-              setProfile(superAdminFallback);
+          // Consultar users/{uid} e access/{email} em paralelo
+          const [userSnap, accessSnap] = await Promise.allSettled([
+            getDoc(doc(db, 'users', firebaseUser.uid)),
+            getDoc(doc(db, 'access', normalizedEmail)),
+          ]);
+
+          // ── Processar access/{email} ──
+          let accessData: AccessRecord | null = null;
+          let accessValid = false;
+          if (accessSnap.status === 'fulfilled' && accessSnap.value.exists()) {
+            accessData  = accessSnap.value.data() as AccessRecord;
+            accessValid = isAccessValid(accessData);
+          }
+          setAccessRecord(accessData);
+
+          // ── Processar users/{uid} ──
+          if (userSnap.status === 'fulfilled') {
+            const docSnap = userSnap.value;
+            if (docSnap.exists()) {
+              const profileData = docSnap.data() as UserProfile;
+              setProfile(profileData);
+              // Acesso liberado se: access válido OU status manual approved
+              setHasAccess(accessValid || profileData.status === 'approved');
             } else {
-              setProfileError('Timeout ao acessar Firestore. Verifique sua conexao.');
-            }
-            setLoading(false);
-          }, 5000);
-
-          const docSnap = await getDoc(userDocRef);
-          clearTimeout(profileTimer);
-
-          if (docSnap.exists()) {
-            setProfile(docSnap.data() as UserProfile);
-          } else {
-            const newProfile: UserProfile = {
-              email: firebaseUser.email || '',
-              nome: firebaseUser.displayName || 'Sem Nome',
-              foto: firebaseUser.photoURL || '',
-              status: isSuperAdminUser ? 'approved' : 'pending',
-              isAdmin: isSuperAdminUser,
-            };
-
-            try {
-              await setDoc(userDocRef, {
-                ...newProfile,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-              });
-              setProfile(newProfile);
-            } catch (e: any) {
-              console.error('Erro ao criar perfil:', e);
-              if (isSuperAdminUser) {
-                setProfile(superAdminFallback);
-              } else {
-                const errCode = e?.code || e?.message || 'desconhecido';
-                setProfileError(
-                  errCode === 'permission-denied'
-                    ? 'Permissao negada pelo Firestore. Contate o administrador.'
-                    : `Erro ao criar perfil: ${errCode}`
-                );
-                setProfile(null);
+              // Novo usuário — criar documento
+              const newProfile: UserProfile = {
+                email:   firebaseUser.email || '',
+                nome:    firebaseUser.displayName || 'Sem Nome',
+                foto:    firebaseUser.photoURL || '',
+                status:  'pending',
+                isAdmin: false,
+              };
+              try {
+                await setDoc(doc(db, 'users', firebaseUser.uid), {
+                  ...newProfile,
+                  createdAt: serverTimestamp(),
+                  updatedAt: serverTimestamp(),
+                });
+                setProfile(newProfile);
+              } catch (e: any) {
+                console.error('Erro ao criar perfil:', e);
+                setProfile(newProfile); // usa o local mesmo sem persistir
               }
+              setHasAccess(accessValid); // só libera se tiver access pago
+            }
+          } else {
+            // Falha na consulta de users — não bloqueia se access for válido
+            console.warn('Falha ao consultar users:', (userSnap as any).reason);
+            setProfile(null);
+            setHasAccess(accessValid);
+            if (!accessValid) {
+              setProfileError('Erro ao verificar perfil. Tente novamente.');
             }
           }
         } catch (e: any) {
-          console.error('Erro ao buscar perfil:', e);
+          console.error('Erro no AuthProvider:', e);
           if (isSuperAdminUser) {
             setProfile(superAdminFallback);
+            setHasAccess(true);
           } else {
-            const msg = e?.code === 'permission-denied'
-              ? 'Acesso negado pelo Firestore. Security Rules precisam permitir leitura em /users/{uid}.'
-              : `Erro ao acessar perfil: ${e?.code || e?.message || 'desconhecido'}`;
-            setProfileError(msg);
-            setProfile(null);
+            setProfileError(
+              e?.code === 'permission-denied'
+                ? 'Acesso negado pelo Firestore.'
+                : `Erro: ${e?.code || e?.message || 'desconhecido'}`
+            );
           }
         } finally {
           setLoading(false);
@@ -141,9 +195,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         profile,
+        accessRecord,
+        hasAccess,
         loading,
         profileError,
-        login: loginWithGoogle,
+        login:  loginWithGoogle,
         logout: () => auth.signOut(),
       }}
     >

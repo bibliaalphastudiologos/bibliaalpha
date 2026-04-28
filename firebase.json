@@ -18,16 +18,16 @@
         "source": "**/*.html",
         "headers": [
           {"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"},
-          {"key": "Pragma", "value": "no-cache"},
-          {"key": "Expires", "value": "0"}
+          {"key": "Pragma",        "value": "no-cache"},
+          {"key": "Expires",       "value": "0"}
         ]
       },
       {
         "source": "/",
         "headers": [
           {"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"},
-          {"key": "Pragma", "value": "no-cache"},
-          {"key": "Expires", "value": "0"}
+          {"key": "Pragma",        "value": "no-cache"},
+          {"key": "Expires",       "value": "0"}
         ]
       },
       {
@@ -40,7 +40,20 @@
   },
   "firestore": {
     "database": "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f",
-    "rules": "firestore.rules",
+    "rules":   "firestore.rules",
     "indexes": "firestore.indexes.json"
-  }
+  },
+  "functions": [
+    {
+      "source":  "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
 }
