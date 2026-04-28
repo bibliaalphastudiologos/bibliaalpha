@@ -231,6 +231,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
 
+        </div>
         {/* ── A.B. Simpson ── */}
         <div className="mb-1 px-2">
           <button
