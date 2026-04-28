@@ -1,3 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <polygon points="96.0,24.0 116.78,60.0 158.35,60.0 137.57,96.0 158.35,132.0 116.78,132.0 96.0,168.0 75.22,132.0 33.65,132.0 54.43,96.0 33.65,60.0 75.22,60.0" fill="none" stroke="#c9a96e" stroke-width="4" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="goldAlpha" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f5d980"/>
+      <stop offset="28%"  stop-color="#e8b84b"/>
+      <stop offset="52%"  stop-color="#c9941a"/>
+      <stop offset="76%"  stop-color="#e8b84b"/>
+      <stop offset="100%" stop-color="#c9a96e"/>
+    </linearGradient>
+    <linearGradient id="goldBook" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#f0d070"/>
+      <stop offset="40%"  stop-color="#c9a030"/>
+      <stop offset="100%" stop-color="#a07820"/>
+    </linearGradient>
+    <linearGradient id="darkPagesL" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"  stop-color="#111111"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+    <linearGradient id="darkPagesR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"  stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#111111"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,0.40)"/>
+    </filter>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Left page fan -->
+  <path d="M 14,148 Q 26,118 44,106 Q 64,96 96,99 Q 62,103 48,116 Q 34,130 28,152 Z"
+        fill="url(#darkPagesL)"/>
+  <!-- Right page fan -->
+  <path d="M 178,148 Q 166,118 148,106 Q 128,96 96,99 Q 130,103 144,116 Q 158,130 164,152 Z"
+        fill="url(#darkPagesR)"/>
+
+  <!-- Gold top edge left -->
+  <path d="M 96,99 Q 62,95 40,102 Q 28,106 24,114 Q 38,106 64,101 Q 80,98 96,99 Z"
+        fill="url(#goldBook)"/>
+  <!-- Gold top edge right -->
+  <path d="M 96,99 Q 130,95 152,102 Q 164,106 168,114 Q 154,106 128,101 Q 112,98 96,99 Z"
+        fill="url(#goldBook)"/>
+
+  <!-- Center spine -->
+  <ellipse cx="96" cy="116" rx="4" ry="16" fill="url(#goldBook)"/>
+
+  <!-- Bottom gold edge left -->
+  <path d="M 28,148 Q 38,158 66,156 Q 82,154 96,154 L 96,159 Q 80,159 58,161 Q 30,163 18,152 Z"
+        fill="url(#goldBook)"/>
+  <!-- Bottom gold edge right -->
+  <path d="M 164,148 Q 154,158 126,156 Q 110,154 96,154 L 96,159 Q 112,159 134,161 Q 162,163 174,152 Z"
+        fill="url(#goldBook)"/>
+
+  <!-- Alpha symbol -->
+  <text x="96" y="97"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="92"
+        font-style="italic"
+        font-weight="400"
+        text-anchor="middle"
+        fill="url(#goldAlpha)"
+        filter="url(#shadow)"
+        dominant-baseline="auto">α</text>
 </svg>

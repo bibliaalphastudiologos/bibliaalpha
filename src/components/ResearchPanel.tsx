@@ -1,6 +1,6 @@
 import { cn } from '../App';
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Search, BookOpen, Globe, Star, ExternalLink, Loader2, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { X, Search, BookOpen, Globe, ExternalLink, Loader2, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import {
   searchWikipedia, getWikipediaSummary, getWikipediaSections, getWikipediaRelated,
   searchGoogleBooks, searchKnowledgeGraph,
@@ -288,7 +288,7 @@ export default function ResearchPanel({ isOpen, onClose, initialQuery = '' }: Re
               {kgEntities.length > 0 && (
                 <section className="p-4">
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Star size={13} className="text-amber-500" />
+                    <img src="/icon.svg" alt="" style={{width:13,height:13,display:"inline-block"}} />
                     <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Entidades</span>
                   </div>
                   <div className="space-y-2">

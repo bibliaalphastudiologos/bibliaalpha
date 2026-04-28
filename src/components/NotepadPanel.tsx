@@ -4,7 +4,7 @@ import {
   X, PenLine, Bold, Italic, List, Heading1, Quote, Link2,
   CheckSquare, Square, Trash2, Plus, BookOpen, Search,
   Download, FileText, RefreshCw, Underline, Hash,
-  ChevronDown, ChevronUp, Star, Clock, Sparkles,
+  ChevronDown, ChevronUp, Clock, Sparkles,
   BookMarked, FlaskConical, Settings2, Save,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
