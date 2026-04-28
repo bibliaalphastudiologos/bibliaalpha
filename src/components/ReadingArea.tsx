@@ -791,7 +791,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             title="Compartilhar no Facebook">
             <FacebookIcon size={12} />
           </button>
-          </button>
           {/* Mobile: select verses */}
           <button
             onClick={() => { setIsSelectMode(v => !v); if (isSelectMode) setSelectedVerses(new Set()); }}
