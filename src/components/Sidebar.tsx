@@ -230,7 +230,7 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
-        {/* ── Blog ── */
+        {/* ── Blog ── */}
         <div className="mb-1 px-2">
           <button
             onClick={() => window.open('https://blog.bibliaalpha.org', '_blank', 'noopener,noreferrer')}
