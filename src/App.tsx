@@ -12,7 +12,6 @@ const NotepadPanel      = lazy(() => import('./components/NotepadPanel'));
 const ReadingPlansPanel = lazy(() => import('./components/ReadingPlansPanel'));
 const ResearchPanel     = lazy(() => import('./components/ResearchPanel'));
 const EbooksPanel       = lazy(() => import('./components/EbooksPanel'));
-const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
 const ABSimpsonPanel    = lazy(() => import('./components/ABSimpsonPanel'));
 const BensonPanel       = lazy(() => import('./components/BensonPanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
@@ -89,7 +88,6 @@ export default function App() {
   const [isPlansOpen, setIsPlansOpen]         = useState(false);
   const [isResearchOpen, setIsResearchOpen]   = useState(false);
   const [isEbooksOpen, setIsEbooksOpen]       = useState(false);
-  const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
   const [isSimpsonOpen, setIsSimpsonOpen]       = useState(false);
   const [isBensonOpen, setIsBensonOpen]         = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
@@ -202,7 +200,6 @@ export default function App() {
           onSelectChapter={(chapter) => { setActiveChapter(chapter); if (window.innerWidth < 1024) setIsSidebarOpen(false); }}
           onSearchClick={() => setIsCommandModeOpen(true)}
           onEbooksOpen={() => setIsEbooksOpen(true)}
-          onScofieldOpen={() => setIsScofieldOpen(true)}
           onSimpsonOpen={() => setIsSimpsonOpen(true)}
           onBensonOpen={() => setIsBensonOpen(true)}
           onDevotionalOpen={openDevotional}
@@ -277,6 +274,10 @@ export default function App() {
                 onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
                 onSelectChapter={setActiveChapter}
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                onScofieldNavigate={(bookId, chapter) => {
+                  const book = books.find(b => b.id === bookId);
+                  if (book) { setActiveBook(book); setActiveChapter(chapter); }
+                }}
               />
             )}
           </div>
@@ -340,21 +341,7 @@ export default function App() {
           />
           <ResearchPanel isOpen={isResearchOpen} onClose={() => setIsResearchOpen(false)} initialQuery={activeBook?.name ?? ''} />
           <EbooksPanel isOpen={isEbooksOpen} onClose={() => setIsEbooksOpen(false)} />
-          <ScofieldPanel
-            isOpen={isScofieldOpen}
-            onClose={() => setIsScofieldOpen(false)}
-            bookId={activeBook?.id || ''}
-            bookName={activeBook?.name || ''}
-            chapter={activeChapter}
-            totalChapters={activeBook?.numberOfChapters || 1}
-            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
-            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
-            onNavigate={(bookId, chapter) => {
-              const book = books.find(b => b.id === bookId);
-              if (book) { setActiveBook(book); setActiveChapter(chapter); }
-              setIsScofieldOpen(false);
-            }}
-          />
+
           <ABSimpsonPanel
             isOpen={isSimpsonOpen}
             onClose={() => setIsSimpsonOpen(false)}
