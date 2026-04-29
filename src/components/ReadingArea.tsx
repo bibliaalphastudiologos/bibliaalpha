@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Palette, Share2, MoreHorizontal, Book as BookIcon, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu, Highlighter, X, Check } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import InlineComments from './InlineComments';
+import ScofieldInlineNotes from './ScofieldInlineNotes';
 import ConnectionsDropdown from './ConnectionsDropdown';
 import { AVAILABLE_TRANSLATIONS } from '../services/apiBible';
 import { getChapterCommentMap } from '../services/bibleApi';
@@ -69,6 +70,7 @@ interface ReadingAreaProps {
   onSelectChapter?: (c: number) => void;
   onToggleSidebar?: () => void;
   bookIndex?: number;
+  onScofieldNavigate?: (bookId: string, chapter: number) => void;
 }
 
 const HIGHLIGHT_COLORS = [
@@ -169,7 +171,7 @@ function renderVerseContent(
   );
 }
 
-export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1 }: ReadingAreaProps) {
+export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1, onScofieldNavigate }: ReadingAreaProps) {
 
   const { user } = useAuth();
   const highlightKey = `hl2_${bookId}_${chapter}`;
@@ -823,6 +825,16 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         <div className="pb-32 lg:pb-20">
           {content.map(renderItem)}
 
+
+          <ScofieldInlineNotes
+            bookId={bookId}
+            bookName={bookName}
+            chapter={chapter}
+            totalChapters={totalChapters}
+            onPrevChapter={onPrevChapter}
+            onNextChapter={onNextChapter}
+            onNavigate={onScofieldNavigate}
+          />
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">
             <div>
               {chapter > 1 && (
