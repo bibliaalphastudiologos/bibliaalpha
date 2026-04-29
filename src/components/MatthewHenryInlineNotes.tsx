@@ -8,9 +8,10 @@ interface NoteItemProps {
   note: MatthewHenryNote;
   index: number;
   onNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
-function NoteItem({ note, index, onNavigate }: NoteItemProps) {
+function NoteItem({ note, index, onNavigate, onPopup }: NoteItemProps) {
   const [expanded, setExpanded] = useState(index === 0);
   return (
     <div className="border border-sleek-border rounded-xl overflow-hidden">
@@ -37,7 +38,7 @@ function NoteItem({ note, index, onNavigate }: NoteItemProps) {
       {expanded && (
         <div className="px-4 py-4 bg-white space-y-3">
           <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
-            <ReferenceText text={note.textPt} onNavigate={onNavigate} />
+            <ReferenceText text={note.textPt} onPopup={onPopup} />
           </p>
           {note.text && note.text !== note.textPt && (
             <details className="group">
@@ -46,7 +47,7 @@ function NoteItem({ note, index, onNavigate }: NoteItemProps) {
                 <span className="hidden group-open:inline">▼ original em inglês</span>
               </summary>
               <p className="mt-2 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-emerald-100 pl-3">
-                <ReferenceText text={note.text} onNavigate={onNavigate} />
+                <ReferenceText text={note.text} onPopup={onPopup} />
               </p>
             </details>
           )}
@@ -67,7 +68,7 @@ interface MatthewHenryInlineNotesProps {
 }
 
 export default function MatthewHenryInlineNotes({
-  bookId, bookName, chapter, totalChapters, onPrevChapter, onNextChapter, onNavigate,
+  bookId, bookName, chapter, totalChapters, onPrevChapter, onNextChapter, onNavigate, onPopup,
 }: MatthewHenryInlineNotesProps) {
   const [notes, setNotes] = useState<MatthewHenryNote[]>([]);
   const [loading, setLoading] = useState(false);
@@ -159,7 +160,7 @@ export default function MatthewHenryInlineNotes({
                 </div>
               ) : notes.length > 0 ? (
                 notes.map((note, i) => (
-                  <NoteItem key={`${note.verseNumber}-${i}`} note={note} index={i} onNavigate={onNavigate} />
+                  <NoteItem key={`${note.verseNumber}-${i}`} note={note} index={i} onPopup={onPopup} />
                 ))
               ) : (
                 <div className="py-6 text-center text-[13px] text-sleek-text-muted italic">

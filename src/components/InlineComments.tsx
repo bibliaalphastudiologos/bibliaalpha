@@ -10,6 +10,7 @@ interface InlineCommentsProps {
   verseNumber: number;
   onClose?: (e: React.MouseEvent) => void;
   onNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
 // ── Error Boundary ──────────────────────────────────────────────────────────
@@ -30,7 +31,7 @@ class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { ha
 }
 
 // ── Inner component ─────────────────────────────────────────────────────────
-function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate }: InlineCommentsProps) {
+function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate, onPopup }: InlineCommentsProps) {
   const [mhNotes, setMhNotes]         = useState<MatthewHenryNote[]>([]);
   const [isLoading, setIsLoading]     = useState(true);
   const [visible, setVisible]         = useState(false);
@@ -130,7 +131,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
                 {mhExpanded[idx] && (
                   <div className="px-4 py-4 bg-white">
                     <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
-                      <ReferenceText text={note.textPt} onNavigate={onNavigate} />
+                      <ReferenceText text={note.textPt} onPopup={onPopup} />
                     </p>
                     {note.text && note.text !== note.textPt && (
                       <details className="group mt-3">
@@ -139,7 +140,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
                           <span className="hidden group-open:inline">▼ original em inglês</span>
                         </summary>
                         <p className="mt-2 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-emerald-100 pl-3">
-                          <ReferenceText text={note.text} onNavigate={onNavigate} />
+                          <ReferenceText text={note.text} onPopup={onPopup} />
                         </p>
                       </details>
                     )}

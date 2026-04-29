@@ -58,14 +58,14 @@ function parseReferences(text: string): TextSegment[] {
   return segments;
 }
 
-function ReferenceText({ text, onNavigate }: { text: string; onNavigate?: (bookId: string, chapter: number) => void }) {
+function ReferenceText({ text, onNavigate, onPopup }: { text: string; onNavigate?: (bookId: string, chapter: number) => void; onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void }) {
   const segments = parseReferences(text);
   return (
     <>
       {segments.map((seg, i) =>
         seg.ref ? (
-          <button key={i} onClick={() => onNavigate?.(seg.ref!.bookId, seg.ref!.chapter)}
-            className="inline text-blue-600 hover:text-blue-800 underline underline-offset-2 decoration-dotted font-medium transition-colors cursor-pointer">
+          <button key={i} onClick={() => { if (onPopup) { onPopup(seg.ref!.bookId, seg.ref!.chapter, seg.ref!.verse ?? 1, seg.text); } else { onNavigate?.(seg.ref!.bookId, seg.ref!.chapter); } }}
+            className="inline text-sky-600 hover:text-sky-800 underline underline-offset-2 decoration-dotted font-semibold transition-colors cursor-pointer focus:outline-none rounded-sm">
             {seg.text}
           </button>
         ) : <span key={i}>{seg.text}</span>
@@ -78,9 +78,10 @@ interface NoteCardProps {
   note: GillNote;
   index: number;
   onNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
-function NoteCard({ note, index, onNavigate }: NoteCardProps) {
+function NoteCard({ note, index, onNavigate, onPopup }: NoteCardProps) {
   const [expanded, setExpanded] = useState(index === 0);
   return (
     <div className="border border-sleek-border rounded-xl overflow-hidden">
@@ -98,7 +99,7 @@ function NoteCard({ note, index, onNavigate }: NoteCardProps) {
       {expanded && (
         <div className="px-4 py-4 bg-white space-y-3">
           <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
-            <ReferenceText text={note.textPt} onNavigate={onNavigate} />
+            <ReferenceText text={note.textPt} onNavigate={onNavigate} onPopup={onPopup} />
           </p>
           {note.text && note.text !== note.textPt && (
             <details className="group">
@@ -107,7 +108,7 @@ function NoteCard({ note, index, onNavigate }: NoteCardProps) {
                 <span className="hidden group-open:inline">▼ original em inglês</span>
               </summary>
               <p className="mt-2 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-blue-100 pl-3">
-                <ReferenceText text={note.text} onNavigate={onNavigate} />
+                <ReferenceText text={note.text} onNavigate={onNavigate} onPopup={onPopup} />
               </p>
             </details>
           )}
@@ -127,11 +128,12 @@ interface JohnGillPanelProps {
   onPrevChapter: () => void;
   onNextChapter: () => void;
   onNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
 export default function JohnGillPanel({
   isOpen, onClose, bookId, bookName, chapter, totalChapters,
-  onPrevChapter, onNextChapter, onNavigate,
+  onPrevChapter, onNextChapter, onNavigate, onPopup,
 }: JohnGillPanelProps) {
   const [notes, setNotes]     = useState<GillNote[]>([]);
   const [loading, setLoading] = useState(false);
@@ -220,7 +222,7 @@ export default function JohnGillPanel({
               </div>
               <div className="space-y-3">
                 {notes.map((note, i) => (
-                  <NoteCard key={i} note={note} index={i} onNavigate={handleNavigate} />
+                  <NoteCard key={i} note={note} index={i} onNavigate={handleNavigate} onPopup={onPopup} />
                 ))}
               </div>
             </>

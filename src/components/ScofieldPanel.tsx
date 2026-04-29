@@ -11,9 +11,10 @@ interface NoteCardProps {
   index: number;
   defaultOpen?: boolean;
   onNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
-function NoteCard({ note, index, defaultOpen = false, onNavigate }: NoteCardProps) {
+function NoteCard({ note, index, defaultOpen = false, onNavigate, onPopup }: NoteCardProps) {
   const [expanded, setExpanded] = useState(defaultOpen);
 
   return (
@@ -68,7 +69,7 @@ function NoteCard({ note, index, defaultOpen = false, onNavigate }: NoteCardProp
       {expanded && (
         <div className="px-4 pt-4 pb-5 bg-white space-y-3">
           <p className="text-[13.5px] sm:text-[14px] leading-[1.75] text-sleek-text-main">
-            <ReferenceText text={note.textPt} onNavigate={onNavigate} />
+            <ReferenceText text={note.textPt} onPopup={onPopup} />
           </p>
           {note.text && note.text !== note.textPt && (
             <details className="group">
@@ -77,7 +78,7 @@ function NoteCard({ note, index, defaultOpen = false, onNavigate }: NoteCardProp
                 <span className="hidden group-open:inline">▼ original em inglês</span>
               </summary>
               <p className="mt-2 text-[11.5px] italic leading-relaxed text-sleek-text-muted border-l-2 border-indigo-100 pl-3">
-                <ReferenceText text={note.text} onNavigate={onNavigate} />
+                <ReferenceText text={note.text} onPopup={onPopup} />
               </p>
             </details>
           )}
@@ -103,7 +104,7 @@ interface ScofieldPanelProps {
 
 export default function ScofieldPanel({
   isOpen, onClose, bookId, bookName, chapter, totalChapters,
-  onPrevChapter, onNextChapter, onNavigate,
+  onPrevChapter, onNextChapter, onNavigate, onPopup,
 }: ScofieldPanelProps) {
   const [notes, setNotes]     = useState<ScofieldNote[]>([]);
   const [loading, setLoading] = useState(false);

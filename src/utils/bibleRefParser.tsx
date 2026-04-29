@@ -44,7 +44,8 @@ export function parseReferences(text: string): TextSegment[] {
   const segments: TextSegment[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
-  const regex = new RegExp(`(${_pattern})\\s+(\\d+):(\\d+)(?:[–-]\\d+)?`, 'g');
+  // Match "BookName chap:verse" or "BookName chap:verse-endVerse"
+  const regex = new RegExp(`(${_pattern})\\s+(\\d+):(\\d+)(?:[–\\-]\\d+)?`, 'g');
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIndex) segments.push({ text: text.slice(lastIndex, match.index) });
     const bookId = BOOK_NAME_MAP[match[1]];
@@ -63,11 +64,14 @@ export function parseReferences(text: string): TextSegment[] {
 
 export interface ReferenceTextProps {
   text: string;
+  /** Legacy: navigate away to that chapter */
   onNavigate?: (bookId: string, chapter: number) => void;
+  /** Preferred: open floating popup for that reference */
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
   className?: string;
 }
 
-export function ReferenceText({ text, onNavigate, className }: ReferenceTextProps) {
+export function ReferenceText({ text, onNavigate, onPopup, className }: ReferenceTextProps) {
   const segments = parseReferences(text);
   return (
     <span className={className}>
@@ -76,9 +80,16 @@ export function ReferenceText({ text, onNavigate, className }: ReferenceTextProp
           <button
             key={i}
             type="button"
-            onClick={(e) => { e.stopPropagation(); onNavigate?.(seg.ref!.bookId, seg.ref!.chapter); }}
-            className="inline text-blue-600 hover:text-blue-800 underline underline-offset-2 decoration-dotted font-semibold transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded-sm"
-            title={`Navegar para ${seg.text}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onPopup) {
+                onPopup(seg.ref!.bookId, seg.ref!.chapter, seg.ref!.verseStart, seg.text);
+              } else {
+                onNavigate?.(seg.ref!.bookId, seg.ref!.chapter);
+              }
+            }}
+            className="inline text-sky-600 hover:text-sky-800 underline underline-offset-2 decoration-dotted font-semibold transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-sky-500 rounded-sm"
+            title={onPopup ? `Visualizar ${seg.text}` : `Navegar para ${seg.text}`}
           >
             {seg.text}
           </button>

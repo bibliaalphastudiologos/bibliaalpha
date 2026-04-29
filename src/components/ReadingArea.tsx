@@ -70,6 +70,7 @@ interface ReadingAreaProps {
   onToggleSidebar?: () => void;
   bookIndex?: number;
   onScofieldNavigate?: (bookId: string, chapter: number) => void;
+  onPopup?: (bookId: string, chapter: number, verse: number, refText: string) => void;
 }
 
 const HIGHLIGHT_COLORS = [
@@ -170,7 +171,7 @@ function renderVerseContent(
   );
 }
 
-export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1, onScofieldNavigate }: ReadingAreaProps) {
+export default function ReadingArea({ bookId, bookName, chapter, totalChapters = 1, content, activeTranslation, onTranslationChange, onOpenBookList, onNotepadOpen, onPlansOpen, onResearchOpen, onPrevChapter, onNextChapter, onSelectChapter, onToggleSidebar, bookIndex = -1, onScofieldNavigate, onPopup }: ReadingAreaProps) {
 
   const { user } = useAuth();
   const highlightKey = `hl2_${bookId}_${chapter}`;
@@ -537,6 +538,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
                 chapter={chapter}
                 verseNumber={item.number}
                 onClose={(e) => toggleComments(item.number, e)}
+                onPopup={onPopup}
               />
             </div>
           )}

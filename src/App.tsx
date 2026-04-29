@@ -19,6 +19,7 @@ const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
 const MatthewHenryPanel = lazy(() => import('./components/MatthewHenryPanel'));
 const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
 const GreekHebrewPanel  = lazy(() => import('./components/GreekHebrewPanel'));
+import BibleRefPopup, { type BibleRefPopupState } from './components/BibleRefPopup';
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -100,6 +101,7 @@ export default function App() {
   const [isMHOpen, setIsMHOpen]               = useState(false);
   const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
   const [isGreekHebrewOpen, setIsGreekHebrewOpen] = useState(false);
+  const [biblePopup, setBiblePopup] = useState<BibleRefPopupState | null>(null);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -289,7 +291,8 @@ export default function App() {
                 onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
                 onSelectChapter={setActiveChapter}
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-                onScofieldNavigate={(bookId, chapter) => {
+                onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
+          onScofieldNavigate={(bookId, chapter) => {
                   const book = books.find(b => b.id === bookId);
                   if (book) { setActiveBook(book); setActiveChapter(chapter); }
                 }}
@@ -366,6 +369,7 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
             onNavigate={(bookId, chapter) => {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
@@ -381,6 +385,7 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
             onNavigate={(bookId, chapter) => {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
@@ -406,6 +411,7 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
             onNavigate={(bookId, chapter) => {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
@@ -422,6 +428,15 @@ export default function App() {
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
           />
+          <BibleRefPopup
+            popup={biblePopup}
+            onClose={() => setBiblePopup(null)}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setBiblePopup(null);
+            }}
+          />
           <DevotionalPanel
             isOpen={isDevotionalOpen}
             onClose={() => setIsDevotionalOpen(false)}
@@ -437,6 +452,7 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
             onNavigate={(bookId, chapter) => {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
@@ -452,6 +468,7 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onPopup={(bookId, chapter, verse, refText) => setBiblePopup({ bookId, chapter, verse, refText })}
             onNavigate={(bookId, chapter) => {
               const book = books.find(b => b.id === bookId);
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
