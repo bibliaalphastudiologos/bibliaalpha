@@ -18,6 +18,7 @@ const JohnGillPanel     = lazy(() => import('./components/JohnGillPanel'));
 const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
 const MatthewHenryPanel = lazy(() => import('./components/MatthewHenryPanel'));
 const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
+const GreekHebrewPanel  = lazy(() => import('./components/GreekHebrewPanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -98,6 +99,7 @@ export default function App() {
   const [isClarkeOpen, setIsClarkeOpen]         = useState(false);
   const [isMHOpen, setIsMHOpen]               = useState(false);
   const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
+  const [isGreekHebrewOpen, setIsGreekHebrewOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -214,6 +216,7 @@ export default function App() {
           onClarkeOpen={() => setIsClarkeOpen(true)}
           onMHOpen={() => setIsMHOpen(true)}
           onScofieldOpen={() => setIsScofieldOpen(true)}
+          onGreekHebrewOpen={() => setIsGreekHebrewOpen(true)}
           onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
@@ -408,6 +411,16 @@ export default function App() {
               if (book) { setActiveBook(book); setActiveChapter(chapter); }
               setIsScofieldOpen(false);
             }}
+          />
+          <GreekHebrewPanel
+            isOpen={isGreekHebrewOpen}
+            onClose={() => setIsGreekHebrewOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
           />
           <DevotionalPanel
             isOpen={isDevotionalOpen}

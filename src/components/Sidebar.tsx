@@ -1,5 +1,5 @@
 import { Book } from '../services/bibleApi';
-import { ChevronDown, ChevronRight, Search, LogOut, BookOpen, BookMarked, Globe, Flame } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, LogOut, BookOpen, BookMarked, Globe, Flame, Languages } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { cn } from '../App';
 import { useAuth } from './AuthProvider';
@@ -20,6 +20,7 @@ interface SidebarProps {
   onClarkeOpen?: () => void;
   onMHOpen?: () => void;
   onScofieldOpen?: () => void;
+  onGreekHebrewOpen?: () => void;
   onDevotionalOpen?: (audience: DevotionalAudience) => void;
 }
 
@@ -30,7 +31,7 @@ const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; dot: string }[]
   { id: 'jovens',     label: 'Jovens',     dot: '#F97316' },
 ];
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onScofieldOpen, onSimpsonOpen, onBensonOpen, onGillOpen, onClarkeOpen, onMHOpen, onDevotionalOpen }: SidebarProps) {
+export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onScofieldOpen, onGreekHebrewOpen, onSimpsonOpen, onBensonOpen, onGillOpen, onClarkeOpen, onMHOpen, onDevotionalOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
   const { logout, profile, user } = useAuth();
@@ -231,6 +232,23 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                 <BookMarked size={13} />
               </span>
               Scofield
+            </span>
+            <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+
+
+        {/* ── Grego / Hebraico ── */}
+        <div className="mb-1 px-2">
+          <button
+            onClick={() => onGreekHebrewOpen && onGreekHebrewOpen()}
+            className="w-full flex items-center justify-between text-[13px] font-medium text-sleek-text-main px-3 py-2 rounded-lg hover:bg-sleek-hover transition-all group"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-md bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
+                <Languages size={13} />
+              </span>
+              Grego / Hebraico
             </span>
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
