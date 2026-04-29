@@ -16,6 +16,8 @@ interface SidebarProps {
   onEbooksOpen?: () => void;
   onSimpsonOpen?: () => void;
   onBensonOpen?: () => void;
+  onGillOpen?: () => void;
+  onClarkeOpen?: () => void;
   onDevotionalOpen?: (audience: DevotionalAudience) => void;
 }
 
@@ -26,7 +28,7 @@ const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; dot: string }[]
   { id: 'jovens',     label: 'Jovens',     dot: '#F97316' },
 ];
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onSimpsonOpen, onBensonOpen, onDevotionalOpen }: SidebarProps) {
+export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onSimpsonOpen, onBensonOpen, onGillOpen, onClarkeOpen, onDevotionalOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
   const { logout, profile, user } = useAuth();
@@ -243,6 +245,36 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                 <BookOpen size={13} />
               </span>
               Benson
+            </span>
+            <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+        {/* ── John Gill ── */}
+        <div className="mb-1 px-2">
+          <button
+            onClick={() => onGillOpen && onGillOpen()}
+            className="w-full flex items-center justify-between text-[13px] font-medium text-sleek-text-main px-3 py-2 rounded-lg hover:bg-sleek-hover transition-all group"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <BookOpen size={13} />
+              </span>
+              John Gill
+            </span>
+            <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+        {/* ── Adam Clarke ── */}
+        <div className="mb-1 px-2">
+          <button
+            onClick={() => onClarkeOpen && onClarkeOpen()}
+            className="w-full flex items-center justify-between text-[13px] font-medium text-sleek-text-main px-3 py-2 rounded-lg hover:bg-sleek-hover transition-all group"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                <BookOpen size={13} />
+              </span>
+              Adam Clarke
             </span>
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
