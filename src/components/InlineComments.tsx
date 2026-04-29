@@ -89,25 +89,12 @@ async function getNotesForVerse(bookId: string, chapter: number, verseNumber: nu
   }
 
   const verseText = kjvMap[verseNumber] ?? '';
-  let matched: ScofieldNote[] = [];
 
-  if (verseText) {
-    matched = allNotes.filter(note =>
-      note.keyword && verseText.includes(note.keyword.toLowerCase().trim())
-    );
-  }
-
-  // Fallback: divide notes proportionally across verses
-  if (matched.length === 0) {
-    const verseNumbers = Object.keys(kjvMap).map(Number).sort((a, b) => a - b);
-    const verseIdx = verseNumbers.indexOf(verseNumber);
-    if (verseIdx >= 0 && verseNumbers.length > 0) {
-      const notesPerVerse = allNotes.length / verseNumbers.length;
-      const startNote = Math.floor(verseIdx * notesPerVerse);
-      const endNote = Math.ceil((verseIdx + 1) * notesPerVerse);
-      matched = allNotes.slice(startNote, endNote);
-    }
-  }
+  // Only show a note when its keyword actually appears in the verse text.
+  // No fallback distribution — a verse with no keyword match simply has no note.
+  const matched = verseText
+    ? allNotes.filter(note => note.keyword && verseText.includes(note.keyword.toLowerCase().trim()))
+    : [];
 
   const result = matched.slice(0, 3);
   noteCache.set(cacheKey, result);
