@@ -5,14 +5,15 @@
 
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import axios from "axios";
 import * as crypto from "crypto";
 
 // ─── Inicialização ───────────────────────────────────────────────
-admin.initializeApp();
+const app = admin.initializeApp();
 
 const FIRESTORE_DB = "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f";
-const db = admin.firestore(admin.app(), FIRESTORE_DB);
+const db = getFirestore(app, FIRESTORE_DB);
 
 // ─── Helpers para ler env vars ───────────────────────────────────
 const getMpAccessToken   = () => process.env.MP_ACCESS_TOKEN   || "";
