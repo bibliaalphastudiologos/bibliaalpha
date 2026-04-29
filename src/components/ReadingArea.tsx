@@ -843,6 +843,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             totalChapters={totalChapters}
             onPrevChapter={onPrevChapter}
             onNextChapter={onNextChapter}
+            onNavigate={onScofieldNavigate}
           />
 
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">

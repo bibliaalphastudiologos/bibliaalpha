@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { BookOpen, ChevronDown, ChevronUp, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../App';
 import { getMatthewHenryNotes, MatthewHenryNote } from '../services/matthewHenryApi';
+import { ReferenceText } from '../utils/bibleRefParser';
 
 interface NoteItemProps {
   note: MatthewHenryNote;
   index: number;
+  onNavigate?: (bookId: string, chapter: number) => void;
 }
 
-function NoteItem({ note, index }: NoteItemProps) {
+function NoteItem({ note, index, onNavigate }: NoteItemProps) {
   const [expanded, setExpanded] = useState(index === 0);
   return (
     <div className="border border-sleek-border rounded-xl overflow-hidden">
@@ -35,7 +37,7 @@ function NoteItem({ note, index }: NoteItemProps) {
       {expanded && (
         <div className="px-4 py-4 bg-white space-y-3">
           <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
-            {note.textPt}
+            <ReferenceText text={note.textPt} onNavigate={onNavigate} />
           </p>
           {note.text && note.text !== note.textPt && (
             <details className="group">
@@ -44,7 +46,7 @@ function NoteItem({ note, index }: NoteItemProps) {
                 <span className="hidden group-open:inline">▼ original em inglês</span>
               </summary>
               <p className="mt-2 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-emerald-100 pl-3">
-                {note.text}
+                <ReferenceText text={note.text} onNavigate={onNavigate} />
               </p>
             </details>
           )}
@@ -61,10 +63,11 @@ interface MatthewHenryInlineNotesProps {
   totalChapters: number;
   onPrevChapter?: () => void;
   onNextChapter?: () => void;
+  onNavigate?: (bookId: string, chapter: number) => void;
 }
 
 export default function MatthewHenryInlineNotes({
-  bookId, bookName, chapter, totalChapters, onPrevChapter, onNextChapter,
+  bookId, bookName, chapter, totalChapters, onPrevChapter, onNextChapter, onNavigate,
 }: MatthewHenryInlineNotesProps) {
   const [notes, setNotes] = useState<MatthewHenryNote[]>([]);
   const [loading, setLoading] = useState(false);
@@ -156,7 +159,7 @@ export default function MatthewHenryInlineNotes({
                 </div>
               ) : notes.length > 0 ? (
                 notes.map((note, i) => (
-                  <NoteItem key={`${note.verseNumber}-${i}`} note={note} index={i} />
+                  <NoteItem key={`${note.verseNumber}-${i}`} note={note} index={i} onNavigate={onNavigate} />
                 ))
               ) : (
                 <div className="py-6 text-center text-[13px] text-sleek-text-muted italic">

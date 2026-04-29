@@ -3,6 +3,7 @@ import { cn } from '../App';
 import { getScofieldNotes, ScofieldNote } from '../services/scofieldApi';
 import { getMatthewHenryNotes, MatthewHenryNote } from '../services/matthewHenryApi';
 import { BookMarked, ChevronDown, ChevronUp } from 'lucide-react';
+import { ReferenceText } from '../utils/bibleRefParser';
 
 interface InlineCommentsProps {
   bookId: string;
@@ -10,6 +11,7 @@ interface InlineCommentsProps {
   verseNumber: number;
   onClose?: (e: React.MouseEvent) => void;
   scofieldBookKey?: string;
+  onNavigate?: (bookId: string, chapter: number) => void;
 }
 
 // Book ID → Scofield book key
@@ -113,7 +115,7 @@ async function getNotesForVerse(bookId: string, chapter: number, verseNumber: nu
 }
 
 // ── Inner component ────────────────────────────────────────────────────────
-function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCommentsProps) {
+function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate }: InlineCommentsProps) {
   const [notes, setNotes]     = useState<ScofieldNote[]>([]);
   const [mhNotes, setMhNotes] = useState<MatthewHenryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -215,7 +217,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
                 {expanded[idx] && (
                   <div className="px-3 py-3 space-y-2">
                     <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">
-                      {note.textPt}
+                      <ReferenceText text={note.textPt} onNavigate={onNavigate} />
                     </p>
                     {note.text && note.text !== note.textPt && (
                       <details className="group">
@@ -224,7 +226,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
                           <span className="hidden group-open:inline">▼ original em inglês</span>
                         </summary>
                         <p className="mt-1 text-[11px] italic leading-relaxed text-sleek-text-muted border-l-2 border-amber-100 pl-3">
-                          {note.text}
+                          <ReferenceText text={note.text} onNavigate={onNavigate} />
                         </p>
                       </details>
                     )}
@@ -259,7 +261,9 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
                 </button>
                 {mhExpanded[idx] && (
                   <div className="px-3 py-3">
-                    <p className="text-[13px] leading-relaxed text-sleek-text-main">{note.textPt}</p>
+                    <p className="text-[13px] leading-relaxed text-sleek-text-main">
+                      <ReferenceText text={note.textPt} onNavigate={onNavigate} />
+                    </p>
                   </div>
                 )}
               </div>

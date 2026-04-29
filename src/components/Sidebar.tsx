@@ -280,21 +280,6 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
-        {/* ── Matthew Henry ── */}
-        <div className="mb-1 px-2">
-          <button
-            onClick={() => onMHOpen && onMHOpen()}
-            className="w-full flex items-center justify-between text-[13px] font-medium text-sleek-text-main px-3 py-2 rounded-lg hover:bg-sleek-hover transition-all group"
-          >
-            <span className="flex items-center gap-2.5">
-              <span className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                <BookOpen size={13} />
-              </span>
-              Matthew Henry
-            </span>
-            <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
         {/* ── Blog ── */}
         <div className="mb-1 px-2">
           <button
