@@ -17,6 +17,7 @@ const BensonPanel       = lazy(() => import('./components/BensonPanel'));
 const JohnGillPanel     = lazy(() => import('./components/JohnGillPanel'));
 const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
 const MatthewHenryPanel = lazy(() => import('./components/MatthewHenryPanel'));
+const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -96,6 +97,7 @@ export default function App() {
   const [isGillOpen, setIsGillOpen]             = useState(false);
   const [isClarkeOpen, setIsClarkeOpen]         = useState(false);
   const [isMHOpen, setIsMHOpen]               = useState(false);
+  const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -211,6 +213,7 @@ export default function App() {
           onGillOpen={() => setIsGillOpen(true)}
           onClarkeOpen={() => setIsClarkeOpen(true)}
           onMHOpen={() => setIsMHOpen(true)}
+          onScofieldOpen={() => setIsScofieldOpen(true)}
           onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
@@ -390,6 +393,21 @@ export default function App() {
             totalChapters={activeBook?.numberOfChapters || 1}
             onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
             onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+          />
+          <ScofieldPanel
+            isOpen={isScofieldOpen}
+            onClose={() => setIsScofieldOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setIsScofieldOpen(false);
+            }}
           />
           <DevotionalPanel
             isOpen={isDevotionalOpen}
