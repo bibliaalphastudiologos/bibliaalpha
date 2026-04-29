@@ -35,7 +35,7 @@ jobs:
       - name: Install and build Functions
         run: |
           cd functions
-          npm ci
+          npm install
           npm run build
 
       - name: Create functions .env file
