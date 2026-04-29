@@ -3,8 +3,6 @@ import * as React from 'react';
 import { Palette, Share2, MoreHorizontal, Book as BookIcon, Globe, ChevronDown, MessageSquareText, ChevronLeft, ChevronRight, Menu, Highlighter, X, Check } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import InlineComments from './InlineComments';
-import ScofieldInlineNotes from './ScofieldInlineNotes';
-import MatthewHenryInlineNotes from './MatthewHenryInlineNotes';
 import ConnectionsDropdown from './ConnectionsDropdown';
 import { AVAILABLE_TRANSLATIONS } from '../services/apiBible';
 import { getChapterCommentMap } from '../services/bibleApi';
@@ -826,25 +824,6 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
         <div className="pb-32 lg:pb-20">
           {content.map(renderItem)}
 
-          <ScofieldInlineNotes
-            bookId={bookId}
-            bookName={bookName}
-            chapter={chapter}
-            totalChapters={totalChapters}
-            onPrevChapter={onPrevChapter}
-            onNextChapter={onNextChapter}
-            onNavigate={onScofieldNavigate}
-          />
-
-          <MatthewHenryInlineNotes
-            bookId={bookId}
-            bookName={bookName}
-            chapter={chapter}
-            totalChapters={totalChapters}
-            onPrevChapter={onPrevChapter}
-            onNextChapter={onNextChapter}
-            onNavigate={onScofieldNavigate}
-          />
 
           <div className="mt-16 flex items-center justify-between border-t border-sleek-border pt-8 font-sans">
             <div>
