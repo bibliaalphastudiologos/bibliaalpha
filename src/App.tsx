@@ -16,6 +16,7 @@ const ABSimpsonPanel    = lazy(() => import('./components/ABSimpsonPanel'));
 const BensonPanel       = lazy(() => import('./components/BensonPanel'));
 const JohnGillPanel     = lazy(() => import('./components/JohnGillPanel'));
 const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
+const MatthewHenryPanel = lazy(() => import('./components/MatthewHenryPanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -94,6 +95,7 @@ export default function App() {
   const [isBensonOpen, setIsBensonOpen]         = useState(false);
   const [isGillOpen, setIsGillOpen]             = useState(false);
   const [isClarkeOpen, setIsClarkeOpen]         = useState(false);
+  const [isMHOpen, setIsMHOpen]               = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -206,8 +208,9 @@ export default function App() {
           onEbooksOpen={() => setIsEbooksOpen(true)}
           onSimpsonOpen={() => setIsSimpsonOpen(true)}
           onBensonOpen={() => setIsBensonOpen(true)}
-              onGillOpen={() => setIsGillOpen(true)}
-              onClarkeOpen={() => setIsClarkeOpen(true)}
+          onGillOpen={() => setIsGillOpen(true)}
+          onClarkeOpen={() => setIsClarkeOpen(true)}
+          onMHOpen={() => setIsMHOpen(true)}
           onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
@@ -378,11 +381,51 @@ export default function App() {
               setIsBensonOpen(false);
             }}
           />
+          <MatthewHenryPanel
+            isOpen={isMHOpen}
+            onClose={() => setIsMHOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+          />
           <DevotionalPanel
             isOpen={isDevotionalOpen}
             onClose={() => setIsDevotionalOpen(false)}
             audience={activeDevotionalAudience}
             onSelectChapter={(bookId, chapter) => { const book = books.find(b => b.id === bookId); if (book) { setActiveBook(book); setActiveChapter(chapter); } }}
+          />
+          <JohnGillPanel
+            isOpen={isGillOpen}
+            onClose={() => setIsGillOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setIsGillOpen(false);
+            }}
+          />
+          <AdamClarkePanel
+            isOpen={isClarkeOpen}
+            onClose={() => setIsClarkeOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
+            onNavigate={(bookId, chapter) => {
+              const book = books.find(b => b.id === bookId);
+              if (book) { setActiveBook(book); setActiveChapter(chapter); }
+              setIsClarkeOpen(false);
+            }}
           />
           <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
             onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}

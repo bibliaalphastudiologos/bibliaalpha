@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Component } from 'react';
 import { cn } from '../App';
 import { getScofieldNotes, ScofieldNote } from '../services/scofieldApi';
+import { getMatthewHenryNotes, MatthewHenryNote } from '../services/matthewHenryApi';
 import { BookMarked, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface InlineCommentsProps {
@@ -114,9 +115,11 @@ async function getNotesForVerse(bookId: string, chapter: number, verseNumber: nu
 // ── Inner component ────────────────────────────────────────────────────────
 function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCommentsProps) {
   const [notes, setNotes]     = useState<ScofieldNote[]>([]);
+  const [mhNotes, setMhNotes] = useState<MatthewHenryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({ 0: true });
+  const [mhExpanded, setMhExpanded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10);
@@ -127,11 +130,20 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
     let alive = true;
     setIsLoading(true);
     setNotes([]);
+    setMhNotes([]);
     setExpanded({ 0: true });
+    setMhExpanded({});
 
-    getNotesForVerse(bookId, chapter, verseNumber)
-      .then(result => { if (alive) { setNotes(result); setIsLoading(false); } })
-      .catch(() => { if (alive) setIsLoading(false); });
+    Promise.all([
+      getNotesForVerse(bookId, chapter, verseNumber),
+      getMatthewHenryNotes(bookId, chapter),
+    ]).then(([scof, mh]) => {
+      if (!alive) return;
+      setNotes(scof);
+      const verseNotes = mh.notes.filter(n => n.verseNumber === verseNumber);
+      setMhNotes(verseNotes);
+      setIsLoading(false);
+    }).catch(() => { if (alive) setIsLoading(false); });
 
     return () => { alive = false; };
   }, [bookId, chapter, verseNumber]);
@@ -221,9 +233,43 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose }: InlineCo
               </div>
             ))}
           </div>
-        ) : (
+        ) : null}
+
+        {/* Matthew Henry notes */}
+        {!isLoading && mhNotes.length > 0 && (
+          <div className="space-y-3 pt-3 mt-3 border-t border-sleek-border">
+            <div className="flex items-center gap-1.5 pb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">Matthew Henry</span>
+            </div>
+            {mhNotes.map((note, idx) => (
+              <div key={idx} className="border border-emerald-100 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setMhExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                  className={cn(
+                    'w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors',
+                    mhExpanded[idx] ? 'bg-emerald-50 border-b border-emerald-100' : 'hover:bg-sleek-hover'
+                  )}
+                >
+                  <span className={cn('text-[12px] font-semibold', mhExpanded[idx] ? 'text-emerald-700' : 'text-sleek-text-main')}>
+                    Versículo {note.verseNumber}
+                  </span>
+                  {mhExpanded[idx]
+                    ? <ChevronUp size={12} className="text-emerald-400 shrink-0" />
+                    : <ChevronDown size={12} className="text-sleek-text-muted shrink-0" />}
+                </button>
+                {mhExpanded[idx] && (
+                  <div className="px-3 py-3">
+                    <p className="text-[13px] leading-relaxed text-sleek-text-main">{note.textPt}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && notes.length === 0 && mhNotes.length === 0 && (
           <div className="text-[13px] text-sleek-text-muted italic pt-3">
-            Sem notas Scofield para este versículo.
+            Sem notas disponíveis para este versículo.
           </div>
         )}
       </div>

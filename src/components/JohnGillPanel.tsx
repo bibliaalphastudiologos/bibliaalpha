@@ -138,7 +138,7 @@ export default function JohnGillPanel({
   const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !bookId) return;
+    if (!bookId) return;
     setNotes([]); setError(null);
     let alive = true;
     setLoading(true);
@@ -147,7 +147,7 @@ export default function JohnGillPanel({
       .catch(() => { if (alive) setError('Não foi possível carregar o comentário.'); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [isOpen, bookId, chapter]);
+  }, [bookId, chapter]);
 
   const handleNavigate = useCallback((targetBookId: string, targetChapter: number) => {
     onNavigate?.(targetBookId, targetChapter);

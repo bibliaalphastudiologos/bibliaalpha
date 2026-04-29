@@ -176,7 +176,7 @@ export default function ScofieldPanel({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !bookId) return;
+    if (!bookId) return;
     setNotes([]); setError(null);
     let alive = true;
     setLoading(true);
@@ -185,7 +185,7 @@ export default function ScofieldPanel({
       .catch(err => { if (alive) setError('Não foi possível carregar as notas.'); console.error('[Scofield]', err); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [isOpen, bookId, chapter]);
+  }, [bookId, chapter]);
 
   const handleNavigate = useCallback((targetBookId: string, targetChapter: number) => {
     onNavigate?.(targetBookId, targetChapter);

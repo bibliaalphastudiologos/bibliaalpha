@@ -168,7 +168,7 @@ export default function ABSimpsonPanel({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !bookId) return;
+    if (!bookId) return;
     setNotes([]); setError(null);
     let alive = true;
     setLoading(true);
@@ -177,7 +177,7 @@ export default function ABSimpsonPanel({
       .catch(err => { if (alive) setError('Não foi possível carregar as meditações.'); console.error('[Simpson]', err); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [isOpen, bookId, chapter]);
+  }, [bookId, chapter]);
 
   const handleNavigate = useCallback((targetBookId: string, targetChapter: number) => {
     onNavigate?.(targetBookId, targetChapter);
