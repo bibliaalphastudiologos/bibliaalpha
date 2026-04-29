@@ -14,6 +14,8 @@ const ResearchPanel     = lazy(() => import('./components/ResearchPanel'));
 const EbooksPanel       = lazy(() => import('./components/EbooksPanel'));
 const ABSimpsonPanel    = lazy(() => import('./components/ABSimpsonPanel'));
 const BensonPanel       = lazy(() => import('./components/BensonPanel'));
+const JohnGillPanel     = lazy(() => import('./components/JohnGillPanel'));
+const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
 const DevotionalPanel   = lazy(() => import('./components/DevotionalPanel'));
 const ThemeControls     = lazy(() => import('./components/ThemeControls'));
 const SplashScreen      = lazy(() => import('./components/SplashScreen'));
@@ -90,6 +92,8 @@ export default function App() {
   const [isEbooksOpen, setIsEbooksOpen]       = useState(false);
   const [isSimpsonOpen, setIsSimpsonOpen]       = useState(false);
   const [isBensonOpen, setIsBensonOpen]         = useState(false);
+  const [isGillOpen, setIsGillOpen]             = useState(false);
+  const [isClarkeOpen, setIsClarkeOpen]         = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen]   = useState(false);
   const [isThemeOpen, setIsThemeOpen]         = useState(false);
   // Splash apenas na primeira visita — nunca em reloads de usuário já logado
@@ -202,6 +206,8 @@ export default function App() {
           onEbooksOpen={() => setIsEbooksOpen(true)}
           onSimpsonOpen={() => setIsSimpsonOpen(true)}
           onBensonOpen={() => setIsBensonOpen(true)}
+              onGillOpen={() => setIsGillOpen(true)}
+              onClarkeOpen={() => setIsClarkeOpen(true)}
           onDevotionalOpen={openDevotional}
         />
         <div className="flex-1 flex flex-col h-full relative overflow-hidden transition-all duration-300">
