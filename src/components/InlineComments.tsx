@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Component } from 'react';
 import { cn } from '../App';
 import { getMatthewHenryNotes, MatthewHenryNote } from '../services/matthewHenryApi';
+import { getWomenVerseNotesApi, WomenNote } from '../services/womenCommentariesApi';
 import { BookOpen, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { ReferenceText } from '../utils/bibleRefParser';
 
@@ -33,9 +34,11 @@ class CommentErrorBoundary extends Component<{ children: React.ReactNode }, { ha
 // ── Inner component ─────────────────────────────────────────────────────────
 function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate, onPopup }: InlineCommentsProps) {
   const [mhNotes, setMhNotes]         = useState<MatthewHenryNote[]>([]);
+  const [womenNotes, setWomenNotes]   = useState<WomenNote[]>([]);
   const [isLoading, setIsLoading]     = useState(true);
   const [visible, setVisible]         = useState(false);
   const [mhExpanded, setMhExpanded]   = useState<Record<number, boolean>>({ 0: true });
+  const [womenExpanded, setWomenExpanded] = useState<Record<number, boolean>>({ 0: true });
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10);
@@ -47,6 +50,9 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
     setIsLoading(true);
     setMhNotes([]);
     setMhExpanded({ 0: true });
+
+    const wNotes = getWomenVerseNotesApi(bookId, chapter, verseNumber);
+    if (alive) setWomenNotes(wNotes);
 
     getMatthewHenryNotes(bookId, chapter)
       .then((mh) => {
@@ -60,7 +66,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
     return () => { alive = false; };
   }, [bookId, chapter, verseNumber]);
 
-  const hasContent = mhNotes.length > 0;
+  const hasContent = mhNotes.length > 0 || womenNotes.length > 0;
 
   return (
     <div
@@ -104,7 +110,7 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
         ) : hasContent ? (
           <div className="space-y-3 pt-3">
             {mhNotes.map((note, idx) => (
-              <div key={idx} className="border border-emerald-100 rounded-xl overflow-hidden">
+              <div key={`mh-${idx}`} className="border border-emerald-100 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setMhExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
                   className={cn(
@@ -144,6 +150,39 @@ function InlineCommentsInner({ bookId, chapter, verseNumber, onClose, onNavigate
                         </p>
                       </details>
                     )}
+                  </div>
+                )}
+              </div>
+            ))}
+            {womenNotes.map((note, idx) => (
+              <div key={`w-${idx}`} className="border border-rose-100 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setWomenExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                  className={cn(
+                    'w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors',
+                    womenExpanded[idx]
+                      ? 'bg-rose-50 border-b border-rose-100'
+                      : 'hover:bg-sleek-hover'
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <BookOpen size={12} className={cn('shrink-0', womenExpanded[idx] ? 'text-rose-500' : 'text-sleek-text-muted')} />
+                    <span className={cn(
+                      'text-[12px] font-semibold leading-snug',
+                      womenExpanded[idx] ? 'text-rose-700' : 'text-sleek-text-main'
+                    )}>
+                      {note.authorPt}
+                    </span>
+                  </div>
+                  {womenExpanded[idx]
+                    ? <ChevronUp size={12} className="text-rose-400 shrink-0" />
+                    : <ChevronDown size={12} className="text-sleek-text-muted shrink-0" />}
+                </button>
+
+                {womenExpanded[idx] && (
+                  <div className="px-4 py-4 bg-white">
+                    <p className="text-[13px] sm:text-[14px] leading-relaxed text-sleek-text-main">{note.text}</p>
+                    <p className="mt-2 text-[10px] text-sleek-text-muted italic">— {note.authorPt}, <em>{note.source}</em></p>
                   </div>
                 )}
               </div>

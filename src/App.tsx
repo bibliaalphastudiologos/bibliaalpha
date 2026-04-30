@@ -17,6 +17,7 @@ const BensonPanel       = lazy(() => import('./components/BensonPanel'));
 const JohnGillPanel     = lazy(() => import('./components/JohnGillPanel'));
 const AdamClarkePanel   = lazy(() => import('./components/AdamClarkePanel'));
 const MatthewHenryPanel = lazy(() => import('./components/MatthewHenryPanel'));
+const WomenVoicesPanel  = lazy(() => import('./components/WomenVoicesPanel'));
 const ScofieldPanel     = lazy(() => import('./components/ScofieldPanel'));
 const GreekHebrewPanel  = lazy(() => import('./components/GreekHebrewPanel'));
 import BibleRefPopup, { type BibleRefPopupState } from './components/BibleRefPopup';
@@ -99,6 +100,7 @@ export default function App() {
   const [isGillOpen, setIsGillOpen]             = useState(false);
   const [isClarkeOpen, setIsClarkeOpen]         = useState(false);
   const [isMHOpen, setIsMHOpen]               = useState(false);
+  const [isWomenVoicesOpen, setIsWomenVoicesOpen] = useState(false);
   const [isScofieldOpen, setIsScofieldOpen]   = useState(false);
   const [isGreekHebrewOpen, setIsGreekHebrewOpen] = useState(false);
   const [biblePopup, setBiblePopup] = useState<BibleRefPopupState | null>(null);
@@ -217,6 +219,7 @@ export default function App() {
           onGillOpen={() => setIsGillOpen(true)}
           onClarkeOpen={() => setIsClarkeOpen(true)}
           onMHOpen={() => setIsMHOpen(true)}
+          onWomenVoicesOpen={() => setIsWomenVoicesOpen(true)}
           onScofieldOpen={() => setIsScofieldOpen(true)}
           onGreekHebrewOpen={() => setIsGreekHebrewOpen(true)}
           onDevotionalOpen={openDevotional}
@@ -478,6 +481,16 @@ export default function App() {
           <CommandPalette isOpen={isCommandModeOpen} onClose={() => setIsCommandModeOpen(false)} books={books}
             onSelectChapter={(book, chapter) => { setActiveBook(book); setActiveChapter(chapter); }}
             onDevotionalOpen={openDevotional}
+          />
+          <WomenVoicesPanel
+            isOpen={isWomenVoicesOpen}
+            onClose={() => setIsWomenVoicesOpen(false)}
+            bookId={activeBook?.id || ''}
+            bookName={activeBook?.name || ''}
+            chapter={activeChapter}
+            totalChapters={activeBook?.numberOfChapters || 1}
+            onPrevChapter={() => setActiveChapter(Math.max(1, activeChapter - 1))}
+            onNextChapter={() => setActiveChapter(Math.min(activeBook?.numberOfChapters || 1, activeChapter + 1))}
           />
           <ThemeControls open={isThemeOpen} onClose={() => setIsThemeOpen(false)} />
         </Suspense>

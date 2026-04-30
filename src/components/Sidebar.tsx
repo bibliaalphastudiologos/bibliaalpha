@@ -22,6 +22,7 @@ interface SidebarProps {
   onScofieldOpen?: () => void;
   onGreekHebrewOpen?: () => void;
   onDevotionalOpen?: (audience: DevotionalAudience) => void;
+  onWomenVoicesOpen?: () => void;
 }
 
 const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; dot: string }[] = [
@@ -31,7 +32,7 @@ const DEVOTIONAL_ITEMS: { id: DevotionalAudience; label: string; dot: string }[]
   { id: 'jovens',     label: 'Jovens',     dot: '#F97316' },
 ];
 
-export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onScofieldOpen, onGreekHebrewOpen, onSimpsonOpen, onBensonOpen, onGillOpen, onClarkeOpen, onMHOpen, onDevotionalOpen }: SidebarProps) {
+export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSelectBook, onSelectChapter, onSearchClick, onEbooksOpen, onScofieldOpen, onGreekHebrewOpen, onSimpsonOpen, onBensonOpen, onGillOpen, onClarkeOpen, onMHOpen, onDevotionalOpen, onWomenVoicesOpen }: SidebarProps) {
   const [expandedBookId, setExpandedBookId] = useState<string | null>(null);
   const [expandedTestament, setExpandedTestament] = useState<'old' | 'new' | null>(null);
   const { logout, profile, user } = useAuth();
@@ -310,6 +311,21 @@ export default function Sidebar({ isOpen, books, activeBook, activeChapter, onSe
                 <BookOpen size={13} />
               </span>
               Adam Clarke
+            </span>
+            <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+        {/* ── Vozes Femininas da Fé Cristã ── */}
+        <div className="mb-1 px-2">
+          <button
+            onClick={() => onWomenVoicesOpen && onWomenVoicesOpen()}
+            className="w-full flex items-center justify-between text-[13px] font-medium text-sleek-text-main px-3 py-2 rounded-lg hover:bg-sleek-hover transition-all group"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-md bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+              </span>
+              Vozes Femininas
             </span>
             <ChevronRight size={13} className="text-sleek-text-muted group-hover:translate-x-0.5 transition-transform" />
           </button>
