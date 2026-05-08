@@ -19,6 +19,18 @@ export interface AccessRecord {
   lifetime:        boolean;
 }
 
+interface StudioAccessRecord {
+  email: string;
+  nome?: string;
+  payment_status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  access_status?: 'active' | 'blocked' | 'expired';
+  paymentId?: string;
+  approvedAt?: any;
+  approvalDateBrasilia?: string;
+  planPeriod?: string;
+  planPrice?: string;
+}
+
 interface AuthContextType {
   user:         User | null;
   profile:      UserProfile | null;
@@ -48,11 +60,26 @@ function isAccessValid(data: any): boolean {
   if (!data) return false;
   if (data.active !== true) return false;
   if (data.status !== 'active') return false;
-  if (data.product !== 'biblia_alpha') return false;
+  if (data.product && !['biblia_alpha', 'studio_logos', 'studio_logos_platform'].includes(data.product)) return false;
   if (data.lifetime === true) return true;
   if (!data.expiresAt) return false;
   const exp = data.expiresAt?.toDate?.() ?? new Date(data.expiresAt);
   return exp > new Date();
+}
+
+function isStudioAccessValid(data: Partial<StudioAccessRecord> | null): boolean {
+  return data?.payment_status === 'approved' && data?.access_status === 'active';
+}
+
+function isProfileAccessValid(profile: Partial<UserProfile> | null): boolean {
+  if (!profile || profile.status === 'blocked' || profile.access_status === 'blocked') return false;
+  return (
+    profile.status === 'approved' ||
+    profile.payment_status === 'approved' && profile.access_status === 'active' ||
+    profile.manual_access === true && profile.access_status === 'active' ||
+    Boolean(profile.approvedAt) ||
+    Boolean(profile.approvalDateBrasilia)
+  );
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -107,10 +134,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const normalizedEmail = (firebaseUser.email || '').toLowerCase();
 
-          // Consultar users/{uid} e access/{email} em paralelo
-          const [userSnap, accessSnap] = await Promise.allSettled([
+          // Contrato compartilhado entre Biblia Alpha e Studio Logos.
+          const [userSnap, accessSnap, studioAccessSnap] = await Promise.allSettled([
             getDoc(doc(db, 'users', firebaseUser.uid)),
             getDoc(doc(db, 'access', normalizedEmail)),
+            getDoc(doc(db, 'payment_access', normalizedEmail)),
           ]);
 
           // ── Processar access/{email} ──
@@ -120,6 +148,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             accessData  = accessSnap.value.data() as AccessRecord;
             accessValid = isAccessValid(accessData);
           }
+
+          let studioAccessData: StudioAccessRecord | null = null;
+          let studioAccessValid = false;
+          if (studioAccessSnap.status === 'fulfilled' && studioAccessSnap.value.exists()) {
+            studioAccessData = studioAccessSnap.value.data() as StudioAccessRecord;
+            studioAccessValid = isStudioAccessValid(studioAccessData);
+          }
+
           setAccessRecord(accessData);
 
           // ── Processar users/{uid} ──
@@ -127,16 +163,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const docSnap = userSnap.value;
             if (docSnap.exists()) {
               const profileData = docSnap.data() as UserProfile;
-              setProfile(profileData);
-              // Acesso liberado se: access válido OU status manual approved
-              setHasAccess(accessValid || profileData.status === 'approved');
+              const hasUnifiedAccess = accessValid || studioAccessValid || isProfileAccessValid(profileData);
+              const healedProfile: UserProfile = {
+                ...profileData,
+                payment_status: profileData.payment_status || studioAccessData?.payment_status || (hasUnifiedAccess ? 'approved' : 'pending'),
+                access_status: profileData.access_status || studioAccessData?.access_status || (hasUnifiedAccess ? 'active' : 'blocked'),
+                paymentId: profileData.paymentId || studioAccessData?.paymentId,
+              };
+              setProfile(healedProfile);
+              setHasAccess(hasUnifiedAccess);
+              if (hasUnifiedAccess && (profileData.payment_status !== 'approved' || profileData.access_status !== 'active')) {
+                await setDoc(doc(db, 'users', firebaseUser.uid), {
+                  payment_status: healedProfile.payment_status,
+                  access_status: healedProfile.access_status,
+                  paymentId: healedProfile.paymentId,
+                  status: 'approved',
+                  updatedAt: serverTimestamp(),
+                }, { merge: true });
+              }
             } else {
               // Novo usuário — criar documento
               const newProfile: UserProfile = {
                 email:   firebaseUser.email || '',
                 nome:    firebaseUser.displayName || 'Sem Nome',
                 foto:    firebaseUser.photoURL || '',
-                status:  'pending',
+                status:  accessValid || studioAccessValid ? 'approved' : 'pending',
+                payment_status: studioAccessData?.payment_status || (accessValid ? 'approved' : 'pending'),
+                access_status: studioAccessData?.access_status || (accessValid || studioAccessValid ? 'active' : 'blocked'),
+                paymentId: studioAccessData?.paymentId,
                 isAdmin: false,
               };
               try {
@@ -150,14 +204,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.error('Erro ao criar perfil:', e);
                 setProfile(newProfile); // usa o local mesmo sem persistir
               }
-              setHasAccess(accessValid); // só libera se tiver access pago
+              setHasAccess(accessValid || studioAccessValid);
             }
           } else {
             // Falha na consulta de users — não bloqueia se access for válido
             console.warn('Falha ao consultar users:', (userSnap as any).reason);
             setProfile(null);
-            setHasAccess(accessValid);
-            if (!accessValid) {
+            setHasAccess(accessValid || studioAccessValid);
+            if (!accessValid && !studioAccessValid) {
               setProfileError('Erro ao verificar perfil. Tente novamente.');
             }
           }

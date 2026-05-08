@@ -148,6 +148,24 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
         createdAt:       serverTimestamp(),
         updatedAt:       serverTimestamp(),
       }, { merge: true });
+      await setDoc(doc(db, 'payment_access', email), {
+        email,
+        nome: email,
+        payment_status: 'approved',
+        access_status: 'active',
+        paymentId: 'admin_grant_' + Date.now(),
+        rawStatus: 'manual',
+        planPrice: 'R$ 19,00',
+        planPeriod: manualPlan === 'vitalicio' ? 'vitalicio' : 'mensal',
+        approvedAt: serverTimestamp(),
+        approvalDateBrasilia: new Date().toLocaleDateString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
       setManualMsg(`✓ Acesso liberado para ${email}`);
       setManualEmail('');
     } catch (e: any) {

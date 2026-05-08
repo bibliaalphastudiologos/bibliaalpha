@@ -3,8 +3,6 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signOut,
   browserLocalPersistence,
   setPersistence,
@@ -17,6 +15,7 @@ const app = initializeApp(firebaseConfig);
 export const db  = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId || '(default)');
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // Email do administrador principal — centralizado aqui para evitar repetição
 export const SUPER_ADMIN_EMAIL = 'analista.ericksilva@gmail.com';
@@ -31,31 +30,23 @@ export interface UserProfile {
   nome: string;
   foto: string;
   status: 'pending' | 'approved' | 'blocked';
+  payment_status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  access_status?: 'active' | 'blocked' | 'expired';
+  manual_access?: boolean;
+  approvalDateBrasilia?: string;
+  approvedAt?: unknown;
+  paymentId?: string;
   isAdmin?: boolean;
 }
 
 /**
  * Inicia o fluxo de login com Google.
- * Tenta popup primeiro; se bloqueado faz fallback para redirect.
+ * Mantém o fluxo no domínio atual para evitar mistura entre os produtos.
  */
 export async function loginWithGoogle(): Promise<void> {
   try {
     await signInWithPopup(auth, googleProvider);
   } catch (error: any) {
-    const code = error?.code ?? '';
-    if (
-      code === 'auth/popup-blocked' ||
-      code === 'auth/popup-closed-by-user' ||
-      code === 'auth/cancelled-popup-request'
-    ) {
-      try {
-        await signInWithRedirect(auth, googleProvider);
-      } catch (redirectError: any) {
-        console.error('Erro no redirect login:', redirectError);
-        throw redirectError;
-      }
-      return;
-    }
     console.error('Erro no login:', error);
     throw error;
   }
@@ -66,14 +57,5 @@ export async function logout(): Promise<void> {
 }
 
 export async function processRedirectResult(): Promise<void> {
-  try {
-    await getRedirectResult(auth);
-  } catch (error: any) {
-    if (
-      error?.code !== 'auth/popup-closed-by-user' &&
-      error?.code !== 'auth/cancelled-popup-request'
-    ) {
-      console.error('Erro no redirect result:', error);
-    }
-  }
+  return Promise.resolve();
 }
