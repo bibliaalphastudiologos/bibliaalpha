@@ -1,6 +1,6 @@
 name: Deploy to Firebase (Hosting + Functions)
 
-on:h
+on:
   push:
     branches: [main]
   workflow_dispatch:
