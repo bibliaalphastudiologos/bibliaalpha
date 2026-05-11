@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "sentinela-ai-489015",
+        "site": "bibliaalphadigital",
     "public": "dist",
     "ignore": [
       "firebase.json",
