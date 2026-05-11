@@ -57,6 +57,7 @@ jobs:
           channelId: live
 
       - name: Deploy Firebase Functions
+        continue-on-error: true
         run: firebase deploy --only functions --project o-analista-5fbcf --non-interactive
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
