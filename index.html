@@ -43,6 +43,7 @@
     <meta name="build" content="202604220218" />
   </head>
   <body>
+    <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }); }</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
