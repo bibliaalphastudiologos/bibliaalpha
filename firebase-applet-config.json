@@ -1,8 +1,10 @@
 {
   "projectId": "o-analista-5fbcf",
+  "appId": "1:550696312629:web:d3b18c5dc87d7c4adc767c",
   "apiKey": "AIzaSyAjQHYwYhoQL0nU14_mq0Xs_xqKySDRB2o",
   "authDomain": "o-analista-5fbcf.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
   "storageBucket": "o-analista-5fbcf.firebasestorage.app",
   "messagingSenderId": "550696312629",
-  "measurementId": ""
+  "measurementId": "G-94Z3LFZNXY"
 }

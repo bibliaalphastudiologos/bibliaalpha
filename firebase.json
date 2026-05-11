@@ -1,8 +1,18 @@
 {
   "hosting": {
-    "public": "dist",
-    "ignore": ["firebase.json","**/.*","**/node_modules/**"],
-    "rewrites": [{"source": "**","destination": "/index.html"}],
+    "site": "o-analista-5fbcf",
+    "public": "dist-bibliaalpha",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "headers": [
       {
         "source": "**/*.@(js|css|woff2|woff|ttf|eot)",
@@ -11,6 +21,7 @@
     ]
   },
   "firestore": {
+    "database": "(default)",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   }
