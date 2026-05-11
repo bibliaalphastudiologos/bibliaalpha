@@ -12,7 +12,7 @@ import * as crypto from "crypto";
 // ─── Inicialização ───────────────────────────────────────────────
 const app = admin.initializeApp();
 
-const FIRESTORE_DB = "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f";
+const FIRESTORE_DB = "(default)";
 const db = getFirestore(app, FIRESTORE_DB);
 
 // ─── Helpers para ler env vars ───────────────────────────────────
@@ -131,7 +131,7 @@ export const createMercadoPagoPreference = onRequest(
         externalReference, createdAt: now, updatedAt: now,
       });
 
-      const webhookUrl = `https://${REGION}-sentinela-ai-489015.cloudfunctions.net/mercadoPagoWebhook`;
+      const webhookUrl = `https://${REGION}-o-analista-5fbcf.cloudfunctions.net/mercadoPagoWebhook`;
 
       const mpResponse = await axios.post(
         "https://api.mercadopago.com/checkout/preferences",
