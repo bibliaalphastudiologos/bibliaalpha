@@ -1,10 +1,10 @@
 {
-  "projectId": "o-analista-5fbcf",
-  "appId": "1:550696312629:web:d3b18c5dc87d7c4adc767c",
-  "apiKey": "AIzaSyAjQHYwYhoQL0nU14_mq0Xs_xqKySDRB2o",
-  "authDomain": "o-analista-5fbcf.firebaseapp.com",
-  "firestoreDatabaseId": "(default)",
-  "storageBucket": "o-analista-5fbcf.firebasestorage.app",
-  "messagingSenderId": "550696312629",
-  "measurementId": "G-94Z3LFZNXY"
+  "projectId": "sentinela-ai-489015",
+  "appId": "1:188238488601:web:75eeebbb8df8a3a5673688",
+  "apiKey": "AIzaSyDWPOdxnpljzLKGqFwXDl53uyVeGh6T4dw",
+  "authDomain": "sentinela-ai-489015.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f",
+  "storageBucket": "sentinela-ai-489015.firebasestorage.app",
+  "messagingSenderId": "188238488601",
+  "measurementId": ""
 }

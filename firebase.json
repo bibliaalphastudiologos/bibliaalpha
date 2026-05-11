@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "o-analista-5fbcf",
+    "site": "biblia-alpha-digital",
     "public": "dist-bibliaalpha",
     "ignore": [
       "firebase.json",
@@ -21,7 +21,7 @@
     ]
   },
   "firestore": {
-    "database": "(default)",
+    "database": "ai-studio-d00d75cd-ea9b-4bf1-9db1-7ac14eff586f",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   }

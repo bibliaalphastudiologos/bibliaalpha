@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "vite build --outDir dist-bibliaalpha",
+    "preview": "vite preview --outDir dist-bibliaalpha",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
