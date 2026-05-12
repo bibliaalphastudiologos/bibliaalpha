@@ -965,3 +965,176 @@ nav.lg\:hidden {
 .word-editor a { color: #2563eb; text-decoration: underline; }
 .word-editor hr { border: none; border-top: 2px solid #e5e7eb; margin: 12px 0; }
 
+
+
+/* ══════════════════════════════════════════════════════
+   EBOOK READING EXPERIENCE — Maio 2026
+   Tipografia refinada · Aparência de livro impresso
+   ══════════════════════════════════════════════════════ */
+
+/* ── Fonts para leitura ── */
+@theme {
+  --font-serif:   'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: 'Cinzel', Georgia, serif;
+}
+
+/* ── Tema Sépia (papel aquecido) ── */
+html[data-theme="sepia"] {
+  --color-sleek-sidebar-bg:     #EDE0C8;
+  --color-sleek-border:         #D4C4A0;
+  --color-sleek-text-main:      #3A2E1E;
+  --color-sleek-text-muted:     #7D6A4F;
+  --color-sleek-accent:         #8B4513;
+  --color-sleek-hover:          #E5D5B8;
+  --color-sleek-bg:             #F5EDD8;
+  --color-sleek-surface:        #EDE0C8;
+  --color-sleek-reading-text:   #2D2218;
+  --color-sleek-comment-text:   #5C4A34;
+  --color-sleek-avatar-bg:      #DFD0B0;
+  --color-sleek-input-bg:       #F5EDD8;
+  --color-sleek-chapter-num:    #8B7355;
+  --color-sleek-scrollbar:      #C8B890;
+  --color-sleek-scrollbar-hover:#A89870;
+  --color-sleek-ring:           rgba(139,101,0,0.10);
+  --shadow-soft:                0 1px 4px rgba(80,50,10,0.10), 0 2px 12px rgba(80,50,10,0.07);
+  --shadow-panel:               0 4px 24px rgba(80,50,10,0.16), 0 1px 4px rgba(80,50,10,0.10);
+}
+html[data-theme="sepia"] body { background: #F5EDD8; }
+
+/* ── Leitura: tipografia de livro ── */
+.reading-text {
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+  font-family: var(--font-serif);
+  font-feature-settings: "liga" 1, "kern" 1, "onum" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.012em;
+  word-spacing: 0.04em;
+}
+
+/* ── Números de versículo: estilo bíblia impressa ── */
+.verse-number-sup {
+  font-size: 0.58em;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--color-sleek-chapter-num);
+  vertical-align: super;
+  line-height: 0;
+  margin-right: 0.18em;
+  margin-left: 0.08em;
+  letter-spacing: 0.01em;
+  opacity: 0.75;
+  user-select: none;
+  font-feature-settings: "tnum";
+}
+
+/* ── Cabeçalho de capítulo: estilo livro sagrado ── */
+.chapter-book-heading {
+  font-family: var(--font-display, var(--font-serif));
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-sleek-text-muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+.chapter-title-main {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-sleek-text-main);
+  font-style: italic;
+}
+.chapter-ornament {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-sleek-text-muted);
+  opacity: 0.35;
+  font-size: 18px;
+  margin: 16px 0;
+  user-select: none;
+}
+.chapter-ornament::before,
+.chapter-ornament::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+}
+
+/* ── Área de leitura: fundo de papel sutil ── */
+html:not([data-theme="dark"]):not([data-theme="graphite"]) .reading-paper-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(245,236,210,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(240,228,195,0.12) 0%, transparent 50%),
+    var(--color-sleek-bg);
+}
+html[data-theme="sepia"] .reading-paper-bg {
+  background:
+    radial-gradient(ellipse at 25% 60%, rgba(180,140,80,0.10) 0%, transparent 55%),
+    var(--color-sleek-bg);
+}
+
+/* ── Pausa de parágrafo: mais espaço, sem linha ── */
+.verse-paragraph-break {
+  display: block;
+  height: 1em;
+}
+
+/* ── Heading bíblico (ex: "Gênesis", "Criação") ── */
+.bible-section-heading {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: var(--color-sleek-text-muted);
+  margin: 1.4em 0 0.5em;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* ── Versículos: fundo de hover mais suave ── */
+[data-verse]:hover {
+  background: color-mix(in srgb, var(--color-sleek-hover) 45%, transparent);
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+
+/* ── Palavras de Jesus: vermelho mais elegante ── */
+html:not([data-theme="dark"]):not([data-theme="graphite"]) .text-sleek-accent {
+  color: #8B2020;
+}
+html[data-theme="sepia"] .text-sleek-accent {
+  color: #7A1E1E;
+}
+
+/* ── Navegação entre capítulos: mais elegante ── */
+.nav-chapter-btn {
+  font-family: var(--font-sans);
+  border-radius: 12px;
+  font-size: 13px;
+  padding: 8px 20px;
+  border: 1.5px solid var(--color-sleek-border);
+  background: var(--color-sleek-surface);
+  letter-spacing: 0.01em;
+}
+.nav-chapter-btn:hover {
+  background: var(--color-sleek-hover);
+  border-color: var(--color-sleek-text-muted);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* ── Sepia sidebar ── */
+html[data-theme="sepia"] div[class*="bg-sleek-sidebar-bg"] {
+  box-shadow: 1px 0 0 var(--color-sleek-border), 4px 0 16px rgba(80,50,10,0.08);
+}
+
+/* ── Fonte maior no md por padrão para EB Garamond (leitura confortável) ── */
+html[data-fontsize="md"]  { --reading-font-size: 19px; --reading-line-height: 1.78; }
+html[data-fontsize="lg"]  { --reading-font-size: 22px; --reading-line-height: 1.80; }
+html[data-fontsize="xl"]  { --reading-font-size: 26px; --reading-line-height: 1.82; }
