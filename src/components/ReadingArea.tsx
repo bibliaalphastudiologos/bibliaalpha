@@ -476,7 +476,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
             )}
             <sup
               onClick={!isSelectMode ? (e) => { e.stopPropagation(); setIsSelectMode(true); setSelectedVerses(new Set([item.number])); } : (e) => { e.stopPropagation(); toggleVerseSelection(item.number); }}
-              style={{ fontSize: '11px', color: isSelectMode ? (isSelected ? '#25D366' : 'var(--color-sleek-text-muted)') : 'var(--color-sleek-text-muted)', marginRight: '4px', userSelect: 'none', position: 'relative', cursor: 'pointer', transition: 'color 0.15s' }}
+              className="verse-number-sup" style={{ color: isSelectMode ? (isSelected ? '#25D366' : 'var(--color-sleek-text-muted)') : undefined, position: 'relative', cursor: 'pointer', transition: 'color 0.15s' }}
               title={isSelectMode ? (isSelected ? 'Remover da seleção' : 'Adicionar à seleção') : 'Selecionar versículo'}
             >
               {item.number}
@@ -552,7 +552,7 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
     if (item.type === 'heading') {
       return (
-        <h3 key={`h-${idx}`} className="font-sans text-[16px] sm:text-[18px] font-semibold text-sleek-text-main mt-5 mb-3">
+        <h3 key={`h-${idx}`} className="bible-section-heading">
           {item.content.map((c: any) => typeof c === 'string' ? c : (c.text || '')).join('')}
         </h3>
       );
@@ -718,16 +718,20 @@ export default function ReadingArea({ bookId, bookName, chapter, totalChapters =
 
       <div
         ref={readingRef}
-        className="px-6 sm:px-16 lg:px-24 py-8 sm:py-12 max-w-4xl mx-auto w-full text-left reading-text text-sleek-reading-text relative animate-fade-in"
+        className="px-6 sm:px-14 lg:px-20 py-8 sm:py-12 max-w-[700px] mx-auto w-full text-left reading-text text-sleek-reading-text relative animate-fade-in reading-paper-bg rounded-sm"
       >
-        <div className="pb-8 border-b border-sleek-border mb-8">
+        <div className="pb-6 mb-8" style={{borderBottom:'1px solid var(--color-sleek-border)'}}>
+          <p className="chapter-book-heading mb-2">{bookIndex >= 39 ? 'Novo Testamento' : 'Antigo Testamento'}</p>
           <h1
             onClick={onOpenBookList}
-            className="font-sans text-[36px] sm:text-[52px] font-bold text-sleek-text-main tracking-[-0.02em] leading-tight mb-6 cursor-pointer hover:opacity-80 transition-opacity"
+            className="chapter-title-main cursor-pointer hover:opacity-75 transition-opacity mb-1"
             title="Selecionar outro livro"
           >
-            {bookName} {chapter}
+            {bookName}
           </h1>
+          <p className="font-sans text-[13px] text-sleek-text-muted mb-5" style={{letterSpacing:'0.08em'}}>
+            Capítulo {chapter} {totalChapters > 1 ? <span style={{opacity:0.5}}>/ {totalChapters}</span> : ''}
+          </p>
 
           {totalChapters > 1 && (
             <div className="flex items-center gap-2 mb-8 overflow-x-auto custom-scrollbar pb-2">
