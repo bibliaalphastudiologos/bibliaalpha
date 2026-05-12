@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Layers, Minus, Plus, X, Type, ChevronDown } from 'lucide-react';
+import { Sun, Moon, Layers, Minus, Plus, X, Type, ChevronDown, BookOpen } from 'lucide-react';
 import { useTheme, Theme, FontSize } from '../App';
 import { cn } from '../App';
 
@@ -53,6 +53,18 @@ const THEMES: ThemeDef[] = [
     muted: '#72737A',
     border: '#313338',
     accent: '#E07B54',
+  },
+  {
+    id: 'sepia' as Theme,
+    label: 'Sépia',
+    desc: 'Papel aquecido',
+    icon: <BookOpen size={15} />,
+    bg: '#F5EDD8',
+    sidebar: '#EDE0C8',
+    text: '#3A2E1E',
+    muted: '#7D6A4F',
+    border: '#D4C4A0',
+    accent: '#8B4513',
   },
 ];
 
@@ -198,7 +210,7 @@ export default function ThemeControls({ open: propOpen, onClose: propOnClose }: 
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5" style={{ color: '#c9a96e' }}>
                   ◆ Tema de cor
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {THEMES.map(t => (
                     <ThemeCard key={t.id} t={t} active={theme === t.id} onSelect={() => setTheme(t.id)} />
                   ))}
@@ -261,7 +273,7 @@ export default function ThemeControls({ open: propOpen, onClose: propOnClose }: 
                     backgroundColor: current.sidebar,
                     fontSize: FONT_SIZES[fontIdx]?.px || '18px',
                     color: current.text,
-                    fontFamily: 'Georgia, serif',
+                    fontFamily: "'EB Garamond', Georgia, serif",
                   }}
                 >
                   &ldquo;Porque Deus amou o mundo...&rdquo;
