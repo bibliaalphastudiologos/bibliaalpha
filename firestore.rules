@@ -21,18 +21,19 @@ service cloud.firestore {
 
     function isValidUser(data) {
       let validEmail = data.get('email', '') is string && data.get('email', '').size() <= 200;
-      let validNome = data.get('nome', '') is string && data.get('nome', '').size() <= 200;
-      let validFoto = data.get('foto', '') is string && data.get('foto', '').size() <= 2000;
+      let validNome  = data.get('nome',  '') is string && data.get('nome',  '').size() <= 200;
+      let validFoto  = data.get('foto',  '') is string && data.get('foto',  '').size() <= 2000;
       let validStatus = data.get('status', '') in ['pending', 'approved', 'blocked'];
-      let validAdmin = !('isAdmin' in data) || data.isAdmin is bool;
+      let validAdmin  = !('isAdmin' in data) || data.isAdmin is bool;
       return validEmail && validNome && validFoto && validStatus && validAdmin;
     }
 
     // ── Usuários ──────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow list: if isAdmin();
+      allow read:  if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list:  if isAdmin();
 
+      // Usuário cria o próprio perfil ao fazer login
       allow create: if isSignedIn()
         && request.auth.uid == userId
         && isValidUser(request.resource.data)
@@ -43,16 +44,19 @@ service cloud.firestore {
         )
         && (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false || isSuperAdmin());
 
+      // Admin pode criar documento para qualquer usuário (ex: inserção manual)
+      allow create: if isAdmin();
+
       allow update: if isSignedIn()
         && isValidUser(request.resource.data)
         && (
           (isAdmin()
             && request.resource.data.diff(resource.data).affectedKeys()
-               .hasAny(['status', 'isAdmin', 'updatedAt', 'payment_status', 'access_status', 'paymentId', 'approvedAt', 'approvalDateBrasilia', 'manual_access']))
+               .hasAny(['status', 'isAdmin', 'updatedAt', 'nome', 'foto']))
           ||
           (request.auth.uid == userId
             && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['nome', 'foto', 'updatedAt', 'payment_status', 'access_status', 'paymentId', 'approvedAt', 'approvalDateBrasilia']))
+               .hasOnly(['nome', 'foto', 'updatedAt']))
         );
 
       allow delete: if isAdmin();
@@ -71,22 +75,22 @@ service cloud.firestore {
       }
     }
 
-    // ── Acessos (Mercado Pago + admin manual) ────────────────────
-    match /access/{docId} {
+    // ── Acessos (Mercado Pago / admin manual) ─────────────────────
+    match /access/{email} {
       allow read: if isSignedIn()
         && request.auth.token.email != null
-        && request.auth.token.email.lower() == docId;
-      allow read: if isAdmin();
-      allow write: if isAdmin(); // Admin pode liberar acesso manualmente
+        && request.auth.token.email.lower() == email;
+      allow read:  if isAdmin();
+      allow write: if isAdmin();   // Admin pode liberar/revogar acesso manualmente
     }
 
-    // ── Acesso via Studio Logos / payment_access ──────────────────
-    match /payment_access/{docId} {
+    // ── Payment Access (Studio Logos / legado) ────────────────────
+    match /payment_access/{email} {
       allow read: if isSignedIn()
         && request.auth.token.email != null
-        && request.auth.token.email.lower() == docId;
-      allow read: if isAdmin();
-      allow write: if isAdmin(); // Admin pode liberar acesso manualmente
+        && request.auth.token.email.lower() == email;
+      allow read:  if isAdmin();
+      allow write: if isAdmin();
     }
 
     // ── Orders ────────────────────────────────────────────────────
@@ -94,8 +98,8 @@ service cloud.firestore {
       allow read: if isSignedIn()
         && resource != null
         && resource.data.email == request.auth.token.email;
-      allow read: if isAdmin();
-      allow write: if false; // Somente Admin SDK (Cloud Functions)
+      allow read:  if isAdmin();
+      allow write: if false;  // Somente Admin SDK (Cloud Functions/backend)
     }
 
     match /{document=**} {
