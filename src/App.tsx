@@ -33,7 +33,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Theme Context
-export type Theme    = 'light' | 'dark' | 'graphite';
+export type Theme    = 'light' | 'dark' | 'graphite' | 'sepia';
 export type FontSize = 'sm' | 'md' | 'lg' | 'xl';
 
 interface ThemeContextValue {
