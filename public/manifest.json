@@ -1,20 +1,14 @@
 {
   "name": "Bíblia Alpha",
-  "short_name": "Bíblia Alpha",
+  "short_name": "Bíblia α",
   "description": "Bíblia de estudos com comentários clássicos, destaques e planos de leitura.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#1a1a1a",
-  "theme_color": "#1a1a1a",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "lang": "pt-BR",
   "icons": [
-    {
-      "src": "/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
@@ -25,7 +19,13 @@
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "screenshots": [],
